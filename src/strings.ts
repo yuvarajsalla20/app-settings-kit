@@ -4,6 +4,8 @@ export interface SettingsStrings {
   preferences: string;
   /** The Data Export row and page title. */
   dataExport: string;
+  /** @deprecated Not shown since 2.1.0 (Data Export is a row on Account with no heading). Kept so apps that pass it still compile. */
+  yourData?: string;
   /** The plan row and page title, until the app names it (VIP, Premium). */
   plan: string;
   /** Shown when a file could not be made. */

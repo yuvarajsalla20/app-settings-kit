@@ -48,11 +48,11 @@ export function AppSettings({ preferences, dataExport, plan, extraPages, order, 
     return { ...aboutIn, version, kits };
   }, [aboutIn, build, kitSources]);
   // The approved round Back button (in the theme's accent) and swipe-from-the-edge to go back, unless the app brings its own.
-  const theme = rest.theme;
-  const components = useMemo(
-    () => ({ BackButton: makeBackButton(theme), EdgeSwipe: EdgeSwipeBack, ...componentsIn }),
-    [theme, componentsIn],
-  );
+  // Made again only when a color it uses changes, so an app that writes its theme inline does not remount the button on every render.
+  const { accent, ink, text } = rest.theme;
+  const shadow = (rest.theme as { shadow?: string }).shadow;
+  const BackButton = useMemo(() => makeBackButton({ accent, ink, text, shadow }), [accent, ink, text, shadow]);
+  const components = useMemo(() => ({ BackButton, EdgeSwipe: EdgeSwipeBack, ...componentsIn }), [BackButton, componentsIn]);
   const words = useMemo(() => ({ ...DEFAULT_SETTINGS_STRINGS, ...settingsStrings }), [settingsStrings]);
   // Preferences is app-account-kit's App page under its new name, unless the app already renamed it.
   // The approved Title Case words ("Rate MyApp", "Contact Support"), then this kit's page names, then anything the app rewords.
