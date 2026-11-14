@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import pkg from '../package.json';
 import { KIT_VERSION } from '../src/kit';
-import { createOneAtATime, DEFAULT_ORDER, hubOrder, kitList, pinnedBuild, versionLines } from '../src/logic';
+import { missingAboutParts, titleCaseStrings, createOneAtATime, DEFAULT_ORDER, hubOrder, kitList, pinnedBuild, versionLines } from '../src/logic';
+import { finishesSwipe, isEdgeSwipe } from '../src/logic/swipe';
 
 describe('kits list', () => {
   it('reads the short commit a kit is pinned to', () => {
@@ -73,5 +74,27 @@ describe('one file at a time', () => {
 describe('kit version', () => {
   it('KIT_VERSION equals package.json', () => {
     expect(KIT_VERSION).toBe(pkg.version);
+  });
+});
+
+describe('the approved About page', () => {
+  it('names Rate and Share with the app, in Title Case', () => {
+    expect(titleCaseStrings('Moonpenny')).toMatchObject({ rate: 'Rate Moonpenny', share: 'Share Moonpenny', contactSupport: 'Contact Support', privacy: 'Privacy Policy' });
+  });
+
+  it('lists the parts an app leaves out', () => {
+    expect(missingAboutParts({})).toEqual(['logo', 'featuresUrl', 'rate', 'share', 'kits']);
+    expect(missingAboutParts({ logo: 1, featuresUrl: 'https://x', rate: {}, share: {}, kits: [] })).toEqual([]);
+  });
+});
+
+describe('swipe back', () => {
+  it('starts only at the left edge going right, and finishes when far enough or flicked', () => {
+    expect(isEdgeSwipe(10, 20, 2)).toBe(true);
+    expect(isEdgeSwipe(60, 20, 2)).toBe(false);
+    expect(isEdgeSwipe(10, 20, 30)).toBe(false);
+    expect(finishesSwipe(200, 0, 390)).toBe(true);
+    expect(finishesSwipe(40, 0.9, 390)).toBe(true);
+    expect(finishesSwipe(40, 0.1, 390)).toBe(false);
   });
 });

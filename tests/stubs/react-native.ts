@@ -25,3 +25,12 @@ export const AccessibilityInfo = {
 export const BackHandler = { addEventListener: () => ({ remove: () => {} }) };
 export const Linking = { openURL: async () => true };
 export const Share = { share: async () => ({}) };
+// Enough of Animated and PanResponder for the swipe-back wrapper to render.
+class AnimatedValue {
+  constructor(public value: number) {}
+  setValue(v: number) { this.value = v; }
+}
+const animation = { start: (done?: () => void) => done?.() };
+export const Animated = { Value: AnimatedValue, View: host('Animated.View'), spring: () => animation, timing: () => animation };
+export const PanResponder = { create: (handlers: Record<string, unknown>) => ({ panHandlers: {}, handlers }) };
+export const useWindowDimensions = () => ({ width: 390, height: 844 });

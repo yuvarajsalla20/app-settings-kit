@@ -30,13 +30,13 @@ const page = (row: PageRow | undefined, fallback: { id: string; label: string; i
 
 /**
  * The pages and the list order to hand to app-account-kit: the plan page and Data Export (when the app has them) plus the app's own pages.
- * The list is About, Account, Preferences, plan; pages not named in `order` follow. Data Export sits inside Account, under Your Data.
+ * The list is About, Account, Preferences, plan; pages not named in `order` follow. Data Export is a row inside Account.
  */
 export function assemblePages({ dataExport, plan, extraPages = [], order = DEFAULT_ORDER, strings }: Input): { extraPages: ExtraPage[]; hubOrder: string[] } {
   const ids = { export: dataExport?.row?.id ?? DEFAULT_IDS.export, plan: plan?.row?.id ?? DEFAULT_IDS.plan };
   const pages: ExtraPage[] = [];
   if (plan) pages.push(page(plan.row, { id: ids.plan, label: strings.plan, icon: 'award' }, plan.content));
-  // Data Export is a feature, not a parent: a row on Account under Your Data (with its Premium/VIP pill), and Back returns to Account.
+  // Data Export is a feature, not a parent: a row straight on Account (with its Premium/VIP pill), and Back returns to Account.
   if (dataExport) pages.push({ ...page(dataExport.row, { id: ids.export, label: strings.dataExport, icon: 'download' }, dataExport.content), under: 'account' });
   return { extraPages: [...pages, ...extraPages], hubOrder: hubOrder(order, ids) };
 }
