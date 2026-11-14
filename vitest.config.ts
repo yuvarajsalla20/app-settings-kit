@@ -1,0 +1,16 @@
+import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'vitest/config';
+
+const stub = (name: string) => fileURLToPath(new URL(`./tests/stubs/${name}.ts`, import.meta.url));
+
+export default defineConfig({
+  test: {
+    include: ['tests/**/*.test.{ts,tsx}'],
+    globals: false,
+    // app-account-kit ships TypeScript and JSX source, so let Vitest compile it like this kit's own code.
+    server: { deps: { inline: [/app-account-kit/] } },
+  },
+  esbuild: { jsx: 'automatic' },
+  resolve: { alias: { 'react-native': stub('react-native'), '@expo/vector-icons/Feather': stub('vector-icons') } },
+  define: { __DEV__: false },
+});
