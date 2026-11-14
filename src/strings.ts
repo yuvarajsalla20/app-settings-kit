@@ -4,6 +4,8 @@ export interface SettingsStrings {
   preferences: string;
   /** The Data Export row and page title. */
   dataExport: string;
+  /** The heading on Account above Data Export. */
+  yourData: string;
   /** The plan row and page title, until the app names it (VIP, Premium). */
   plan: string;
   /** Shown when a file could not be made. */
@@ -13,6 +15,7 @@ export interface SettingsStrings {
 export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   preferences: 'Preferences',
   dataExport: 'Data Export',
+  yourData: 'Your Data',
   plan: 'Plan',
   exportFailed: 'Could not create the file. Please try again.',
 };

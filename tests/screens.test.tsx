@@ -1,7 +1,8 @@
 import { SettingRow, SettingsGroup } from 'app-account-kit';
-import { Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { describe, expect, it, vi } from 'vitest';
 import { AppSettings, type AppSettingsProps } from '../src/AppSettings';
+import { useSettingsNav } from '../src';
 import { DataExportPage } from '../src/pages/DataExportPage';
 import { DEFAULT_SETTINGS_STRINGS as W } from '../src/strings';
 import type { ExportFormat } from '../src/types';
@@ -79,7 +80,7 @@ const rowsOnList = (texts: string[], names: string[]) => texts.filter((t) => nam
 describe('AppSettings', () => {
   const NAMES = ['About', 'Account', 'Preferences', 'Data Export', 'VIP', 'Plan', 'Family'];
 
-  it('lists About, Account, Preferences, Data Export, then the plan page, then the app\'s other pages', () => {
+  it('lists the four parents About, Account, Preferences, plan, then the app\'s other pages; Data Export is not on the list', () => {
     const h = mount(
       <AppSettings
         {...props()}
@@ -90,7 +91,7 @@ describe('AppSettings', () => {
       />,
       false,
     );
-    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Account', 'Preferences', 'Data Export', 'VIP', 'Family']);
+    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Account', 'Preferences', 'VIP', 'Family']);
   });
 
   it('hides what the app leaves out, and names the plan page "Plan" until the app names it', () => {
@@ -98,13 +99,30 @@ describe('AppSettings', () => {
     expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Account', 'Plan']);
   });
 
-  it('opens Data Export with its formats, and takes a custom order and words', async () => {
+  it('puts Data Export on Account under Your Data, opens its formats, and Back returns to Account', async () => {
     const strings = { dataExport: 'Downloads' };
     const h = mount(<AppSettings {...props()} settingsStrings={strings} order={['export', 'about']} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn() }} />, false);
-    expect(rowsOnList(h.texts(), [...NAMES, 'Downloads'])).toEqual(['Downloads', 'About', 'Account']);
+    expect(rowsOnList(h.texts(), [...NAMES, 'Downloads'])).toEqual(['About', 'Account']);
+    await press(h.byText('Account'));
+    expect(h.has('Your Data')).toBe(true);
     await press(h.byText('Downloads'));
     expect(h.has('CSV File')).toBe(true);
     expect(h.has('PDF Report')).toBe(true);
+    await press(h.byLabel('Back'));
+    expect(h.has('Your Data')).toBe(true);
+  });
+
+  it('opens Data Export from the plan page through useSettingsNav, and Back returns to the plan page', async () => {
+    function Perk() {
+      const nav = useSettingsNav();
+      return <Pressable accessibilityRole="button" accessibilityLabel="Open Data Export" onPress={() => nav?.open('export')}><Text>perk</Text></Pressable>;
+    }
+    const h = mount(<AppSettings {...props()} plan={{ id: 'vip', label: 'VIP', content: <Perk /> }} dataExport={{ formats: [csv()] }} />, false);
+    await press(h.byText('VIP'));
+    await press(h.byLabel('Open Data Export'));
+    expect(h.has('CSV File')).toBe(true);
+    await press(h.byLabel('Back'));
+    expect(h.has('perk')).toBe(true);
   });
 
   it("keeps the app's own name for Preferences when it already renamed it", () => {

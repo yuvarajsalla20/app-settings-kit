@@ -38,13 +38,15 @@ describe('version line', () => {
 });
 
 describe('row order', () => {
-  it('is About, Account, Preferences, Data Export, plan by default', () => {
-    expect(DEFAULT_ORDER).toEqual(['about', 'account', 'app', 'export', 'plan']);
-    expect(hubOrder()).toEqual(['about', 'account', 'app', 'export', 'plan']);
+  it('is the four parents About, Account, Preferences, plan by default', () => {
+    expect(DEFAULT_ORDER).toEqual(['about', 'account', 'app', 'plan']);
+    expect(hubOrder()).toEqual(['about', 'account', 'app', 'plan']);
+    // Data Export is never on the list, even when an older order names it.
+    expect(hubOrder(['about', 'account', 'app', 'export', 'plan'])).toEqual(['about', 'account', 'app', 'plan']);
   });
 
   it("puts in the app's own page ids and drops repeats", () => {
-    expect(hubOrder(undefined, { plan: 'vip' })).toEqual(['about', 'account', 'app', 'export', 'vip']);
+    expect(hubOrder(undefined, { plan: 'vip' })).toEqual(['about', 'account', 'app', 'vip']);
     expect(hubOrder(['plan', 'about', 'family', 'vip'], { plan: 'vip', export: 'files' })).toEqual(['vip', 'about', 'family']);
   });
 });
