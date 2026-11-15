@@ -1,19 +1,58 @@
 # app-settings-kit
 
-The standard Settings screen for React Native / Expo apps, in one config.
-Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit) (7.10 or later), which draws the screen itself. This kit adds what every app used to write by hand around it:
+The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-- the standard list, **four parents in every app: About** (the app), **Account** (you and your data), **Preferences** (how the app works) **and the plan page** (VIP, Premium: activate it), then any page of the app's own;
-- **features live inside a parent, never on the list.** Place a feature by what it is, not by what it costs; the plan pill shows the price wherever the row lives. Data Export is about your data, so by default it is a row called **Data Export** on **Account** (no heading above it), whether it is free or paid. An app can instead put it, and its own feature pages, on **Preferences** and call Account **Profile** (see [Profile and Preferences layout](#profile-and-preferences-layout-opt-in));
-- a **Data Export** page with **a lock per format** (one app keeps CSV free and locks PDF, another locks both);
-- the **Kits** list in About, with each kit's version and the commit the app pins ("Account Kit | v7.7.0 | Build 8613ded");
-- the **Version** line ("v4.18.0 | Build 12" and the build time) and the **build stamp** script for `app.config.js`.
+**Current version: 2.3.0** (tag `v2.3.0`). Needs app-account-kit **7.12.0** or later.
 
 No colors, no payment code and no export code of its own: the app passes its theme, its plan page and what each export makes. It does not depend on the payments, subscriptions or export kits.
 
+Part of the shared kits:
+[app-core-kit](https://github.com/yuvarajsalla20/app-core-kit) ·
+[app-auth-kit](https://github.com/yuvarajsalla20/app-auth-kit) ·
+[app-account-kit](https://github.com/yuvarajsalla20/app-account-kit) ·
+**app-settings-kit** ·
+[app-subscriptions-kit](https://github.com/yuvarajsalla20/app-subscriptions-kit) ·
+[app-payments-kit](https://github.com/yuvarajsalla20/app-payments-kit) ·
+[app-export-kit](https://github.com/yuvarajsalla20/app-export-kit)
 
+## Install
 
-## Build a new app: copy this and fill in the capitals
+```jsonc
+// package.json
+"dependencies": {
+  "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.12.0>",
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v2.3.0>"
+},
+"kitVersions": {
+  "app-account-kit": "v7.12.0",
+  "app-settings-kit": "v2.3.0"
+}
+```
+
+Pin the full commit SHA of a release tag so every build gets exactly the code you tested, and write the tag in `kitVersions`. Find a SHA with `git ls-remote https://github.com/yuvarajsalla20/app-settings-kit refs/tags/v2.3.0`.
+
+**Peer dependencies:** `app-account-kit` ≥ 7.12.0, `react` ≥ 18, `react-native` ≥ 0.74, `@expo/vector-icons` ≥ 14.
+
+## Entry points
+
+| Import | What it holds |
+|---|---|
+| `app-settings-kit` | `AppSettings`, `DataExportPage`, the Back button and swipe-back, the helpers, and `useSettingsNav` (re-exported from app-account-kit) |
+| `app-settings-kit/logic` | Pure helpers only, no React Native, for tests in plain Node |
+| `app-settings-kit/build-stamp` | `buildStamp()`, plain Node, for `app.config.js` |
+| `app-settings-kit/package.json` | The kit's `version`, for About > Kits |
+
+## The layout every app gets
+
+- **Main list:** About, Account, Preferences, the plan page, then any parent page of the app's own; then Sign Out and Delete Account.
+- **Features live inside a parent, never on the list.** Place a feature by what it is, not by what it costs; the plan pill shows the price wherever the row lives. Data Export is about the person's data, so by default it is a row called **Data Export** on Account. An app can instead put it on Preferences (see [Profile and Preferences layout](#profile-and-preferences-layout)).
+- **About:** the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support**, **Privacy Policy**; **Kits**, **Version**. Kits and Version fill themselves from `kitSources` and `build`. A missing part hides its row, and the kit warns in development.
+- **Wording:** approved Title Case words by default ("Rate MyApp", "Contact Support", "Privacy Policy", "Sign Out", "Delete Account", "We're Here to Help", "Write to Us"). Any of them can be changed through `strings`.
+- **Back:** a round 44 pt Back button in `theme.accent` with a `theme.ink` arrow, and swipe from the left edge to go back, on every page.
+
+Leave a prop out and its row is hidden (no `plan`: no plan page; no `dataExport`: no Data Export; no `preferences` and no page under it: no Preferences).
+
+## Quick start
 
 Words in CAPITALS are each app's own values. Everything else is the kit.
 
@@ -21,28 +60,28 @@ Words in CAPITALS are each app's own values. Everything else is the kit.
 import { AppSettings } from 'app-settings-kit';
 
 <AppSettings
-  theme={APP_THEME}                        // the app's colors (app-account-kit's AccountTheme; the kit has none)
-  components={{ Text, TextInput, Card }}   // optional: the app's font and cards (the round Back button and edge swipe are built in)
-  brand={<APP_BRAND_BAR />}
+  theme={APP_THEME}                        // app-account-kit's AccountTheme (the kit has no colors)
+  components={{ Text, TextInput, Card }}   // optional: the app's font and cards
+  brand={<APP_BRAND_BAR />}                // optional
   onBack={GO_HOME}
   profile={{ name: NICKNAME, fallbackName: APP_NAME, email: EMAIL, photo: PHOTO }}
   nickname={{ max: MAX_NICKNAME, onSave: SAVE_NICKNAME }}
-  photo={{ pick: PICK_PHOTO, onChange: SAVE_PHOTO, cameraSupported }}
+  photo={{ pick: PICK_PHOTO, onChange: SAVE_PHOTO, cameraSupported: true }}
   password={HAS_PASSWORD ? { onChange: CHANGE_PASSWORD } : undefined}
   about={{
     appName: APP_NAME,
     logo: APP_ICON,
+    featuresUrl: FEATURES_URL,
     privacyUrl: PRIVACY_URL,
-    featuresUrl: FEATURES_URL,             // optional
     supportEmail: SUPPORT_EMAIL,
     share: { url: APP_STORE_URL },
     rate: { appStoreId: APP_STORE_ID },
   }}
-  build={{ version: APP_VERSION, buildNumber: STORE_BUILD_NUMBER, stamp: BUILD_STAMP }}   // fills About > Version
-  kitSources={{ dependencies: APP_PACKAGE_JSON.dependencies, kits: KITS_USED }}            // fills About > Kits
+  build={{ version: APP_VERSION, buildNumber: STORE_BUILD_NUMBER, stamp: BUILD_STAMP }}  // fills About > Version
+  kitSources={{ dependencies: APP_PACKAGE_JSON.dependencies, kits: KITS_USED }}           // fills About > Kits
   actions={{ onSignOut: SIGN_OUT, onDeleteAccount: DELETE_ACCOUNT, confirmsWithPassword: NEEDS_PASSWORD }}
   onError={REPORT_ERROR}
-  preferences={APP_OWN_ROWS}               // the Preferences page: SettingsGroup + SettingRow from app-account-kit
+  preferences={APP_OWN_ROWS}               // SettingsGroup + SettingRow from app-account-kit
   dataExport={{
     formats: [
       { id: 'csv', label: 'CSV File', icon: 'file-text', tint: TINT, onExport: MAKE_CSV, locked: CSV_LOCKED },
@@ -51,99 +90,142 @@ import { AppSettings } from 'app-settings-kit';
     onLocked: OPEN_PLANS,
   }}
   plan={{ id: 'premium', label: PLAN_NAME, icon: 'award', tint: TINT, value: CURRENT_PLAN_WORD, badge: PLAN_PILL, content: PLAN_PAGE }}
-  extraPages={APP_EXTRA_PAGES}             // optional, such as Connect as Family (add under: 'preferences' to put it inside Preferences)
-  // dataExportIn="preferences"              (optional; default "account")
-  // settingsStrings={{ account: 'Profile' }} (optional; default "Account")
-  // order={['about', 'account', 'app', 'plan']}   (the default; "app" is Preferences; Data Export is never on the list)
+  extraPages={APP_EXTRA_PAGES}             // optional
 />
 ```
 
-How two apps fill it in:
+`KITS_USED` is a list of `{ name, pkg, version }`, one per kit:
 
-| Placeholder | Moonpenny | HringNring |
+```ts
+import account from 'app-account-kit/package.json';
+import settings from 'app-settings-kit/package.json';
+
+const KITS_USED = [
+  { name: 'Account Kit', pkg: 'app-account-kit', version: account.version },
+  { name: 'Settings Kit', pkg: 'app-settings-kit', version: settings.version },
+];
+// About > Kits shows "Account Kit | v7.12.0 | Build 874b317", the build read from the app's package.json pin.
+```
+
+`PLAN_PAGE` is usually app-subscriptions-kit's `PremiumPage`, and `MAKE_CSV` / `MAKE_PDF` usually call app-export-kit.
+
+## `AppSettings` props
+
+Every app-account-kit `SettingsScreen` prop passes straight through (`theme`, `strings`, `components`, `brand`, `onBack`, `profile`, `nickname`, `photo`, `password`, `data`, `actions`, `describeError`, `actionTimeoutMs`, `onError`). On top of those:
+
+| Prop | Type | Notes |
 |---|---|---|
-| APP_NAME, APP_THEME | Moonpenny, moon gold on night | HringNring, teal glass |
-| components | text | text, glass cards |
-| APP_OWN_ROWS | Currency, Categories | reminder settings |
-| CSV_LOCKED | `false` (free) | `!premium` |
-| PDF_LOCKED | `!canUse('pdfReport')` | `!premium` |
-| PLAN_NAME, PLAN_PILL | VIP, Lite/VIP pill | Premium, Free/Monthly/Yearly pill |
-| PLAN_PAGE | subscriptions kit `PremiumPage` | its Premium settings |
-| APP_EXTRA_PAGES | Connect as Family (`under: 'preferences'`) | none |
-| Account row / Data Export | **Profile**; Data Export in Preferences | Account; Data Export in Account (default) |
-| KITS_USED | Core, Auth, Account, Settings, Subscriptions, Payments, Export, Invite | Core, Auth, Account, Settings, Subscriptions, Payments, Export |
+| `about` | app-account-kit `AboutProps` | `version` and `kits` may be left out when `build` and `kitSources` are passed. Values the app passes still win |
+| `build` | `{ version, buildNumber?, stamp?, fallbackStamp?, buildWord? }` | Fills About > Version as "v1.2.0 \| Build 12" and the build time ("dev build" in a local run) |
+| `kitSources` | `{ dependencies, kits: { name, pkg, version }[] }` | Fills About > Kits, each build read from its pin |
+| `preferences` | `ReactNode` | The app's own settings rows |
+| `dataExport` | `DataExportConfig` | The Data Export page (see below) |
+| `dataExportIn` | `'account' \| 'preferences'` | Where the Data Export row lives. Default `'account'` |
+| `plan` | `PlanConfig` | The plan page: `{ content, id?, label?, icon?, tint?, value?, badge? }` |
+| `extraPages` | `ExtraPage[]` | The app's own pages. `under: 'preferences'` or `'account'` puts one inside that parent; left out, it is a parent on the list |
+| `order` | `string[]` | The list order. Default `['about', 'account', 'app', 'plan']` (`DEFAULT_ORDER`; `'app'` is Preferences). Use an extra page's id to place it. Data Export is never on the list |
+| `settingsStrings` | `Partial<SettingsStrings>` | This kit's words: `preferences`, `account`, `dataExport`, `plan`, `exportFailed` |
 
-Leave a prop out and its row is hidden (no `plan`: no plan page; no `dataExport`: no Data Export).
+`strings.app` and `strings.account` (app-account-kit's words) win over `settingsStrings.preferences` and `settingsStrings.account` when both are set.
 
-## Profile and Preferences layout (opt-in)
+## Data Export
 
-Since 2.2.0 an app can choose this layout, with no change for apps that do not ask for it:
+```ts
+interface ExportFormat {
+  id: string;                 // unique on the page: 'csv', 'pdf'
+  label: string;
+  detail?: string;            // a smaller second line
+  icon: IconName;
+  tint: string;
+  locked?: boolean;           // each format has its own lock
+  lockedDetail?: string;      // line under the label while locked (default: detail)
+  lockedValue?: string;       // read out while locked, such as "Premium only, locked"
+  lockedBadge?: ReactNode;    // drawn on the right while locked
+  onExport: () => Promise<unknown>;
+}
+```
 
-- **Profile** in place of Account: `settingsStrings={{ account: 'Profile' }}` (or `strings.account`, which wins when both are set).
-- **Data Export inside Preferences**: `dataExportIn="preferences"`. The row sits on Preferences under the app's own settings, with its pill, and Back returns to Preferences.
-- **The app's own feature pages inside Preferences**: give the `extraPages` entry `under: 'preferences'` (Connect as Family). It is a row on Preferences, after Data Export, in the order passed; Back returns to Preferences. `under: 'account'` puts one on Account the same way.
+`dataExport` also takes `onLocked` (usually opens the plans), `onError`, `onProblem` (show the failure yourself) or `renderProblem` (drawn under the card), `Row` (your own row design, which gets `{ format, last, onPress }`), and the row fields `id`, `label`, `icon`, `tint`, `value`, `badge`.
+
+The page makes one file at a time. A locked format shows a padlock (from `theme.lock`) and a tap calls `onLocked`; an open one shows a download icon. A failure goes to `onError` and shows "Could not create the file. Please try again."
+
+`DataExportPage` can also be used on its own.
+
+To open Data Export from another page (a perk row on the plan page), call `useSettingsNav()?.open(DEFAULT_IDS.export)` (or the id you gave it). Back then returns to the page that opened it.
+
+## Profile and Preferences layout
+
+An app can choose this layout. Apps that set none of these options keep the default.
+
+- **Profile** in place of Account: `settingsStrings={{ account: 'Profile' }}`.
+- **Data Export inside Preferences:** `dataExportIn="preferences"`. The row sits on Preferences under the app's own settings, and Back returns to Preferences.
+- **The app's own feature pages inside Preferences:** give the `extraPages` entry `under: 'preferences'`. Add `group: 'On Your iPhone'` for a titled card of its own.
 
 ```tsx
 <AppSettings
   {...EVERYTHING_ELSE}
   settingsStrings={{ account: 'Profile' }}
-  preferences={CURRENCY_AND_CATEGORIES_ROWS}
+  preferences={APP_OWN_ROWS}
   dataExportIn="preferences"
   dataExport={{ formats: [...] }}
-  extraPages={[{ id: 'family', label: 'Connect as Family', icon: 'users', content: FAMILY_PAGE, under: 'preferences' }]}
+  extraPages={[
+    { id: 'family', label: 'Connect as Family', icon: 'users', content: FAMILY_PAGE, under: 'preferences' },
+    { id: 'widgets', label: 'Home Screen Widgets', icon: 'grid', content: WIDGETS_PAGE, under: 'preferences', group: 'On Your iPhone' },
+  ]}
 />
 ```
 
-The list stays About, Profile, Preferences, plan. Preferences shows the app's rows, then a card with Data Export and Connect as Family. If the app passes no `preferences` rows but puts a page there, Preferences still shows with just those rows. `useSettingsNav().open('export')` still opens Data Export from the plan page wherever it lives. Needs app-account-kit 7.10.0 (`under: 'app'`).
+The list stays About, Profile, Preferences, plan. If the app passes no `preferences` rows but puts a page there, Preferences still shows with just those rows.
 
-## The approved About page
+## Theming
 
-About, the same in every app: the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support**, **Privacy Policy**; **Kits**, **Version**. Pass `logo`, `featuresUrl`, `rate` and `share` in `about`, and the kit fills the last two rows itself: `build={{ version, buildNumber, stamp }}` makes Version, and `kitSources={{ dependencies: pkg.dependencies, kits: [...] }}` makes Kits (an `about.version` or `about.kits` the app passes still wins). A missing part hides its row, and the kit warns in development.
+The kit uses app-account-kit's `AccountTheme` and adds no colors of its own (a test fails on a color literal in `src/`). Two theme values matter here:
 
-Every page also gets the approved round **Back button** (a 44 pt circle in `theme.accent` with a `theme.ink` arrow and a soft shadow, `theme.shadow` if the theme has one) and **swipe from the left edge to go back**, unless the app passes its own `components.BackButton` or `components.EdgeSwipe`. Use the same parts on the app's own inner screens so every Back looks alike: `const BackButton = makeBackButton(APP_THEME)` and `<EdgeSwipeBack onBack={...}>`. The colors, cards and background still come from the app's `theme`, `components` and screen.
+- `theme.lock` (`{ icon, circle }`) colors the padlock on locked export formats.
+- An optional `shadow` color on the theme object gives the round Back button its shadow.
 
-## What you get
+Pass `components.BackButton` or `components.EdgeSwipe` to replace the built-in Back button or swipe-back.
 
-| Part | What it does | App passes |
-|---|---|---|
-| `AppSettings` | app-account-kit's `SettingsScreen` with the four parents in the standard order, and Data Export as a row on Account (or Preferences with `dataExportIn`). Every app-account-kit prop passes straight through. | everything above |
-| `DataExportPage` | One row per format. Locked: the lock's words and badge, and a tap calls `onLocked`. Open: a tap makes the file. One file at a time; a failure goes to `onError` and shows "Could not create the file. Please try again." | `formats`, `onLocked`, and `onProblem` (show it yourself) or `renderProblem` (drawn under the card) |
-| `kitList(deps, kits)` | The About > Kits list from the app's package.json pins | the app's `dependencies`, and each kit's name, npm name and version |
-| `versionLines(...)` | `{ lines, label }` for About > Version | version, store build number, build stamp |
-| `build-stamp.js` | "Nov 14, 2026 \| 10:45 AM CT" at build time | optional `{ timeZone, zoneNames }` |
-| `hubOrder`, `DEFAULT_ORDER` | The list order with the app's page ids | optional `order` |
-| `makeBackButton(theme)`, `EdgeSwipeBack` | The approved round Back button and swipe-back (the defaults in Settings), for the app's own screens; `SWIPE_BACK`, `isEdgeSwipe`, `finishesSwipe` in `/logic` | the theme; `onBack` |
-| `useSettingsNav()` | From the app's own page (the plan page), `open(id)` opens another Settings page, such as Data Export from a perk row; Back returns to the page that opened it | the page id (`DEFAULT_IDS.export` unless the app named it) |
+**The same Back on your own screens:**
 
-### Export formats
+```tsx
+import { EdgeSwipeBack, makeBackButton } from 'app-settings-kit';
 
-```ts
-interface ExportFormat {
-  id: string; label: string; detail?: string; icon: IconName; tint: string;
-  locked?: boolean;          // each format has its own lock
-  lockedDetail?: string;     // line under the label while locked (default: detail)
-  lockedValue?: string;      // read out while locked, such as "VIP only, locked"
-  lockedBadge?: ReactNode;   // drawn on the right while locked
-  onExport: () => Promise<unknown>;
-}
+export const BackButton = makeBackButton(APP_THEME);   // uses accent, ink, text and optional shadow
+
+<EdgeSwipeBack onBack={goBack}>
+  <BackButton onPress={goBack} label="Back" />
+  {/* your screen */}
+</EdgeSwipeBack>
 ```
 
-An app with its own row design passes `dataExport.Row` (gets `{ format, last, onPress }`).
-
-### Build stamp
+## Build stamp
 
 ```js
 // app.config.js (plain Node)
 const { buildStamp } = require('app-settings-kit/build-stamp');
+
 module.exports = ({ config }) => ({ ...config, extra: { ...config.extra, buildStamp: buildStamp() } });
-// another zone: buildStamp(new Date(), { timeZone: 'Asia/Kolkata', zoneNames: { 'GMT+5:30': 'IST' } })
+// "Nov 15, 2026 | 9:00 AM CT". Another zone:
+// buildStamp(new Date(), { timeZone: 'Asia/Kolkata', zoneNames: { 'GMT+5:30': 'IST' } })
 ```
 
-The app reads it back with `expo-constants` (`Constants.expoConfig?.extra?.buildStamp`) and the store build number with `expo-application` (`Application.nativeBuildVersion`), and passes both to `versionLines`.
+Read it back in the app with `Constants.expoConfig?.extra?.buildStamp` (`expo-constants`), and the store build number with `Application.nativeBuildVersion` (`expo-application`), then pass both in `build`.
 
-### Words
+## Helpers
 
-`settingsStrings` rewords this kit: `preferences` ("Preferences"), `account` (optional, such as "Profile"; default app-account-kit's "Account"), `dataExport` ("Data Export"), `plan` ("Plan"), `exportFailed`. app-account-kit's own words go through `strings` as before; if `strings.app` or `strings.account` is set it wins over `preferences` or `account`.
+| Export | What it does |
+|---|---|
+| `kitList(dependencies, kits)` | The About > Kits list from the app's package.json pins |
+| `pinnedBuild(spec)` | The short commit a dependency is pinned to |
+| `versionLines(parts)` | `{ lines, label }` for About > Version |
+| `hubOrder(order?, ids?)`, `DEFAULT_ORDER`, `DEFAULT_IDS` | The main list order with the app's page ids |
+| `titleCaseStrings(appName)` | The approved Title Case words for app-account-kit |
+| `missingAboutParts(about)` | Which About parts are missing (picture, Features, Rate, Share, Kits) |
+| `createOneAtATime()` | The "one export at a time" guard |
+| `SWIPE_BACK`, `isEdgeSwipe`, `finishesSwipe` | The swipe-back rules |
+| `BACK_BUTTON` | The Back button's size, icon size and hit slop |
+| `assemblePages` | Which pages, in which order (used by `AppSettings`) |
 
 ## Folder layout
 
@@ -153,32 +235,30 @@ src/
   AppSettings.tsx     the screen: passes everything to app-account-kit, adds this kit's pages
   assemble.ts         which pages, in which order (pure)
   pages/DataExportPage.tsx
-  strings.ts  types.ts  kit.ts
-  logic/              pure functions, no React Native (app-settings-kit/logic)
-    kits.ts  version.ts  order.ts  oneAtATime.ts
-tests/                logic, build stamp, no colors, and the real screens rendered with a small react-native stand-in
+  parts/              BackButton, EdgeSwipeBack
+  strings.ts types.ts kit.ts
+  logic/              pure functions (app-settings-kit/logic): about, kits, version, order, oneAtATime, swipe
+tests/                logic, build stamp, no colors, and the real screens rendered with a small React Native stand-in
 ```
 
 ## Rules it follows
 
-- No colors in `src/` (a test fails on a color literal). Every color comes from the app's theme.
-- No dependency on the payments, subscriptions or export kits: they connect through `locked`, `onExport`, `onLocked` and the plan page `content`.
+- No colors in `src/`. Every color comes from the app's theme.
+- No dependency on the payments, subscriptions or export kits. They connect through `locked`, `onExport`, `onLocked` and the plan page `content`.
 - Every word can be changed. Every page is optional.
 - Define `theme`, `strings`, `settingsStrings` and `components` once, outside your component.
+- New options default to the old behavior.
 
-## Install
+## Development
 
-```json
-"app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full commit SHA>"
+```bash
+npm install
+npm run typecheck
+npm test
 ```
 
-Pin a full commit SHA and note the tag in `kitVersions`. Peer dependencies: `app-account-kit` (7.10.0 or later), `react`, `react-native`.
+The dev dependency on app-account-kit is pinned to a commit; move it when the peer range moves. To release: bump `version` in `package.json` and `KIT_VERSION` in `src/kit.ts`, add an entry to [CHANGELOG.md](CHANGELOG.md), merge, then tag the merged commit.
 
-## Versions
+## Changelog
 
-- 2.3.0 (2026-11-15): **Contact Support page in Title Case.** app-account-kit 7.12.0 opens Contact Support as its own page; this kit gives it the approved words "We're Here to Help" and "Write to Us". Needs app-account-kit 7.12.0 (peer dependency raised from 7.10.0).
-- 2.2.0 (2026-11-15): **Profile and Preferences layout, opt-in.** New `dataExportIn` (`'account'` default, or `'preferences'`), new optional `settingsStrings.account` ("Profile"), and `extraPages` entries take `under: 'preferences'` (or `'account'`), so Data Export and an app's own pages such as Connect as Family can live inside Preferences with Back returning there. New types `DataExportPlace` and `AccountExtraPage`. Needs app-account-kit 7.10.0 (peer dependency raised from 7.9.0; 7.10.0 changes nothing for apps that do not use it). An app that sets none of the new options sees exactly what 2.1.0 showed.
-- 2.1.0 (2026-11-14): **the approved About page by default.** Every app gets HringNring's approved words in Title Case ("Rate MyApp", "Share MyApp", "Contact Support", "Privacy Policy", "Sign Out", "Delete Account"...) without passing them; `strings` still rewords any of them. In development a warning names any About part the app leaves out (picture, Features, Rate, Share, Kits), since each one hides a row. Data Export is now a plain row on Account called **Data Export**, with no "Your Data" heading (needs app-account-kit 7.9.0; `settingsStrings.yourData` is no longer shown but still accepted). Version and Kits fill themselves from new `build` and `kitSources` props. Each Data Export format row has the approved look: a gold padlock while locked, a download icon once open (needs the app's `theme.lock`). The round Back button and swipe-back are the defaults (new `makeBackButton`, `EdgeSwipeBack`, `BACK_BUTTON`, `SWIPE_BACK`). New `titleCaseStrings(appName)` and `missingAboutParts(about)`. Needs `@expo/vector-icons` (every Expo app has it). Upgrading changes what other apps show: the round Back button, swipe-back and Title Case words arrive by default (pass `components.BackButton` / `components.EdgeSwipe` or `strings` to keep your own). The Back button is made again only when one of its colors changes, and a second quick swipe while the page slides away is ignored.
-- 2.0.0 (2026-11-14): **four parents.** The list is About, Account, Preferences, plan. Data Export moves off the list onto Account, under Your Data (new string `yourData`); "export" in `order` is ignored. New `useSettingsNav()` for shortcuts (the plan page's Data Export perk). Needs app-account-kit 7.8.0. Upgrading from 1.x: drop "export" from `order` if you set one; nothing else to change.
-- 1.0.0 (2026-11-14): first release. Same Settings as HringNring: About, Account, Preferences, Data Export (lock per format), plan page; kits list; version line; build stamp.
-- Later releases stay backward compatible: a new option defaults to the old behavior.
+See [CHANGELOG.md](CHANGELOG.md).
