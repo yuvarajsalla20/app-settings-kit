@@ -1,8 +1,18 @@
 import type { ComponentType, ReactNode } from 'react';
 import type { IconName, SettingsScreenProps } from 'app-account-kit';
 
-/** A page the app adds to the list (app-account-kit's `extraPages` entry). */
-export type ExtraPage = NonNullable<SettingsScreenProps['extraPages']>[number];
+/** app-account-kit's own `extraPages` entry, as handed to `SettingsScreen`. */
+export type AccountExtraPage = NonNullable<SettingsScreenProps['extraPages']>[number];
+
+/**
+ * A page the app adds (app-account-kit's `extraPages` entry). `under` places it:
+ * left out, a parent on the list; `'account'`, a row on Account; `'preferences'` (or app-account-kit's `'app'`), a row on Preferences (since 2.2.0).
+ * Back from a page inside a parent returns to that parent.
+ */
+export type ExtraPage = Omit<AccountExtraPage, 'under'> & { under?: AccountExtraPage['under'] | 'preferences' };
+
+/** Where the Data Export row lives: on Account (the default) or on Preferences. */
+export type DataExportPlace = 'account' | 'preferences';
 
 /** One file the Data Export page can make. */
 export interface ExportFormat {

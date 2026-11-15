@@ -2,6 +2,11 @@
 export interface SettingsStrings {
   /** The row and page for the app's own settings (app-account-kit's "App" page). */
   preferences: string;
+  /**
+   * The Account row and page title, such as "Profile" (since 2.2.0). Left out: app-account-kit's own word, "Account".
+   * `strings.account` still wins when the app sets both.
+   */
+  account?: string;
   /** The Data Export row and page title. */
   dataExport: string;
   /** @deprecated Not shown since 2.1.0 (Data Export is a row on Account with no heading). Kept so apps that pass it still compile. */

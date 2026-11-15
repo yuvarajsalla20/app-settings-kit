@@ -1,7 +1,7 @@
 {
   "name": "app-settings-kit",
-  "version": "2.1.0",
-  "description": "The standard Settings screen for React Native / Expo apps, built on app-account-kit: About, Account, Preferences and a plan page in one config, with Data Export inside Account. Adds the kits list, the version and build line, the build-time stamp and a Data Export page with a lock per format. No colors and no payment or export code of its own.",
+  "version": "2.2.0",
+  "description": "The standard Settings screen for React Native / Expo apps, built on app-account-kit: About, Account, Preferences and a plan page in one config, with Data Export inside Account (or Preferences). Adds the kits list, the version and build line, the build-time stamp and a Data Export page with a lock per format. No colors and no payment or export code of its own.",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
@@ -23,7 +23,7 @@
   "author": "Yuvaraj Salla",
   "peerDependencies": {
     "@expo/vector-icons": ">=14",
-    "app-account-kit": ">=7.9.0",
+    "app-account-kit": ">=7.10.0",
     "react": ">=18",
     "react-native": ">=0.74"
   },
@@ -32,7 +32,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "~19.3.0",
     "@types/react-test-renderer": "^19.3.1",
-    "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#d6ef32e6025b031005ee7e3685c2f9429b03154d",
+    "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#d92c474a8c5f47379c66cacd00556c5d138b0da9",
     "react": "19.3.0",
     "react-native": "0.88.1",
     "react-test-renderer": "19.3.0",
