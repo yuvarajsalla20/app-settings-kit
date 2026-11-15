@@ -79,7 +79,7 @@ describe('kit version', () => {
 
 describe('the approved About page', () => {
   it('names Rate and Share with the app, in Title Case', () => {
-    expect(titleCaseStrings('Moonpenny')).toMatchObject({ rate: 'Rate Moonpenny', share: 'Share Moonpenny', contactSupport: 'Contact Support', privacy: 'Privacy Policy' });
+    expect(titleCaseStrings('Moonpenny')).toMatchObject({ rate: 'Rate Moonpenny', share: 'Share Moonpenny', contactSupport: 'Contact Support', privacy: 'Privacy Policy', supportTitle: "We're Here to Help", writeToUs: 'Write to Us' });
   });
 
   it('lists the parts an app leaves out', () => {
