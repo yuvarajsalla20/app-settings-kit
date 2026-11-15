@@ -16,6 +16,8 @@ export const titleCaseStrings = (appName: string): Partial<AccountStrings> => ({
   confirmPassword: 'Confirm Password',
   privacy: 'Privacy Policy',
   contactSupport: 'Contact Support',
+  supportTitle: "We're Here to Help",
+  writeToUs: 'Write to Us',
   rate: `Rate ${appName}`,
   share: `Share ${appName}`,
   signOut: 'Sign Out',
