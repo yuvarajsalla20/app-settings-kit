@@ -28,6 +28,12 @@ describe('Data Export page', () => {
     expect(onLocked).toHaveBeenCalledTimes(1);
   });
 
+  it('draws the approved rows: a padlock while locked, a download icon once open', () => {
+    const h = mount(<DataExportPage formats={[csv(), pdf({ locked: true })]} />);
+    const icons = h.root.root.findAll((n) => n.type === 'Icon').map((n) => n.props.name);
+    expect(icons).toEqual(['file-text', 'download', 'file', 'lock']);
+  });
+
   it('makes one file at a time', async () => {
     let finish!: () => void;
     const slow = csv({ onExport: vi.fn(() => new Promise<void>((r) => (finish = r))) });
@@ -99,17 +105,18 @@ describe('AppSettings', () => {
     expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Account', 'Plan']);
   });
 
-  it('puts Data Export on Account under Your Data, opens its formats, and Back returns to Account', async () => {
+  it('puts Data Export straight on Account with no heading, opens its formats, and Back returns to Account', async () => {
     const strings = { dataExport: 'Downloads' };
     const h = mount(<AppSettings {...props()} settingsStrings={strings} order={['export', 'about']} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn() }} />, false);
     expect(rowsOnList(h.texts(), [...NAMES, 'Downloads'])).toEqual(['About', 'Account']);
     await press(h.byText('Account'));
-    expect(h.has('Your Data')).toBe(true);
+    expect(h.has('Your Data')).toBe(false);
+    expect(h.has('Your data')).toBe(false);
     await press(h.byText('Downloads'));
     expect(h.has('CSV File')).toBe(true);
     expect(h.has('PDF Report')).toBe(true);
     await press(h.byLabel('Back'));
-    expect(h.has('Your Data')).toBe(true);
+    expect(h.has('Downloads')).toBe(true);
   });
 
   it('opens Data Export from the plan page through useSettingsNav, and Back returns to the plan page', async () => {
@@ -123,6 +130,43 @@ describe('AppSettings', () => {
     expect(h.has('CSV File')).toBe(true);
     await press(h.byLabel('Back'));
     expect(h.has('perk')).toBe(true);
+  });
+
+  it('draws the approved About: Title Case words with the app name in Rate and Share', async () => {
+    const h = mount(<AppSettings {...props()} about={{ ...props().about, featuresUrl: 'https://x.y/features', rate: { appStoreId: '1' }, share: { url: 'https://x.y' }, kits: [{ name: 'Core Kit', version: '1.0.0' }] }} />, false);
+    await press(h.byText('About'));
+    for (const word of ['Features', 'Contact Support', 'Privacy Policy', 'Kits', 'Version']) expect(h.has(word)).toBe(true);
+    expect(h.texts().some((t) => /^Rate /.test(t))).toBe(true);
+    expect(h.texts().some((t) => /^Share /.test(t))).toBe(true);
+  });
+
+  it('fills Version and Kits from the build and package.json when the app passes neither', async () => {
+    const { version: _drop, ...about } = props().about;
+    const h = mount(
+      <AppSettings
+        {...props()}
+        about={about}
+        build={{ version: '4.18.0', buildNumber: '12', stamp: 'Nov 14, 2026 | 10:45 AM CT' }}
+        kitSources={{ dependencies: { 'app-core-kit': 'git+https://github.com/x/app-core-kit.git#abcdef1234567' }, kits: [{ name: 'Core Kit', pkg: 'app-core-kit', version: 'v1.0.0' }] }}
+      />,
+      false,
+    );
+    await press(h.byText('About'));
+    await press(h.byText('Version'));
+    expect(h.has('v4.18.0 | Build 12')).toBe(true);
+    expect(h.has('Nov 14, 2026 | 10:45 AM CT')).toBe(true);
+    await press(h.byText('Kits'));
+    expect(h.texts().some((t) => t.includes('Core Kit') && t.includes('abcdef1'))).toBe(true);
+  });
+
+  it('draws the approved round Back button and swipe-back by default, and keeps the app\'s own when passed', () => {
+    const h = mount(<AppSettings {...props()} />, false);
+    expect(h.root.root.findAll((n) => n.type === 'Animated.View').length).toBe(1);
+    const back = h.root.root.findAll((n) => n.type === 'Pressable' && n.props.hitSlop === 12);
+    expect(back.length).toBe(1);
+    const Mine = ({ onPress }: { onPress: () => void }) => <Pressable onPress={onPress} accessibilityLabel="mine"><Text>MINE</Text></Pressable>;
+    const h2 = mount(<AppSettings {...props()} components={{ BackButton: Mine }} />, false);
+    expect(h2.has('MINE')).toBe(true);
   });
 
   it("keeps the app's own name for Preferences when it already renamed it", () => {

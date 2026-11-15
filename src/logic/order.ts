@@ -3,7 +3,7 @@ export type SectionName = 'about' | 'account' | 'app' | 'export' | 'plan';
 
 /**
  * The standard list, the same four parents in every app: About (the app), Account (you and your data), Preferences (how the app works), then the plan page (activate it).
- * Other pages follow, then anything the app left out. Features are never on this list: Data Export lives inside Account, under Your Data.
+ * Other pages follow, then anything the app left out. Features are never on this list: Data Export is a row inside Account.
  */
 export const DEFAULT_ORDER: readonly SectionName[] = ['about', 'account', 'app', 'plan'];
 

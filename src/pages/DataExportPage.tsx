@@ -4,17 +4,23 @@ import { createOneAtATime } from '../logic/oneAtATime';
 import { DEFAULT_SETTINGS_STRINGS } from '../strings';
 import type { DataExportPageProps, ExportRowProps } from '../types';
 
-/** The standard row: app-account-kit's SettingRow, with the lock's words and badge while locked. */
+/**
+ * The standard row (HringNring's approved look): while locked, a padlock on a soft circle in place of the arrow, and a tap opens the plans;
+ * once open, a download icon, and a tap makes the file. An app that passes `lockedBadge` or `lockedValue` gets those on the right instead of the padlock.
+ */
 function DefaultRow({ format, last, onPress }: ExportRowProps) {
   const locked = !!format.locked;
+  const ownLock = locked && (format.lockedBadge !== undefined || format.lockedValue !== undefined);
   return (
     <SettingRow
       icon={format.icon}
       tint={format.tint}
       label={format.label}
       detail={locked ? (format.lockedDetail ?? format.detail) : format.detail}
-      value={locked ? format.lockedValue : undefined}
-      badge={locked ? format.lockedBadge : undefined}
+      value={ownLock ? format.lockedValue : undefined}
+      badge={ownLock ? format.lockedBadge : undefined}
+      locked={locked && !ownLock}
+      trailing="download"
       onPress={onPress}
       last={last}
     />

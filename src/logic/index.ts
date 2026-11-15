@@ -6,3 +6,6 @@ export type { VersionInfo, VersionParts } from './version';
 export { DEFAULT_IDS, DEFAULT_ORDER, hubOrder } from './order';
 export type { SectionName } from './order';
 export { createOneAtATime } from './oneAtATime';
+export { missingAboutParts, titleCaseStrings } from './about';
+export type { AboutParts } from './about';
+export { SWIPE_BACK, finishesSwipe, isEdgeSwipe } from './swipe';
