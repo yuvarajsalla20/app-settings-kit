@@ -11,6 +11,6 @@ export type { SettingsStrings } from './strings';
 export { KIT_NAME, KIT_VERSION } from './kit';
 export { DEFAULT_IDS, DEFAULT_ORDER, SWIPE_BACK, createOneAtATime, finishesSwipe, hubOrder, isEdgeSwipe, kitList, missingAboutParts, pinnedBuild, titleCaseStrings, versionLines } from './logic';
 export type { AboutParts, KitEntry, KitSource, SectionName, VersionInfo, VersionParts } from './logic';
-export type { DataExportConfig, DataExportPageProps, ExportFormat, ExportRowProps, ExtraPage, PageRow, PlanConfig } from './types';
+export type { AccountExtraPage, DataExportConfig, DataExportPageProps, DataExportPlace, ExportFormat, ExportRowProps, ExtraPage, PageRow, PlanConfig } from './types';
 /** Opens another Settings page from an app's own page, such as the plan page's Data Export perk. Back returns to the page that opened it. */
 export { useSettingsNav } from 'app-account-kit';

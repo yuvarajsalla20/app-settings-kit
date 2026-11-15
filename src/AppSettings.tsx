@@ -9,7 +9,7 @@ import { makeBackButton } from './parts/BackButton';
 import { EdgeSwipeBack } from './parts/EdgeSwipeBack';
 import { DataExportPage } from './pages/DataExportPage';
 import { DEFAULT_SETTINGS_STRINGS, type SettingsStrings } from './strings';
-import type { DataExportConfig, ExtraPage, PlanConfig } from './types';
+import type { DataExportConfig, DataExportPlace, ExtraPage, PlanConfig } from './types';
 
 type AccountScreenProps = ComponentProps<typeof SettingsScreen>;
 
@@ -26,7 +26,12 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
   dataExport?: DataExportConfig;
   /** The plan page (VIP, Premium). Leave out for an app with no plans. */
   plan?: PlanConfig;
-  /** More pages of the app's own (Connect as Family, say). */
+  /**
+   * Where the Data Export row lives (since 2.2.0): `'account'` (the default, as in 2.1) or `'preferences'`, a row on Preferences under the app's own settings.
+   * Back from Data Export returns to that parent.
+   */
+  dataExportIn?: DataExportPlace;
+  /** More pages of the app's own (Connect as Family, say). Add `under: 'preferences'` to make one a row on Preferences, or `under: 'account'` for Account. */
   extraPages?: readonly ExtraPage[];
   /** The list order. Default About, Account, Preferences, plan (`DEFAULT_ORDER`); use "plan" for the plan page and an extra page's id for the app's. Data Export is never on the list. */
   order?: readonly string[];
@@ -36,10 +41,10 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
 
 /**
  * The standard Settings screen in one config: four parents, About, Account, Preferences and the plan page, then Sign out and Delete account.
- * Data Export (a lock per format) is a feature, so it is a row inside Account, called Data Export.
+ * Data Export (a lock per format) is a feature, so it is a row inside Account, called Data Export, or inside Preferences with `dataExportIn: 'preferences'`.
  * Everything app-account-kit takes (theme, strings, components, profile, about, actions...) passes straight through.
  */
-export function AppSettings({ preferences, dataExport, plan, extraPages, order, settingsStrings, strings, about: aboutIn, build, kitSources, components: componentsIn, ...rest }: AppSettingsProps) {
+export function AppSettings({ preferences, dataExport, dataExportIn, plan, extraPages, order, settingsStrings, strings, about: aboutIn, build, kitSources, components: componentsIn, ...rest }: AppSettingsProps) {
   // Version and Kits filled in from the build and package.json, unless the app passed its own.
   const about = useMemo<AboutProps>(() => {
     const filled = build ? versionLines(build) : undefined;
@@ -58,8 +63,8 @@ export function AppSettings({ preferences, dataExport, plan, extraPages, order, 
   // The approved Title Case words ("Rate MyApp", "Contact Support"), then this kit's page names, then anything the app rewords.
   const appName = about.appName;
   const accountStrings = useMemo<Partial<AccountStrings>>(
-    () => ({ ...titleCaseStrings(appName), app: words.preferences, ...strings }),
-    [appName, strings, words.preferences],
+    () => ({ ...titleCaseStrings(appName), app: words.preferences, ...(words.account !== undefined ? { account: words.account } : {}), ...strings }),
+    [appName, strings, words.preferences, words.account],
   );
   // The approved About page has the app's picture, Features, Rate, Share and Kits. Say in development which ones this app is missing.
   const missing = missingAboutParts(about).join(', ');
@@ -82,6 +87,7 @@ export function AppSettings({ preferences, dataExport, plan, extraPages, order, 
     plan: plan ? { row: plan, content: plan.content } : undefined,
     extraPages,
     order,
+    dataExportIn,
     strings: words,
   });
   return <SettingsScreen {...rest} about={about} components={components} strings={accountStrings} app={preferences !== undefined ? { content: preferences } : undefined} extraPages={pages.extraPages} hubOrder={pages.hubOrder} />;
