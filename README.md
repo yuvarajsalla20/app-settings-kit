@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 2.3.0** (tag `v2.3.0`). Needs app-account-kit **7.12.0** or later.
+**Current version: 2.4.0** (tag `v2.4.0`). Needs app-account-kit **7.12.0** or later.
 
 No colors, no payment code and no export code of its own: the app passes its theme, its plan page and what each export makes. It does not depend on the payments, subscriptions or export kits.
 
@@ -21,7 +21,7 @@ Part of the shared kits:
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.12.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v2.3.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v2.4.0>"
 },
 "kitVersions": {
   "app-account-kit": "v7.12.0",
@@ -189,7 +189,8 @@ Pass `components.BackButton` or `components.EdgeSwipe` to replace the built-in B
 **The same Back on your own screens:**
 
 ```tsx
-import { EdgeSwipeBack, makeBackButton } from 'app-settings-kit';
+// 'app-settings-kit/parts' (2.4.0+) loads only these parts; 'app-settings-kit' works too.
+import { EdgeSwipeBack, makeBackButton } from 'app-settings-kit/parts';
 
 export const BackButton = makeBackButton(APP_THEME);   // uses accent, ink, text and optional shadow
 

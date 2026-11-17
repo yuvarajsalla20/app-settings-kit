@@ -1,12 +1,13 @@
 {
   "name": "app-settings-kit",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "The standard Settings screen for React Native / Expo apps, built on app-account-kit: About, Account, Preferences and a plan page in one config, with Data Export inside Account (or Preferences). Adds the kits list, the version and build line, the build-time stamp and a Data Export page with a lock per format. No colors and no payment or export code of its own.",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
     "./logic": "./src/logic/index.ts",
+    "./parts": "./src/parts/index.ts",
     "./build-stamp": "./build-stamp.js",
     "./package.json": "./package.json"
   },
