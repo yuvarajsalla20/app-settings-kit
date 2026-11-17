@@ -2,6 +2,10 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 2.4.0 (2026-11-17)
+
+**Light import for the shared parts.** New entry `app-settings-kit/parts` with `makeBackButton`, `BACK_BUTTON` and `EdgeSwipeBack` only, so an app's other screens can use the Back button without loading the whole Settings screen and app-account-kit at start-up. The main entry is unchanged; nothing to change in apps.
+
 ## 2.3.0 (2026-11-15)
 
 **Contact Support page in Title Case.** app-account-kit 7.12.0 opens Contact Support as its own page; this kit gives it the approved words "We're Here to Help" and "Write to Us". Needs app-account-kit 7.12.0 (peer dependency raised from 7.10.0).
