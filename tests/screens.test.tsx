@@ -100,11 +100,11 @@ describe('AppSettings', () => {
     expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Account', 'Preferences', 'VIP', 'Family']);
   });
 
-  it('keeps Sign Out off the main list by default (3.0.0: behind the ⋯ on Account), and puts it back with exitMenu={false}', () => {
+  it('keeps Log Out off the main list by default (3.0.0: behind the ⋯ on Account), and puts it back with exitMenu={false}', () => {
     const on = mount(<AppSettings {...props()} />, false);
-    expect(on.has('Sign Out')).toBe(false);
+    expect(on.has('Log Out')).toBe(false);
     const off = mount(<AppSettings {...props()} exitMenu={false} />, false);
-    expect(off.has('Sign Out')).toBe(true);
+    expect(off.has('Log Out')).toBe(true);
   });
 
   it('hides what the app leaves out, and names the plan page "Plan" until the app names it', () => {
