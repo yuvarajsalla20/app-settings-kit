@@ -20,8 +20,15 @@ export const titleCaseStrings = (appName: string): Partial<AccountStrings> => ({
   writeToUs: 'Write to Us',
   rate: `Rate ${appName}`,
   share: `Share ${appName}`,
-  signOut: 'Sign Out',
-  deleteAccount: 'Delete Account',
+  // 3.1.0: "Log Out" and "Close Account". The Close steps still say the data is deleted forever and ask for DELETE (Apple's account-deletion rule).
+  signOut: 'Log Out',
+  signOutTitle: 'Log out?',
+  stayIn: 'Stay logged in',
+  deleteBreakAction: 'Log out instead',
+  signOutAction: 'log out',
+  deleteAccount: 'Close Account',
+  deleteTitle: 'Close your account?',
+  deleteForever: 'Close my account forever',
   deleteEverything: 'Delete Everything',
   keepAccount: 'Keep My Account',
 });

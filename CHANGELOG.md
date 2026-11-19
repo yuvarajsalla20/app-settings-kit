@@ -2,6 +2,10 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 3.1.0 (2026-11-19)
+
+**"Log Out" and "Close Account".** The default words change from Sign Out to **Log Out** ("Log out?", "Stay logged in", "Log out instead", "Could not log out") and from Delete Account to **Close Account** ("Close your account?", "Close my account forever"). The Close steps still say the data is deleted forever and still ask for DELETE, as Apple's account-deletion rule needs. "Sign in" words are unchanged. Any word can still be changed through `strings`. Nothing to change in apps.
+
 ## 3.0.0 (2026-11-19)
 
 **Sign out and Delete account move inside Account, on by default.** Every app that updates gets app-account-kit's ⋯ menu on the Account page: Sign out opens its own page, and Delete account goes through its steps (what you lose, "Sign out instead", type DELETE, password). They are no longer on the main Settings list. Nothing to add in the app. Optional: pass `exitMenu={{ unlock, losses }}` for an unlock step (Face ID or PIN) or "You will lose" lines. To keep 2.x's layout, pass `exitMenu={false}`. Needs app-account-kit 7.17.0 (peer dependency raised from 7.12.0). Major version because what every app shows changes on update.
