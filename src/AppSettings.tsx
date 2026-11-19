@@ -1,4 +1,4 @@
-import { SettingsScreen, type AboutProps, type AccountStrings } from 'app-account-kit';
+import { SettingsScreen, type AboutProps, type AccountStrings, type ExitMenuProps } from 'app-account-kit';
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo } from 'react';
 import { assemblePages } from './assemble';
@@ -13,7 +13,12 @@ import type { DataExportConfig, DataExportPlace, ExtraPage, PlanConfig } from '.
 
 type AccountScreenProps = ComponentProps<typeof SettingsScreen>;
 
-export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | 'hubOrder' | 'about'> & {
+export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | 'hubOrder' | 'about' | 'exitMenu'> & {
+  /**
+   * Sign out and Delete account behind a ⋯ menu on Account, each on its own page (since 3.0.0, ON by default).
+   * Pass app-account-kit's `ExitMenuProps` to add the optional unlock step or the "You will lose" lines; pass `false` to keep both on the main list as in 2.x.
+   */
+  exitMenu?: ExitMenuProps | false;
   /** The About page. `version` and `kits` can be left out when `build` and `kitSources` are passed: the kit fills them in. */
   about: Omit<AboutProps, 'version'> & { version?: AboutProps['version'] };
   /** The app's version, build number and build stamp (from `app-settings-kit/build-stamp`). Fills About > Version as "v1.2.0 | Build 12" and the build time. */
@@ -39,12 +44,15 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
   settingsStrings?: Partial<SettingsStrings>;
 };
 
+/** The ⋯ menu with no extras: no unlock step, no "You will lose" lines. One object, so the screen does not see a new value on every render. */
+const DEFAULT_EXIT_MENU: ExitMenuProps = Object.freeze({});
+
 /**
- * The standard Settings screen in one config: four parents, About, Account, Preferences and the plan page, then Sign out and Delete account.
+ * The standard Settings screen in one config: four parents, About, Account, Preferences and the plan page. Sign out and Delete account sit behind a ⋯ on Account (`exitMenu={false}` puts them back on the list).
  * Data Export (a lock per format) is a feature, so it is a row inside Account, called Data Export, or inside Preferences with `dataExportIn: 'preferences'`.
  * Everything app-account-kit takes (theme, strings, components, profile, about, actions...) passes straight through.
  */
-export function AppSettings({ preferences, dataExport, dataExportIn, plan, extraPages, order, settingsStrings, strings, about: aboutIn, build, kitSources, components: componentsIn, ...rest }: AppSettingsProps) {
+export function AppSettings({ preferences, dataExport, dataExportIn, plan, extraPages, order, settingsStrings, strings, about: aboutIn, build, kitSources, components: componentsIn, exitMenu = DEFAULT_EXIT_MENU, ...rest }: AppSettingsProps) {
   // Version and Kits filled in from the build and package.json, unless the app passed its own.
   const about = useMemo<AboutProps>(() => {
     const filled = build ? versionLines(build) : undefined;
@@ -90,5 +98,5 @@ export function AppSettings({ preferences, dataExport, dataExportIn, plan, extra
     dataExportIn,
     strings: words,
   });
-  return <SettingsScreen {...rest} about={about} components={components} strings={accountStrings} app={preferences !== undefined ? { content: preferences } : undefined} extraPages={pages.extraPages} hubOrder={pages.hubOrder} />;
+  return <SettingsScreen {...rest} exitMenu={exitMenu === false ? undefined : exitMenu} about={about} components={components} strings={accountStrings} app={preferences !== undefined ? { content: preferences } : undefined} extraPages={pages.extraPages} hubOrder={pages.hubOrder} />;
 }
