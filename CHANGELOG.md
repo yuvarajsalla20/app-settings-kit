@@ -2,6 +2,10 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 3.0.0 (2026-11-19)
+
+**Sign out and Delete account move inside Account, on by default.** Every app that updates gets app-account-kit's ⋯ menu on the Account page: Sign out opens its own page, and Delete account goes through its steps (what you lose, "Sign out instead", type DELETE, password). They are no longer on the main Settings list. Nothing to add in the app. Optional: pass `exitMenu={{ unlock, losses }}` for an unlock step (Face ID or PIN) or "You will lose" lines. To keep 2.x's layout, pass `exitMenu={false}`. Needs app-account-kit 7.17.0 (peer dependency raised from 7.12.0). Major version because what every app shows changes on update.
+
 ## 2.4.0 (2026-11-17)
 
 **Light import for the shared parts.** New entry `app-settings-kit/parts` with `makeBackButton`, `BACK_BUTTON` and `EdgeSwipeBack` only, so an app's other screens can use the Back button without loading the whole Settings screen and app-account-kit at start-up. The main entry is unchanged; nothing to change in apps.

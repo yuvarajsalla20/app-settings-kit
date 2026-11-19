@@ -44,7 +44,8 @@ Pin the full commit SHA of a release tag so every build gets exactly the code yo
 
 ## The layout every app gets
 
-- **Main list:** About, Account, Preferences, the plan page, then any parent page of the app's own; then Sign Out and Delete Account.
+- **Main list:** About, Account, Preferences, the plan page, then any parent page of the app's own.
+- **Sign Out and Delete Account (3.0.0):** behind a ⋯ menu on Account, each on its own page (Delete: what you lose, "Sign out instead", type DELETE, password). Optional `exitMenu={{ unlock, losses }}`; `exitMenu={false}` puts them back on the main list.
 - **Features live inside a parent, never on the list.** Place a feature by what it is, not by what it costs; the plan pill shows the price wherever the row lives. Data Export is about the person's data, so by default it is a row called **Data Export** on Account. An app can instead put it on Preferences (see [Profile and Preferences layout](#profile-and-preferences-layout)).
 - **About:** the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support**, **Privacy Policy**; **Kits**, **Version**. Kits and Version fill themselves from `kitSources` and `build`. A missing part hides its row, and the kit warns in development.
 - **Wording:** approved Title Case words by default ("Rate MyApp", "Contact Support", "Privacy Policy", "Sign Out", "Delete Account", "We're Here to Help", "Write to Us"). Any of them can be changed through `strings`.
