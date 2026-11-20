@@ -107,6 +107,16 @@ describe('AppSettings', () => {
     expect(off.has('Log Out')).toBe(true);
   });
 
+  it("exitMenu place 'page' (3.2.0): an Access row on Account opens Log Out and Close Account; no ⋯", async () => {
+    const h = mount(<AppSettings {...props({ actions: { confirmsWithPassword: true, onSignOut: async () => {}, onDeleteAccount: async () => {} } })} exitMenu={{ place: 'page' }} />, false);
+    await press(h.byLabel('Account'));
+    expect(h.has('Access')).toBe(true);
+    expect(h.byLabel('More options')).toBeUndefined();
+    await press(h.byLabel('Access'));
+    expect(h.has('Log Out')).toBe(true);
+    expect(h.has('Close Account')).toBe(true);
+  });
+
   it('hides what the app leaves out, and names the plan page "Plan" until the app names it', () => {
     const h = mount(<AppSettings {...props()} plan={{ content: <Text>Plans</Text> }} />, false);
     expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Account', 'Plan']);
