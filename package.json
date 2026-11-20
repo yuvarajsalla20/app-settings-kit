@@ -33,7 +33,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "~19.3.0",
     "@types/react-test-renderer": "^19.3.1",
-    "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#26c40f075bc8d9b9922fde6160f8f50a56ade01e",
+    "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#0e2f94723a6961b09287afe9c041a250176fc957",
     "react": "19.3.0",
     "react-native": "0.88.1",
     "react-test-renderer": "19.3.0",
