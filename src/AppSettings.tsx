@@ -17,6 +17,7 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
   /**
    * Sign out and Delete account behind a ⋯ menu on Account, each on its own page (since 3.0.0, ON by default).
    * Pass app-account-kit's `ExitMenuProps` to add the optional unlock step or the "You will lose" lines; pass `false` to keep both on the main list as in 2.x.
+   * Since 3.2.0, `{ place: 'page' }` swaps the ⋯ for an Access row at the bottom of Account that opens a page with Log Out and a red Close Account.
    */
   exitMenu?: ExitMenuProps | false;
   /** The About page. `version` and `kits` can be left out when `build` and `kitSources` are passed: the kit fills them in. */

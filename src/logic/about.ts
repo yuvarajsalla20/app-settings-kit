@@ -31,6 +31,9 @@ export const titleCaseStrings = (appName: string): Partial<AccountStrings> => ({
   deleteForever: 'Close my account forever',
   deleteEverything: 'Delete Everything',
   keepAccount: 'Keep My Account',
+  // 3.2.0: the Access page (exitMenu place 'page'), in the same words.
+  access: 'Access',
+  accessNote: 'Logging out keeps your data safe in your account. Closing your account erases it for good, after a few checks.',
 });
 
 /** What the approved About page needs. Each missing part hides a row or the picture, so a new app is told in development. */

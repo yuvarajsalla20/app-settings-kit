@@ -2,6 +2,10 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 3.2.0 (2026-11-20)
+
+**Access page (opt-in).** `exitMenu={{ place: 'page' }}` drops the ⋯ on Account and puts one **Access** row at the bottom of Account. It opens a page with a **Log Out** row and a red **Close Account** row, with a short line under them. Each opens the same pages and steps as before. Without it nothing changes: the ⋯ stays. Needs app-account-kit 7.24.0 (peer dependency raised from 7.17.0).
+
 ## 3.1.0 (2026-11-19)
 
 **"Log Out" and "Close Account".** The default words change from Sign Out to **Log Out** ("Log out?", "Stay logged in", "Log out instead", "Could not log out") and from Delete Account to **Close Account** ("Close your account?", "Close my account forever"). The Close steps still say the data is deleted forever and still ask for DELETE, as Apple's account-deletion rule needs. "Sign in" words are unchanged. Any word can still be changed through `strings`. Nothing to change in apps.

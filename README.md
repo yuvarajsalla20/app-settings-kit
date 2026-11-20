@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 2.4.0** (tag `v2.4.0`). Needs app-account-kit **7.12.0** or later.
+**Current version: 3.2.0** (tag `v3.2.0`). Needs app-account-kit **7.24.0** or later.
 
 No colors, no payment code and no export code of its own: the app passes its theme, its plan page and what each export makes. It does not depend on the payments, subscriptions or export kits.
 
@@ -45,7 +45,7 @@ Pin the full commit SHA of a release tag so every build gets exactly the code yo
 ## The layout every app gets
 
 - **Main list:** About, Account, Preferences, the plan page, then any parent page of the app's own.
-- **Log Out and Close Account (3.0.0, words 3.1.0):** behind a ⋯ menu on Account, each on its own page (Close: what you lose, "Log out instead", type DELETE, password; the steps still say the data is deleted forever, as Apple requires). Optional `exitMenu={{ unlock, losses }}`; `exitMenu={false}` puts them back on the main list.
+- **Log Out and Close Account (3.0.0, words 3.1.0):** behind a ⋯ menu on Account, each on its own page (Close: what you lose, "Log out instead", type DELETE, password; the steps still say the data is deleted forever, as Apple requires). Optional `exitMenu={{ unlock, losses }}`; `exitMenu={false}` puts them back on the main list. `exitMenu={{ place: 'page' }}` (3.2.0) drops the ⋯ and puts one **Access** row at the bottom of Account, opening a page with Log Out and a red Close Account (same steps).
 - **Features live inside a parent, never on the list.** Place a feature by what it is, not by what it costs; the plan pill shows the price wherever the row lives. Data Export is about the person's data, so by default it is a row called **Data Export** on Account. An app can instead put it on Preferences (see [Profile and Preferences layout](#profile-and-preferences-layout)).
 - **About:** the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support**, **Privacy Policy**; **Kits**, **Version**. Kits and Version fill themselves from `kitSources` and `build`. A missing part hides its row, and the kit warns in development.
 - **Wording:** approved Title Case words by default ("Rate MyApp", "Contact Support", "Privacy Policy", "Log Out", "Close Account", "We're Here to Help", "Write to Us"). Any of them can be changed through `strings`.
