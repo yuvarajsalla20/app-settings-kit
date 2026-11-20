@@ -1,13 +1,14 @@
 import { SettingsScreen, type AboutProps, type AccountStrings, type ExitMenuProps } from 'app-account-kit';
 import type { ComponentProps, ReactNode } from 'react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { assemblePages } from './assemble';
 import { missingAboutParts, titleCaseStrings } from './logic/about';
 import { kitList, type KitSource } from './logic/kits';
 import { versionLines, type VersionParts } from './logic/version';
 import { makeBackButton } from './parts/BackButton';
 import { EdgeSwipeBack } from './parts/EdgeSwipeBack';
-import { DataExportPage } from './pages/DataExportPage';
+import { DataExportPage, exportMenu } from './pages/DataExportPage';
+import { createOneAtATime } from './logic/oneAtATime';
 import { DEFAULT_SETTINGS_STRINGS, type SettingsStrings } from './strings';
 import type { DataExportConfig, DataExportPlace, ExtraPage, PlanConfig } from './types';
 
@@ -91,8 +92,17 @@ export function AppSettings({ preferences, dataExport, dataExportIn, plan, extra
       problemText={words.exportFailed}
     />
   ) : null;
+  // 3.3.0 dataExport.menu: the row opens a pull-down menu, one line per format, one file at a time.
+  const report = useRef({ onError: dataExport?.onError ?? rest.onError, onProblem: dataExport?.onProblem, text: words.exportFailed });
+  report.current = { onError: dataExport?.onError ?? rest.onError, onProblem: dataExport?.onProblem, text: words.exportFailed };
+  const runner = useRef<ReturnType<typeof createOneAtATime> | null>(null);
+  runner.current ??= createOneAtATime((error) => {
+    report.current.onError?.('data-export', error);
+    report.current.onProblem?.(report.current.text);
+  });
+  const menu = dataExport?.menu ? exportMenu(dataExport, (job) => runner.current?.run(job)) : undefined;
   const pages = assemblePages({
-    dataExport: dataExport ? { row: dataExport, content: exportPage } : undefined,
+    dataExport: dataExport ? { row: dataExport, content: menu ? null : exportPage, menu } : undefined,
     plan: plan ? { row: plan, content: plan.content } : undefined,
     extraPages,
     order,

@@ -2,6 +2,12 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 3.3.0 (2026-11-20)
+
+**Data Export as a pull-down menu (opt-in).** `dataExport={{ ..., menu: true }}` makes the Data Export row open a small menu in place instead of a page: one line per format (a padlock while locked), and a tap makes and shares that file, one at a time. With one format the row shows it in a grey pill ("CSV", from `pill` or the first word of the label) and the menu's top line is its `detail` (or `menu.head`). Failures go to `onError` and `onProblem`. Without it nothing changes.
+
+Everything app-account-kit 7.26.0 adds passes straight through: `pickers="pullDown"`, `exitMenu.signOutMenu` and `exitMenu.deleteOnAccess`, and the card heading strings. Needs app-account-kit 7.26.0 (peer dependency raised from 7.24.0).
+
 ## 3.2.0 (2026-11-20)
 
 **Access page (opt-in).** `exitMenu={{ place: 'page' }}` drops the ⋯ on Account and puts one **Access** row at the bottom of Account. It opens a page with a **Log Out** row and a red **Close Account** row, with a short line under them. Each opens the same pages and steps as before. Without it nothing changes: the ⋯ stays. Needs app-account-kit 7.24.0 (peer dependency raised from 7.17.0).
