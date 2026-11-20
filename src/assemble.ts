@@ -7,6 +7,8 @@ interface Section {
   row?: PageRow;
   /** The page itself. */
   content: ReactNode;
+  /** 3.3.0: a pull-down menu on the row instead of a page. */
+  menu?: AccountExtraPage['menu'];
 }
 
 interface Input {
@@ -48,6 +50,6 @@ export function assemblePages({ dataExport, plan, extraPages = [], order = DEFAU
   const pages: AccountExtraPage[] = [];
   if (plan) pages.push(page(plan.row, { id: ids.plan, label: strings.plan, icon: 'award' }, plan.content));
   // Data Export is a feature, not a parent: a row straight on Account (or Preferences) with its Premium/VIP pill, and Back returns there.
-  if (dataExport) pages.push({ ...page(dataExport.row, { id: ids.export, label: strings.dataExport, icon: 'download' }, dataExport.content), under: parentFor(dataExportIn) });
+  if (dataExport) pages.push({ ...page(dataExport.row, { id: ids.export, label: strings.dataExport, icon: 'download' }, dataExport.content), under: parentFor(dataExportIn), ...(dataExport.menu ? { menu: dataExport.menu } : {}) });
   return { extraPages: [...pages, ...extraPages.map(toAccount)], hubOrder: hubOrder(order, ids) };
 }

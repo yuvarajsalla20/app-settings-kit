@@ -98,3 +98,28 @@ describe('swipe back', () => {
     expect(finishesSwipe(40, 0.1, 390)).toBe(false);
   });
 });
+
+import { exportMenu } from '../src/pages/DataExportPage';
+
+describe('exportMenu (3.3.0)', () => {
+  const csv = { id: 'csv', label: 'CSV File', detail: 'Every expense', icon: 'file-text' as const, tint: '#000000', onExport: async () => {} };
+  it('one format: its first word in the pill, its detail on top, a tap runs it', () => {
+    const run = vi.fn();
+    const m = exportMenu({ formats: [csv], menu: true }, run);
+    expect(m.pill).toBe('CSV');
+    expect(m.head).toBe('Every expense');
+    m.onPick('csv');
+    expect(run).toHaveBeenCalledWith(csv.onExport);
+  });
+  it('a locked format opens the plans instead', () => {
+    const run = vi.fn();
+    const onLocked = vi.fn();
+    const m = exportMenu({ formats: [{ ...csv, locked: true }, { ...csv, id: 'pdf', label: 'PDF' }], menu: { head: 'Pick one' }, onLocked }, run);
+    expect(m.pill).toBeUndefined();
+    expect(m.head).toBe('Pick one');
+    expect(m.items.map((i) => i.icon)).toEqual(['lock', 'share']);
+    m.onPick('csv');
+    expect(onLocked).toHaveBeenCalled();
+    expect(run).not.toHaveBeenCalled();
+  });
+});

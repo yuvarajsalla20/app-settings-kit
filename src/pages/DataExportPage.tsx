@@ -2,7 +2,8 @@ import { SettingRow, SettingsGroup } from 'app-account-kit';
 import { useRef, useState } from 'react';
 import { createOneAtATime } from '../logic/oneAtATime';
 import { DEFAULT_SETTINGS_STRINGS } from '../strings';
-import type { DataExportPageProps, ExportRowProps } from '../types';
+import type { DataExportConfig, DataExportPageProps, ExportRowProps } from '../types';
+import type { ExtraPage } from 'app-account-kit';
 
 /**
  * The standard row (HringNring's approved look): while locked, a padlock on a soft circle in place of the arrow, and a tap opens the plans;
@@ -68,4 +69,25 @@ export function DataExportPage({ formats, onLocked, onError, onProblem, renderPr
       {problem && renderProblem ? renderProblem(problem) : null}
     </>
   );
+}
+
+/**
+ * Data Export as a pull-down menu on its row (3.3.0): one line per format with its icon (a padlock while locked). A tap on an
+ * open format runs `onExport` through `run` (one file at a time); on a locked one it calls `onLocked`.
+ */
+export function exportMenu(config: DataExportConfig, run: (job: () => Promise<unknown>) => void): NonNullable<ExtraPage['menu']> {
+  const { formats } = config;
+  const only = formats.length === 1 ? formats[0] : undefined;
+  const head = typeof config.menu === 'object' && config.menu.head !== undefined ? config.menu.head : only?.detail;
+  return {
+    pill: only ? (only.pill ?? only.label.split(' ')[0]) : undefined,
+    head,
+    items: formats.map((f) => ({ id: f.id, label: f.label, icon: f.locked ? 'lock' : 'share' })),
+    onPick: (id) => {
+      const format = formats.find((f) => f.id === id);
+      if (!format) return;
+      if (format.locked) config.onLocked?.();
+      else run(format.onExport);
+    },
+  };
 }

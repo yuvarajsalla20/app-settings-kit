@@ -34,6 +34,8 @@ export interface ExportFormat {
   lockedBadge?: ReactNode;
   /** Makes and shares the file. The kit runs one at a time and reports a failure. */
   onExport: () => Promise<unknown>;
+  /** 3.3.0, `dataExport.menu` only: the short word in the row's pill, such as "CSV". Default: the first word of `label`. */
+  pill?: string;
 }
 
 /** What a custom export row receives (see `DataExportPageProps.Row`). */
@@ -75,7 +77,15 @@ export interface PageRow {
 }
 
 /** The Data Export page: its row, and the formats it offers. */
-export type DataExportConfig = PageRow & DataExportPageProps;
+export type DataExportConfig = PageRow &
+  DataExportPageProps & {
+    /**
+     * Opt-in (3.3.0): Data Export opens a pull-down menu right on its row instead of a page (app-account-kit 7.26.0). The row
+     * shows the format in a grey pill (with one format); each format is one line, and a tap makes and shares that file. `head`
+     * is a short line at the top of the menu (default: the format's `detail` when there is only one).
+     */
+    menu?: boolean | { head?: string };
+  };
 
 /** The plan page (VIP, Premium): its row, and what the page shows (for example app-subscriptions-kit's `PremiumPage`). */
 export interface PlanConfig extends PageRow {
