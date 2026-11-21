@@ -129,7 +129,7 @@ Every app-account-kit `SettingsScreen` prop passes straight through (`theme`, `s
 | `order` | `string[]` | The list order. Default `['about', 'account', 'app', 'plan']` (`DEFAULT_ORDER`; `'app'` is Preferences). Use an extra page's id to place it. Data Export is never on the list |
 | `settingsStrings` | `{ plan?: string }` | 4.0.0: only the plan's name (Premium, VIP). Every other word is the kit's |
 
-Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, the headings (Profile, Your Data, Sign In; the app's name, Help, Info), Log Out and Erase Account.
+Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, the headings (Account, Your Data, Sign In on the Profile page; the app's name, Help, Info), Log Out and Erase Account.
 
 ## Data Export
 

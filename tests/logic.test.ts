@@ -123,3 +123,10 @@ describe('exportMenu (3.3.0)', () => {
     expect(run).not.toHaveBeenCalled();
   });
 });
+
+describe('card headings', () => {
+  it('4.0.1: the Profile page does not repeat its name; the first card is headed Account', async () => {
+    const { cardHeadings } = await import('../src/logic/about');
+    expect(cardHeadings('HringNring')).toMatchObject({ profileGroup: 'Account', dataGroup: 'Your Data', exitGroup: 'Sign In' });
+  });
+});

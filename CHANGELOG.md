@@ -2,6 +2,12 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 4.0.1 (2026-11-21)
+
+**The Profile page no longer repeats its own name.** The heading over the photo and name card reads **Account** instead of "Profile". The Settings row and the page title stay **Profile**; Your Data and Sign In are unchanged.
+
+A new test confirms that the About page's Version and Kits card is always headed **Info**, even when an app passes its own word (such as "App info").
+
 ## 4.0.0 (2026-11-21)
 
 **Every app gets the approved Settings from the kit, with nothing to copy.** Before, each app had to turn on seven settings by hand and an app that missed one showed the old look (the row read "Account", the logo came back).

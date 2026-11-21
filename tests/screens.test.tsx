@@ -152,6 +152,14 @@ describe('AppSettings', () => {
     expect(own.has('Close Account')).toBe(false);
     expect(own.has('Sign In')).toBe(true);
     expect(own.has('Sign-in')).toBe(false);
+    expect(own.has('Account')).toBe(true);
+  });
+
+  it("4.0.1: About's Version and Kits card is headed 'Info' in every app, even when the app passes its own word", async () => {
+    const own = mount(<AppSettings {...props()} strings={{ aboutInfoGroup: 'App info' }} />, false);
+    await press(own.byLabel('About'));
+    expect(own.has('Info')).toBe(true);
+    expect(own.has('App info')).toBe(false);
   });
 
   it('hides what the app leaves out, and names the plan page "Plan" until the app names it', () => {

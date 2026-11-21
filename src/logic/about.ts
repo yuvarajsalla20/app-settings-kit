@@ -37,11 +37,11 @@ export const titleCaseStrings = (appName: string): Partial<AccountStrings> => ({
 });
 
 /**
- * 3.4.0: the grey headings over the cards, the same in every app. Account: Profile, Your Data, Sign In. About: the app's
+ * 3.4.0: the grey headings over the cards, the same in every app. Profile page: Account (4.0.1), Your Data, Sign In. About: the app's
  * name, Help, Info (Version before Kits). 4.0.0: enforced, an app cannot reword them.
  */
 export const cardHeadings = (appName: string) => ({
-  profileGroup: 'Profile',
+  profileGroup: 'Account',
   dataGroup: 'Your Data',
   exitGroup: 'Sign In',
   aboutAppGroup: appName,
