@@ -2,6 +2,19 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 5.0.0 (2026-11-21)
+
+**Everything on the approved Settings is required, so no app can leave a row out.** Rate and Share were missing from HringNring's About, and its logo was hidden, because the kit treated them as optional and quietly hid them. Only an app's own Preferences rows (such as Theme or Security) are up to the app.
+
+- **About shows the app's logo under the title "About"** (no name under it), at 104 pt with the home screen's rounded corners. `about.logo` is required: pass the app's one master logo, at least 312 px square (1024 px is best). A smaller image is flagged in development.
+- **Rate and Share always show.** `about.appStoreId` (digits) is required. Rate opens the App Store review screen and Share sends the App Store page (`https://apps.apple.com/app/id…`, also exported as `appStorePage`). `about.rate` and `about.share` are gone; `playPackage` and `shareMessage` stay optional.
+- **Required now:** `about.featuresUrl`, `build` (Version), `kitSources` (Kits), `preferences`, `dataExport`, `plan` and `photo`. `about.kits` and `about.showHeader` are no longer taken.
+- **Development check:** `aboutProblems` flags a value the types allow but that would still hide a row (a malformed App Store number, a Features page that is not https) or blur the logo.
+- Needs app-account-kit 7.30.0 or later.
+
+### Upgrading from 4.x
+Pass `about.logo` (your master logo), `about.featuresUrl`, `about.appStoreId`, `build`, `kitSources`, `preferences`, `dataExport`, `plan` and `photo`. Delete `about.rate`, `about.share`, `about.kits` and `about.showHeader`.
+
 ## 4.0.1 (2026-11-21)
 
 **The Profile page no longer repeats its own name.** The heading over the photo and name card reads **Account** instead of "Profile". The Settings row and the page title stay **Profile**; Your Data and Sign In are unchanged.

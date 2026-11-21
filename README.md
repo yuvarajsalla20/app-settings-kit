@@ -4,7 +4,9 @@ The standard **Settings screen** for React Native and Expo apps, in one config. 
 
 **Current version: 4.0.0** (tag `v4.0.0`). Needs app-account-kit **7.26.0** or later.
 
-**The approved Settings look is the default (4.0.0).** With no settings an app gets: the row and page called **Profile**, plain page headers with no logo, pull-down pickers, the profile photo centered, no logo and name at the top of About, and Log Out as its own row on Profile with the Delete row under it. Apps should take these from the kit and not repeat them. Each still turns off: `plainHeaders={false}`, `pickers="sheet"`, `profile.centered: false`, `about.showHeader: true`, `exitMenu={{}}` (the 3.x ⋯ menu) or `exitMenu={false}`.
+**Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
+
+**The approved Settings look is the default (4.0.0).** With no settings an app gets: the row and page called **Profile**, plain page headers with no logo, pull-down pickers, the profile photo centered, and Log Out as its own row on Profile with the Delete row under it. Apps should take these from the kit and not repeat them. Each still turns off: `plainHeaders={false}`, `pickers="sheet"`, `profile.centered: false`, `exitMenu={{}}` (the 3.x ⋯ menu) or `exitMenu={false}`.
 
 No colors, no payment code and no export code of its own: the app passes its theme, its plan page and what each export makes. It does not depend on the payments, subscriptions or export kits.
 
@@ -73,18 +75,17 @@ import { AppSettings } from 'app-settings-kit';
   password={HAS_PASSWORD ? { onChange: CHANGE_PASSWORD } : undefined}
   about={{
     appName: APP_NAME,
-    logo: APP_ICON,
-    featuresUrl: FEATURES_URL,
+    logo: MASTER_LOGO,                     // required: the app's one master logo, 1024 px
+    featuresUrl: FEATURES_URL,             // required
     privacyUrl: PRIVACY_URL,
     supportEmail: SUPPORT_EMAIL,
-    share: { url: APP_STORE_URL },
-    rate: { appStoreId: APP_STORE_ID },
+    appStoreId: APP_STORE_ID,              // required: Rate and Share both come from it
   }}
   build={{ version: APP_VERSION, buildNumber: STORE_BUILD_NUMBER, stamp: BUILD_STAMP }}  // fills About > Version
   kitSources={{ dependencies: APP_PACKAGE_JSON.dependencies, kits: KITS_USED }}           // fills About > Kits
   actions={{ onSignOut: SIGN_OUT, onDeleteAccount: DELETE_ACCOUNT, confirmsWithPassword: NEEDS_PASSWORD }}
   onError={REPORT_ERROR}
-  preferences={APP_OWN_ROWS}               // SettingsGroup + SettingRow from app-account-kit
+  preferences={APP_OWN_ROWS}               // required: SettingsGroup + SettingRow from app-account-kit (Theme, Security go here when an app has them)
   dataExport={{
     formats: [
       { id: 'csv', label: 'CSV File', icon: 'file-text', tint: TINT, onExport: MAKE_CSV, locked: CSV_LOCKED },

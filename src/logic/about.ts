@@ -61,3 +61,32 @@ export interface AboutParts {
 /** The parts of the approved About page this app leaves out: picture, Features, Rate, Share, Kits. Empty when the page is complete. */
 export const missingAboutParts = (about: AboutParts): string[] =>
   (['logo', 'featuresUrl', 'rate', 'share', 'kits'] as const).filter((key) => !about[key]);
+
+/** 5.0.0: the logo is shown at 104 pt, so it needs 312 px (3x) to stay sharp on every iPhone. */
+export const LOGO_MIN_PIXELS = 312;
+
+/** The pixel width of an image logo (a `require`d file or `{ uri, width }`), or undefined when it cannot be known (a drawn element, a remote file). */
+export const logoPixels = (logo: unknown): number | undefined => {
+  if (!logo || typeof logo === 'string') return undefined;
+  if (typeof logo === 'object' && logo !== null && 'width' in logo && typeof (logo as { width?: unknown }).width === 'number') return (logo as { width: number }).width;
+  if (typeof logo === 'number') {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const rn = require('react-native') as { Image?: { resolveAssetSource?: (s: number) => { width?: number } | null } };
+      return rn.Image?.resolveAssetSource?.(logo)?.width;
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+};
+
+/** 5.0.0: values the types allow but that would still hide a row or blur the logo. Empty when About is complete. */
+export const aboutProblems = (about: { logo?: unknown; featuresUrl?: string; appStoreId?: string }, logoWidth?: number): string[] => {
+  const out: string[] = [];
+  if (!about.logo) out.push('About needs the app\'s logo.');
+  else if (logoWidth !== undefined && logoWidth < LOGO_MIN_PIXELS) out.push(`The About logo is ${logoWidth} px wide; use the master logo, at least ${LOGO_MIN_PIXELS} px (1024 px is best), so it stays sharp.`);
+  if (!about.featuresUrl || !/^https:\/\//i.test(about.featuresUrl.trim())) out.push('About needs an https Features page (featuresUrl).');
+  if (!about.appStoreId || !/^\d+$/.test(about.appStoreId.trim())) out.push('About needs the App Store number (appStoreId, digits only) for Rate and Share.');
+  return out;
+};

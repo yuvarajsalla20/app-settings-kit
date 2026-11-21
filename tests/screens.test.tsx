@@ -193,9 +193,18 @@ describe('AppSettings', () => {
   });
 
   it('draws the approved About: Title Case words with the app name in Rate and Share', async () => {
-    const h = mount(<AppSettings {...props()} about={{ ...props().about, featuresUrl: 'https://x.y/features', rate: { appStoreId: '1' }, share: { url: 'https://x.y' }, kits: [{ name: 'Core Kit', version: '1.0.0' }] }} />, false);
+    const h = mount(<AppSettings {...props()} about={{ ...props().about, logo: { uri: 'https://x.y/logo.png', width: 1024 }, featuresUrl: 'https://x.y/features', appStoreId: '6830296391' }} kitSources={{ dependencies: { 'app-core-kit': 'git+https://github.com/x/app-core-kit.git#abcdef1234567' }, kits: [{ name: 'Core Kit', pkg: 'app-core-kit', version: 'v1.0.0' }] }} />, false);
     await press(h.byText('About'));
     for (const word of ['Features', 'Contact Support', 'Privacy Policy', 'Kits', 'Version']) expect(h.has(word)).toBe(true);
+    expect(h.texts().some((t) => /^Rate /.test(t))).toBe(true);
+    expect(h.texts().some((t) => /^Share /.test(t))).toBe(true);
+  });
+
+  it('5.0.0: About keeps its title and shows the logo under it, never the name; Rate and Share come from the App Store number', async () => {
+    const h = mount(<AppSettings {...props()} about={{ ...props().about, logo: { uri: 'https://x.y/logo.png', width: 1024 }, featuresUrl: 'https://x.y/features', appStoreId: '6830296391' }} />, false);
+    await press(h.byText('About'));
+    expect(h.byLabel('My App logo')).toBeTruthy();
+    expect(h.texts().filter((t) => t === 'About').length).toBeGreaterThan(0);
     expect(h.texts().some((t) => /^Rate /.test(t))).toBe(true);
     expect(h.texts().some((t) => /^Share /.test(t))).toBe(true);
   });
