@@ -16,6 +16,8 @@ export interface SettingsStrings {
   exportFailed: string;
   /** 6.0.0: the line at the top of the Data Export menu. */
   exportHead: string;
+  /** 9.2.0: the pill on the Data Export row when there are two or more formats. One format shows its own short name. */
+  exportPick: string;
   /** 7.0.0: the plan row's value and the badge on its page while the plan is not on sale yet. */
   comingSoon: string;
   /** 7.0.0: the line under the plan's name on its Coming Soon page. */
@@ -45,6 +47,7 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   plan: 'Premium',
   exportFailed: 'Could not create the file. Please try again.',
   exportHead: 'Choose a Format to Export',
+  exportPick: 'Choose',
   comingSoon: 'Coming Soon',
   comingSoonLine: (appName, planName) => `${appName} is free to use. ${planName} will be available soon.`,
   planWillAdd: (planName) => `What ${planName} Will Add`,

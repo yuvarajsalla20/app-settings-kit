@@ -2,6 +2,12 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 9.2.0 (2026-11-21)
+
+**The Data Export row's pill says "Choose".** With two or more formats the pill read "CSV / PDF", which looked like a chosen setting. It now says "Choose" (the kit's `exportPick` word, the same in every app). With one format the pill still shows its short name, such as "CSV". The menu, its locks and the Premium pill are unchanged.
+
+Upgrading: nothing to change.
+
 ## 9.1.0 (2026-11-21)
 
 **Share and Rate use Google Play on Android in every app, with no app code.** The kit reads the app's Google Play id from app.json (`expo.android.package`), or from the installed app on an Android phone, so Share sends the Google Play page and Rate opens it on Android. iPhone is unchanged.

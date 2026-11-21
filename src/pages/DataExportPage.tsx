@@ -80,8 +80,8 @@ export function exportMenu(config: Omit<DataExportConfig, 'menu'> & { menu?: boo
   const only = formats.length === 1 ? formats[0] : undefined;
   const head = typeof config.menu === 'object' && config.menu !== null && config.menu.head !== undefined ? config.menu.head : only?.detail;
   return {
-    // 3.4.0: several formats show all their short words in the pill ("CSV / PDF"), so the row always shows it opens a menu.
-    pill: formats.map((f) => f.pill ?? f.label.split(' ')[0]).join(' / ') || undefined,
+    // 9.2.0: several formats show "Choose" in the pill (it was "CSV / PDF", which read like a setting); one format shows its short name.
+    pill: formats.length > 1 ? DEFAULT_SETTINGS_STRINGS.exportPick : only ? (only.pill ?? only.label.split(' ')[0]) : undefined,
     head,
     // 9.0.0: a locked format also says which plan opens it ("CSV File, Premium"), so a screen reader hears it before a tap opens the plans.
     items: formats.map((f) => ({ id: f.id, label: f.label, icon: f.locked ? 'lock' : 'share', ...(f.locked ? { detail: f.lockedValue ?? DEFAULT_SETTINGS_STRINGS.plan } : {}) })),
