@@ -15,7 +15,7 @@ function DefaultRow({ format, last, onPress }: ExportRowProps) {
   return (
     <SettingRow
       icon={format.icon}
-      tint={format.tint}
+      tint={format.tint ?? ''}
       label={format.label}
       detail={locked ? (format.lockedDetail ?? format.detail) : format.detail}
       value={ownLock ? format.lockedValue : undefined}
@@ -37,7 +37,7 @@ type Props = DataExportPageProps & {
  * The Data Export page: one row per file format (CSV, PDF...). Each format has its own lock, so one app can keep CSV free and lock PDF while another locks both.
  * One file at a time; a failure is reported to `onError` and shown in plain words.
  */
-export function DataExportPage({ formats, onLocked, onError, onProblem, renderProblem, Row = DefaultRow, problemText = DEFAULT_SETTINGS_STRINGS.exportFailed }: Props) {
+export function DataExportPage({ formats, onLocked, onError, onProblem, renderProblem, Row = DefaultRow, tint, problemText = DEFAULT_SETTINGS_STRINGS.exportFailed }: Props) {
   const [problem, setProblem] = useState<string | null>(null);
   // The latest callbacks, read when a job fails (the runner itself lives as long as the page, so its busy flag survives re-renders).
   const report = useRef({ onError, onProblem, problemText });
@@ -63,7 +63,7 @@ export function DataExportPage({ formats, onLocked, onError, onProblem, renderPr
     <>
       <SettingsGroup>
         {formats.map((format, i) => (
-          <Row key={format.id} format={format} last={i === formats.length - 1} onPress={press(i)} />
+          <Row key={format.id} format={format.tint || !tint ? format : { ...format, tint }} last={i === formats.length - 1} onPress={press(i)} />
         ))}
       </SettingsGroup>
       {problem && renderProblem ? renderProblem(problem) : null}

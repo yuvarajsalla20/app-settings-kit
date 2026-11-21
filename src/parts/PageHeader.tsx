@@ -1,6 +1,6 @@
 import type { AccountTheme } from 'app-account-kit';
 import type { ComponentType, ReactNode } from 'react';
-import { StyleSheet, Text as PlainText, View } from 'react-native';
+import { StyleSheet, Text as PlainText, View, type TextProps } from 'react-native';
 import { makeBackButton } from './BackButton';
 
 export interface PageHeaderProps {
@@ -15,7 +15,8 @@ export interface PageHeaderProps {
   right?: ReactNode;
 }
 
-type TextLike = ComponentType<{ style?: unknown; numberOfLines?: number; accessibilityRole?: 'header'; children?: ReactNode }>;
+/** The app's Text (its font), the same type as app-account-kit's `components.Text`. */
+type TextLike = ComponentType<TextProps>;
 
 /**
  * 8.0.0: the header every Settings page has (the round Back button, then the title in one row), for an app's own screens, so every
@@ -26,7 +27,7 @@ type TextLike = ComponentType<{ style?: unknown; numberOfLines?: number; accessi
  */
 export function makePageHeader(theme: Pick<AccountTheme, 'accent' | 'ink' | 'text' | 'muted'> & { shadow?: string }, components: { Text?: TextLike } = {}) {
   const BackButton = makeBackButton(theme);
-  const Text = (components.Text ?? PlainText) as TextLike;
+  const Text: TextLike = components.Text ?? PlainText;
   // The same sizes as the Settings pages' plain header (app-account-kit's inline header).
   const styles = StyleSheet.create({
     row: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 },
