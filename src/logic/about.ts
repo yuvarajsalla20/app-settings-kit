@@ -36,6 +36,19 @@ export const titleCaseStrings = (appName: string): Partial<AccountStrings> => ({
   accessNote: 'Logging out keeps your data safe in your account. Closing your account erases it for good, after a few checks.',
 });
 
+/**
+ * 3.4.0: the grey headings over the cards, the same in every app. Account: Profile, Your Data, Sign In. About: the app's
+ * name, Help, Info (Version before Kits). An app can still reword or blank any of them through `strings`.
+ */
+export const cardHeadings = (appName: string) => ({
+  profileGroup: 'Profile',
+  dataGroup: 'Your Data',
+  exitGroup: 'Sign In',
+  aboutAppGroup: appName,
+  aboutHelpGroup: 'Help',
+  aboutInfoGroup: 'Info',
+});
+
 /** What the approved About page needs. Each missing part hides a row or the picture, so a new app is told in development. */
 export interface AboutParts {
   logo?: unknown;

@@ -80,7 +80,8 @@ export function exportMenu(config: DataExportConfig, run: (job: () => Promise<un
   const only = formats.length === 1 ? formats[0] : undefined;
   const head = typeof config.menu === 'object' && config.menu.head !== undefined ? config.menu.head : only?.detail;
   return {
-    pill: only ? (only.pill ?? only.label.split(' ')[0]) : undefined,
+    // 3.4.0: several formats show all their short words in the pill ("CSV / PDF"), so the row always shows it opens a menu.
+    pill: formats.map((f) => f.pill ?? f.label.split(' ')[0]).join(' / ') || undefined,
     head,
     items: formats.map((f) => ({ id: f.id, label: f.label, icon: f.locked ? 'lock' : 'share' })),
     onPick: (id) => {

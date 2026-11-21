@@ -3,7 +3,7 @@ import { Pressable, Text } from 'react-native';
 import { describe, expect, it, vi } from 'vitest';
 import { AppSettings, type AppSettingsProps } from '../src/AppSettings';
 import { useSettingsNav } from '../src';
-import { DataExportPage } from '../src/pages/DataExportPage';
+import { DataExportPage, exportMenu } from '../src/pages/DataExportPage';
 import { DEFAULT_SETTINGS_STRINGS as W } from '../src/strings';
 import type { ExportFormat } from '../src/types';
 import { THEME } from './helpers/theme';
@@ -117,18 +117,36 @@ describe('AppSettings', () => {
     expect(h.has('Close Account')).toBe(true);
   });
 
+  it('3.4.0: the Data Export pill names every format', () => {
+    expect(exportMenu({ formats: [csv(), pdf()], menu: true }, () => {}).pill).toBe('CSV / PDF');
+    expect(exportMenu({ formats: [csv()], menu: true }, () => {}).pill).toBe('CSV');
+  });
+
+  it('3.4.0: the same card headings in every app, and Deactivate under Log Out', async () => {
+    const actions = { confirmsWithPassword: true, onSignOut: async () => {}, onDeleteAccount: async () => {} };
+    const h = mount(<AppSettings {...props({ actions })} exitMenu={{ place: 'page', signOutOnAccount: true }} />, false);
+    await press(h.byLabel('Account'));
+    expect(h.has('Profile')).toBe(true);
+    expect(h.has('Sign In')).toBe(true);
+    expect(h.has('Deactivate')).toBe(true);
+    expect(h.has('Access')).toBe(false);
+    const own = mount(<AppSettings {...props({ actions })} strings={{ access: 'Close Account', exitGroup: '' }} exitMenu={{ place: 'page', signOutOnAccount: true }} />, false);
+    await press(own.byLabel('Account'));
+    expect(own.has('Close Account')).toBe(true);
+    expect(own.has('Sign In')).toBe(false);
+  });
+
   it('hides what the app leaves out, and names the plan page "Plan" until the app names it', () => {
     const h = mount(<AppSettings {...props()} plan={{ content: <Text>Plans</Text> }} />, false);
     expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Account', 'Plan']);
   });
 
-  it('puts Data Export straight on Account with no heading, opens its formats, and Back returns to Account', async () => {
+  it('puts Data Export straight on Account under Your Data (3.4.0), opens its formats, and Back returns to Account', async () => {
     const strings = { dataExport: 'Downloads' };
     const h = mount(<AppSettings {...props()} settingsStrings={strings} order={['export', 'about']} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn() }} />, false);
     expect(rowsOnList(h.texts(), [...NAMES, 'Downloads'])).toEqual(['About', 'Account']);
     await press(h.byText('Account'));
-    expect(h.has('Your Data')).toBe(false);
-    expect(h.has('Your data')).toBe(false);
+    expect(h.has('Your Data')).toBe(true);
     await press(h.byText('Downloads'));
     expect(h.has('CSV File')).toBe(true);
     expect(h.has('PDF Report')).toBe(true);
