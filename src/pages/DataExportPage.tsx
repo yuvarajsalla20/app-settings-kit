@@ -75,10 +75,10 @@ export function DataExportPage({ formats, onLocked, onError, onProblem, renderPr
  * Data Export as a pull-down menu on its row (3.3.0): one line per format with its icon (a padlock while locked). A tap on an
  * open format runs `onExport` through `run` (one file at a time); on a locked one it calls `onLocked`.
  */
-export function exportMenu(config: DataExportConfig, run: (job: () => Promise<unknown>) => void): NonNullable<ExtraPage['menu']> {
+export function exportMenu(config: Omit<DataExportConfig, 'menu'> & { menu?: boolean | { head?: string } }, run: (job: () => Promise<unknown>) => void): NonNullable<ExtraPage['menu']> {
   const { formats } = config;
   const only = formats.length === 1 ? formats[0] : undefined;
-  const head = typeof config.menu === 'object' && config.menu.head !== undefined ? config.menu.head : only?.detail;
+  const head = typeof config.menu === 'object' && config.menu !== null && config.menu.head !== undefined ? config.menu.head : only?.detail;
   return {
     // 3.4.0: several formats show all their short words in the pill ("CSV / PDF"), so the row always shows it opens a menu.
     pill: formats.map((f) => f.pill ?? f.label.split(' ')[0]).join(' / ') || undefined,

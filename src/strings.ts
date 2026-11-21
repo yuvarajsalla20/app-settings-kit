@@ -14,6 +14,8 @@ export interface SettingsStrings {
   plan: string;
   /** Shown when a file could not be made. */
   exportFailed: string;
+  /** 6.0.0: the line at the top of the Data Export menu. */
+  exportHead: string;
 }
 
 export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
@@ -22,4 +24,5 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   dataExport: 'Data Export',
   plan: 'Plan',
   exportFailed: 'Could not create the file. Please try again.',
+  exportHead: 'Make a file and share it',
 };

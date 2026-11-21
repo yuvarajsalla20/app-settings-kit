@@ -30,10 +30,11 @@ const toAccount = ({ under, ...rest }: ExtraPage): AccountExtraPage => {
   return parent ? { ...rest, under: parent } : rest;
 };
 
-const page = (row: PageRow | undefined, fallback: { id: string; label: string; icon: ExtraPage['icon'] }, content: ReactNode): AccountExtraPage => ({
-  id: row?.id ?? fallback.id,
-  label: row?.label ?? fallback.label,
-  icon: row?.icon ?? fallback.icon,
+const page = (row: PageRow | undefined, kit: { id: string; label: string; icon: ExtraPage['icon'] }, content: ReactNode): AccountExtraPage => ({
+  id: row?.id ?? kit.id,
+  label: kit.label,
+  icon: kit.icon,
+  // Colors are the app's theme (the kit has none of its own), so the tile color is the one thing on the row besides the value the app gives.
   ...(row?.tint ? { tint: row.tint } : {}),
   ...(row?.value !== undefined ? { value: row.value } : {}),
   ...(row?.badge !== undefined ? { badge: row.badge } : {}),

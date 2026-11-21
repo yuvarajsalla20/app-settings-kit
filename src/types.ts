@@ -61,14 +61,14 @@ export interface DataExportPageProps {
   Row?: ComponentType<ExportRowProps>;
 }
 
-/** The row on the Settings list for a page this kit adds. Every part is optional. */
+/**
+ * The row on the Settings list for a page this kit adds. 6.0.0: the row's name, icon and color are the kit's, the same in
+ * every app; an app gives only the page id, its palette's tile color, and the live value or pill on the right.
+ */
 export interface PageRow {
   /** The page id. Default "export" for Data Export and "plan" for the plan page. */
   id?: string;
-  /** The row name and page title. Default from `settingsStrings`. */
-  label?: string;
-  icon?: IconName;
-  /** The icon tile color. Default: the Preferences tile color. */
+  /** The icon tile color, from the app's palette (the kit has no colors of its own). Default: the Preferences tile color. */
   tint?: string;
   /** A short word on the right of the row, read out with the label ("Yearly", "VIP"). */
   value?: string;
@@ -79,15 +79,13 @@ export interface PageRow {
 /** The Data Export page: its row, and the formats it offers. */
 export type DataExportConfig = PageRow &
   DataExportPageProps & {
-    /**
-     * Opt-in (3.3.0): Data Export opens a pull-down menu right on its row instead of a page (app-account-kit 7.26.0). The row
-     * shows the format in a grey pill (with one format); each format is one line, and a tap makes and shares that file. `head`
-     * is a short line at the top of the menu (default: the format's `detail` when there is only one).
-     */
-    menu?: boolean | { head?: string };
+    /** @deprecated 6.0.0: Data Export is always the pull-down menu on its row, with the kit's line at the top. Ignored. */
+    menu?: unknown;
   };
 
 /** The plan page (VIP, Premium): its row, and what the page shows (for example app-subscriptions-kit's `PremiumPage`). */
 export interface PlanConfig extends PageRow {
+  /** 6.0.0: the plan's name (Premium, VIP): the row name and page title. The only word on Settings that is the app's. */
+  name: string;
   content: ReactNode;
 }
