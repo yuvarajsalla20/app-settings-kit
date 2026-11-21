@@ -105,8 +105,8 @@ describe('AppSettings', () => {
     }
   });
 
-  it('3.4.0: the Data Export pill names every format', () => {
-    expect(exportMenu({ formats: [csv(), pdf()], menu: true }, () => {}).pill).toBe('CSV / PDF');
+  it('9.2.0: the Data Export pill says Choose for several formats and names a single one', () => {
+    expect(exportMenu({ formats: [csv(), pdf()], menu: true }, () => {}).pill).toBe('Choose');
     expect(exportMenu({ formats: [csv()], menu: true }, () => {}).pill).toBe('CSV');
   });
 
