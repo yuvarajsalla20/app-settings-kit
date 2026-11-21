@@ -251,6 +251,18 @@ src/
 tests/                logic, build stamp, no colors, and the real screens rendered with a small React Native stand-in
 ```
 
+## Writing rule: every word is professional
+
+This rule covers app-settings-kit and every kit it brings in: core, auth, account, subscriptions, payments, export, guard and theme. It applies to every caption, tagline, sub-line, placeholder, note, message and button these kits show, and to every new word anyone adds.
+
+- **Titles, row labels and buttons** use Title Case: "Confirm Your PIN", "Not Now", "Sign In Again", "Data Export". Small words (a, an, the, and, or, to, of, in, on, for, by) stay lower case unless they come first.
+- **Captions, notes and messages** are calm, complete sentences with a full stop: "Unable to save your PIN. Please try again." Never chatty fragments ("Add your own, rename, recolor or hide"), never slang, never exclamation marks.
+- **Errors** say what happened and what to do next: "Unable to verify your PIN. Please try again." Not "Oops" or "Something broke".
+- **Examples** use "e.g.,": "New category name (e.g., Pets)". Not "like Pets".
+- **Status words** are capitalized after a dot: "Estimated rates · Offline", "Updated 9:00 AM".
+- **Consistent words** across kits: Log Out, Erase Account, Profile, Preferences, Premium, Data Export, App Lock, Face ID (Face Unlock and Fingerprint on Android), "device" rather than "phone" in messages.
+- Apps do not override kit words. If a word must change, change the kit default so every app gets it.
+
 ## Rules it follows
 
 - No colors in `src/`. Every color comes from the app's theme.
