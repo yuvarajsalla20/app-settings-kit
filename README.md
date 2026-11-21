@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 6.0.0** (tag `v6.0.0`). Needs app-account-kit **7.30.0** or later.
+**Current version: 7.0.0** (tag `v7.0.0`). Needs app-account-kit **7.30.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -93,7 +93,7 @@ import { AppSettings } from 'app-settings-kit';
     ],
     onLocked: OPEN_PLANS,
   }}
-  plan={{ id: 'premium', name: PLAN_NAME, tint: TINT, value: CURRENT_PLAN_WORD, badge: PLAN_PILL, content: PLAN_PAGE }}
+  plan={{ id: 'premium', tint: TINT, value: CURRENT_PLAN_WORD, badge: PLAN_PILL, content: PLAN_PAGE }}   // called Premium in every app
   extraPages={APP_EXTRA_PAGES}             // optional
 />
 ```
@@ -127,12 +127,24 @@ These app-account-kit `SettingsScreen` props pass through: `theme`, `strings` (t
 | `kitSources` | `{ dependencies, kits: { name, pkg, version }[] }` | Fills About > Kits, each build read from its pin |
 | `preferences` | `ReactNode` | The app's own settings rows |
 | `dataExport` | `DataExportConfig` | The Data Export page (see below) |
-| `plan` | `PlanConfig` | The plan page: `{ name, content, id?, tint?, value?, badge? }`. `name` (Premium, VIP) is the only word on Settings that is the app's |
+| `plan` | `PlanConfig` | The plan page: `{ content?, id?, tint?, value?, badge?, features?, freeFeatures? }`. 7.0.0: it is called **Premium** in every app (the kit's word). Leave out `content` while nothing is on sale and the kit draws its Coming Soon page (see below) |
 | `extraPages` | `ExtraPage[]` | Optional: the app's own pages. `under: 'preferences'` or `'account'` puts one inside that parent; left out, it follows the four parents on the list |
 
 6.0.0 removed `order`, `dataExportIn`, `plainHeaders`, `pickers`, `settingsStrings`, `data`, `about.version`, and the `label`, `icon` and `menu` of `plan` and `dataExport`. They are the kit's now.
 
-Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, the headings (Account, Your Data, Sign In on the Profile page; the app's name, Help, Info), Log Out and Erase Account.
+Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, Premium (7.0.0), the headings (Account, Your Data, Sign In on the Profile page; the app's name, Help, Info), Log Out and Erase Account.
+
+## The plan page while nothing is on sale (7.0.0)
+
+Every app shows its plan page. An app whose plan is not on sale yet passes no `content`, and the kit draws the same Coming Soon page in every app:
+
+```tsx
+plan={{ tint: TINT, features: ['Shared household', 'Monthly budget'], freeFeatures: ['Unlimited expenses'] }}
+```
+
+- The row on the list reads **Coming Soon**.
+- The page: **Premium** with **Coming Soon** and "&lt;App&gt; is free to use. Premium is on the way.", then **What Premium Will Add** (`features`) and **Free in &lt;App&gt; Today** (`freeFeatures`), each card only when the app lists something. Rows only: nothing to buy.
+- Once the plan is on sale, pass `content` (usually app-subscriptions-kit's `PremiumPage`) and the app's own page and row value come back.
 
 ## Data Export
 

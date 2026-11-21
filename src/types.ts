@@ -85,7 +85,19 @@ export type DataExportConfig = PageRow &
 
 /** The plan page (VIP, Premium): its row, and what the page shows (for example app-subscriptions-kit's `PremiumPage`). */
 export interface PlanConfig extends PageRow {
-  /** 6.0.0: the plan's name (Premium, VIP): the row name and page title. The only word on Settings that is the app's. */
-  name: string;
-  content: ReactNode;
+  /**
+   * @deprecated 7.0.0: the plan is called "Premium" in every app (the kit's word). Still accepted so 6.x apps compile; a different
+   * name is not used and is named in development.
+   */
+  name?: string;
+  /**
+   * The plan page, for an app whose plan is on sale (usually app-subscriptions-kit's `PremiumPage`).
+   * 7.0.0: leave it out while there is nothing to buy: the kit then draws its standard Coming Soon page, the same in every
+   * app, and the row reads "Coming Soon".
+   */
+  content?: ReactNode;
+  /** 7.0.0, Coming Soon page only: what the plan will add, one line each. */
+  features?: readonly string[];
+  /** 7.0.0, Coming Soon page only: what the app gives for free today, one line each. */
+  freeFeatures?: readonly string[];
 }

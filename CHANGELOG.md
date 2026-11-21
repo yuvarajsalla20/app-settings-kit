@@ -2,6 +2,17 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 7.0.0 (2026-11-21)
+
+**One plan name and one Coming Soon page, the same in every app.**
+
+- **The plan is called "Premium" in every app.** It is the kit's word now, like Profile and Preferences: the row on the list and the page title. `plan.name` is no longer needed; a different name (VIP, Plus) is not used and is named in development.
+- **A standard Coming Soon page.** An app with nothing on sale yet passes no `plan.content`, and the kit draws the page: "Premium" with "Coming Soon", "&lt;App&gt; is free to use. Premium is on the way.", then "What Premium Will Add" (`plan.features`) and "Free in &lt;App&gt; Today" (`plan.freeFeatures`), each card only when the app lists something. The row on the list reads "Coming Soon". New kit words: `comingSoon`, `comingSoonLine`, `planWillAdd`, `freeToday`. `ComingSoonPage` is exported too.
+- Nothing else changes for an app that passes `plan.content` and already calls its plan Premium (HringNring).
+
+### Upgrading from 6.x
+Delete `plan.name`. An app with no plan on sale deletes its own plan page from `plan.content` and passes `plan.features` (and `plan.freeFeatures`) instead.
+
 ## 6.0.0 (2026-11-21)
 
 **Every Settings section is now locked to the approved layout, in every app.** 5.0.0 made every row required; an app could still reorder the list, move Data Export, turn off the approved look, rename or re-icon the plan and Data Export rows, bring its own Back button, replace the Version line, or leave out Log Out and Erase Account. None of that is possible now. Only Theme and Security (rows in `preferences`) are an app's choice.

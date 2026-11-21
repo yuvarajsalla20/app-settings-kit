@@ -1,6 +1,7 @@
 export { AppSettings, appStorePage } from './AppSettings';
 export type { AboutConfig, AppSettingsProps } from './AppSettings';
 export { DataExportPage } from './pages/DataExportPage';
+export { ComingSoonPage, type ComingSoonPageProps } from './pages/ComingSoonPage';
 /** The approved round Back button and swipe-from-the-edge, for the app's own inner screens too. */
 export { BACK_BUTTON, makeBackButton } from './parts/BackButton';
 export type { BackButtonProps } from './parts/BackButton';
