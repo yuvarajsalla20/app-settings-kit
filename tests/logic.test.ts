@@ -115,7 +115,7 @@ describe('exportMenu (3.3.0)', () => {
     const run = vi.fn();
     const onLocked = vi.fn();
     const m = exportMenu({ formats: [{ ...csv, locked: true }, { ...csv, id: 'pdf', label: 'PDF' }], menu: { head: 'Pick one' }, onLocked }, run);
-    expect(m.pill).toBeUndefined();
+    expect(m.pill).toBe(`${csv.label.split(' ')[0]} / PDF`); // 3.4.0: every format's short word
     expect(m.head).toBe('Pick one');
     expect(m.items.map((i) => i.icon)).toEqual(['lock', 'share']);
     m.onPick('csv');

@@ -2,6 +2,16 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 3.4.0 (2026-11-21)
+
+**The same Settings words in every app.** So each app stops re-adding them:
+
+- **Card headings by default:** Account shows **Profile**, **Your Data** (over Data Export) and **Sign In**. About shows the **app's name**, **Help** and **Info** (Version before Kits). Reword or blank any through `strings` (`profileGroup`, `dataGroup`, `exitGroup`, `aboutAppGroup`, `aboutHelpGroup`, `aboutInfoGroup`).
+- **Deactivate:** with `exitMenu.signOutOnAccount`, the row under Log Out reads **Deactivate** (it holds only Close Account). `strings.access` still wins.
+- **Data Export pill names every format:** with `menu` and several formats the row's pill reads "CSV / PDF" (one format still reads "CSV").
+
+Visible on update: the headings and the Deactivate word. Needs app-account-kit 7.26.0 (unchanged).
+
 ## 3.3.0 (2026-11-20)
 
 **Data Export as a pull-down menu (opt-in).** `dataExport={{ ..., menu: true }}` makes the Data Export row open a small menu in place instead of a page: one line per format (a padlock while locked), and a tap makes and shares that file, one at a time. With one format the row shows it in a grey pill ("CSV", from `pill` or the first word of the label) and the menu's top line is its `detail` (or `menu.head`). Failures go to `onError` and `onProblem`. Without it nothing changes.

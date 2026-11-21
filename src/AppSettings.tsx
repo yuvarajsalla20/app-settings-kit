@@ -2,7 +2,7 @@ import { SettingsScreen, type AboutProps, type AccountStrings, type ExitMenuProp
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 import { assemblePages } from './assemble';
-import { missingAboutParts, titleCaseStrings } from './logic/about';
+import { cardHeadings, missingAboutParts, titleCaseStrings } from './logic/about';
 import { kitList, type KitSource } from './logic/kits';
 import { versionLines, type VersionParts } from './logic/version';
 import { makeBackButton } from './parts/BackButton';
@@ -73,8 +73,16 @@ export function AppSettings({ preferences, dataExport, dataExportIn, plan, extra
   // The approved Title Case words ("Rate MyApp", "Contact Support"), then this kit's page names, then anything the app rewords.
   const appName = about.appName;
   const accountStrings = useMemo<Partial<AccountStrings>>(
-    () => ({ ...titleCaseStrings(appName), app: words.preferences, ...(words.account !== undefined ? { account: words.account } : {}), ...strings }),
-    [appName, strings, words.preferences, words.account],
+    () => ({
+      ...titleCaseStrings(appName),
+      ...cardHeadings(appName),
+      // 3.4.0: with Log Out as its own row, the row under it holds only Close Account, so it reads "Deactivate" in every app.
+      ...(exitMenu && exitMenu.signOutOnAccount ? { access: 'Deactivate' } : {}),
+      app: words.preferences,
+      ...(words.account !== undefined ? { account: words.account } : {}),
+      ...strings,
+    }),
+    [appName, strings, words.preferences, words.account, exitMenu],
   );
   // The approved About page has the app's picture, Features, Rate, Share and Kits. Say in development which ones this app is missing.
   const missing = missingAboutParts(about).join(', ');
