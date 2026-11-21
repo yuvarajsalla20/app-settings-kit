@@ -145,10 +145,13 @@ describe('AppSettings', () => {
     expect(h.has('Sign In')).toBe(true);
     expect(h.has('Erase Account')).toBe(true);
     expect(h.has('Access')).toBe(false);
-    const own = mount(<AppSettings {...props({ actions })} strings={{ access: 'Close Account', exitGroup: '' }} exitMenu={{ place: 'page', signOutOnAccount: true }} />, false);
+    // 4.0.0: enforced. An app's own version of a kit word is not used (it is warned about in development).
+    const own = mount(<AppSettings {...props({ actions })} strings={{ access: 'Close Account', exitGroup: 'Sign-in', aboutInfoGroup: 'App info' }} exitMenu={{ place: 'page', signOutOnAccount: true }} />, false);
     await press(own.byLabel('Profile'));
-    expect(own.has('Close Account')).toBe(true);
-    expect(own.has('Sign In')).toBe(false);
+    expect(own.has('Erase Account')).toBe(true);
+    expect(own.has('Close Account')).toBe(false);
+    expect(own.has('Sign In')).toBe(true);
+    expect(own.has('Sign-in')).toBe(false);
   });
 
   it('hides what the app leaves out, and names the plan page "Plan" until the app names it', () => {
@@ -157,16 +160,15 @@ describe('AppSettings', () => {
   });
 
   it('puts Data Export straight on Account under Your Data (3.4.0), opens its formats, and Back returns to Account', async () => {
-    const strings = { dataExport: 'Downloads' };
-    const h = mount(<AppSettings {...props()} settingsStrings={strings} order={['export', 'about']} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn() }} />, false);
-    expect(rowsOnList(h.texts(), [...NAMES, 'Downloads'])).toEqual(['About', 'Profile']);
+    const h = mount(<AppSettings {...props()} order={['export', 'about']} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn() }} />, false);
+    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile']);
     await press(h.byText('Profile'));
     expect(h.has('Your Data')).toBe(true);
-    await press(h.byText('Downloads'));
+    await press(h.byText('Data Export'));
     expect(h.has('CSV File')).toBe(true);
     expect(h.has('PDF Report')).toBe(true);
     await press(h.byLabel('Back'));
-    expect(h.has('Downloads')).toBe(true);
+    expect(h.has('Data Export')).toBe(true);
   });
 
   it('opens Data Export from the plan page through useSettingsNav, and Back returns to the plan page', async () => {
@@ -219,9 +221,14 @@ describe('AppSettings', () => {
     expect(h2.has('MINE')).toBe(true);
   });
 
-  it("keeps the app's own name for Preferences when it already renamed it", () => {
-    const h = mount(<AppSettings {...props()} strings={{ app: 'Options' }} preferences={<Text>rows</Text>} />, false);
-    expect(h.has('Options')).toBe(true);
-    expect(h.has('Preferences')).toBe(false);
+  it('4.0.0: Preferences is the same in every app, even when the app tries to rename it', () => {
+    const h = mount(<AppSettings {...props()} strings={{ app: 'Options' }} settingsStrings={{ preferences: 'Options' } as never} preferences={<Text>rows</Text>} />, false);
+    expect(h.has('Preferences')).toBe(true);
+    expect(h.has('Options')).toBe(false);
+  });
+
+  it('4.0.0: the plan keeps the app\'s own name', () => {
+    const h = mount(<AppSettings {...props()} settingsStrings={{ plan: 'Premium' }} plan={{ content: <Text>Plans</Text> }} />, false);
+    expect(h.has('Premium')).toBe(true);
   });
 });

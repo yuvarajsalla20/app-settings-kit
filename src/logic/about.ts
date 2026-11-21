@@ -33,12 +33,12 @@ export const titleCaseStrings = (appName: string): Partial<AccountStrings> => ({
   keepAccount: 'Keep My Account',
   // 3.2.0: the Access page (exitMenu place 'page'), in the same words.
   access: 'Access',
-  accessNote: 'Logging out keeps your data safe in your account. Closing your account erases it for good, after a few checks.',
+  accessNote: 'Logging out keeps your data safe. Erasing your account wipes it for good, after a few checks.',
 });
 
 /**
  * 3.4.0: the grey headings over the cards, the same in every app. Account: Profile, Your Data, Sign In. About: the app's
- * name, Help, Info (Version before Kits). An app can still reword or blank any of them through `strings`.
+ * name, Help, Info (Version before Kits). 4.0.0: enforced, an app cannot reword them.
  */
 export const cardHeadings = (appName: string) => ({
   profileGroup: 'Profile',

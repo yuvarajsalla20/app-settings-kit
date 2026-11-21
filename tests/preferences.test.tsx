@@ -43,7 +43,6 @@ describe('AppSettings with Profile and Preferences', () => {
     const h = mount(
       <AppSettings
         {...props()}
-        settingsStrings={{ account: 'Profile' }}
         preferences={prefs}
         dataExportIn="preferences"
         dataExport={{ formats: [csv] }}
@@ -68,9 +67,9 @@ describe('AppSettings with Profile and Preferences', () => {
     expect(h.has('Currency')).toBe(true);
   });
 
-  it("strings.account still wins over settingsStrings.account; without either the row is 'Profile' (4.0.0)", () => {
-    expect(onList(mount(<AppSettings {...props()} settingsStrings={{ account: 'Profile' }} strings={{ account: 'Me' }} />, false).texts())).toEqual(['About']);
-    expect(mount(<AppSettings {...props()} settingsStrings={{ account: 'Profile' }} strings={{ account: 'Me' }} />, false).has('Me')).toBe(true);
+  it("4.0.0: the row is always 'Profile', whatever the app passes", () => {
+    expect(mount(<AppSettings {...props()} settingsStrings={{ account: 'Account' } as never} strings={{ account: 'Me' }} />, false).has('Me')).toBe(false);
+    expect(onList(mount(<AppSettings {...props()} strings={{ account: 'Account' }} />, false).texts())).toEqual(['About', 'Profile']);
     expect(onList(mount(<AppSettings {...props()} />, false).texts())).toEqual(['About', 'Profile']);
   });
 });

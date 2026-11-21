@@ -1,10 +1,9 @@
-/** Every word this kit adds, in English. An app rewords any of them through `settingsStrings`. */
+/** Every word this kit adds, in English. 4.0.0: the same in every app; only `plan` (the plan's name) can be set through `settingsStrings`. */
 export interface SettingsStrings {
   /** The row and page for the app's own settings (app-account-kit's "App" page). */
   preferences: string;
   /**
    * The Account row and page title. 4.0.0: "Profile" in every app (was app-account-kit's "Account").
-   * `strings.account` still wins when the app sets both.
    */
   account: string;
   /** The Data Export row and page title. */

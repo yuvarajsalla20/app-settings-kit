@@ -42,8 +42,8 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
   extraPages?: readonly ExtraPage[];
   /** The list order. Default About, Account, Preferences, plan (`DEFAULT_ORDER`); use "plan" for the plan page and an extra page's id for the app's. Data Export is never on the list. */
   order?: readonly string[];
-  /** This kit's words. Define once, outside the component. */
-  settingsStrings?: Partial<SettingsStrings>;
+  /** 4.0.0: only the plan's name (Premium, VIP). Every other word is the kit's and the same in every app. */
+  settingsStrings?: Pick<Partial<SettingsStrings>, 'plan'>;
 };
 
 /**
@@ -75,22 +75,29 @@ export function AppSettings({ preferences, dataExport, dataExportIn, plan, extra
   const shadow = (rest.theme as { shadow?: string }).shadow;
   const BackButton = useMemo(() => makeBackButton({ accent, ink, text, shadow }), [accent, ink, text, shadow]);
   const components = useMemo(() => ({ BackButton, EdgeSwipe: EdgeSwipeBack, ...componentsIn }), [BackButton, componentsIn]);
-  const words = useMemo(() => ({ ...DEFAULT_SETTINGS_STRINGS, ...settingsStrings }), [settingsStrings]);
-  // Preferences is app-account-kit's App page under its new name, unless the app already renamed it.
-  // The approved Title Case words ("Rate MyApp", "Contact Support"), then this kit's page names, then anything the app rewords.
+  // 4.0.0: the kit's words are enforced, so every app reads the same. Only the plan's name (Premium, VIP) is the app's.
+  const words = useMemo(() => ({ ...DEFAULT_SETTINGS_STRINGS, ...(settingsStrings?.plan !== undefined ? { plan: settingsStrings.plan } : {}) }), [settingsStrings?.plan]);
   const appName = about.appName;
-  const accountStrings = useMemo<Partial<AccountStrings>>(
+  const locked = useMemo(
     () => ({
       ...titleCaseStrings(appName),
       ...cardHeadings(appName),
-      // 3.4.0: with Log Out as its own row, the row under it holds only Close Account, so it reads "Erase Account" in every app (4.0.0; was "Deactivate").
+      // With Log Out as its own row, the row under it holds only the delete steps, so it reads "Erase Account" in every app (4.0.0; was "Deactivate").
       ...(exitMenu && exitMenu.signOutOnAccount ? { access: 'Erase Account' } : {}),
       app: words.preferences,
       account: words.account,
-      ...strings,
     }),
-    [appName, strings, words.preferences, words.account, exitMenu],
+    [appName, words.preferences, words.account, exitMenu],
   );
+  // The app's own sentences (deleteWarning, describeError text...) still come from `strings`; the kit's words always win.
+  const accountStrings = useMemo<Partial<AccountStrings>>(() => ({ ...strings, ...locked }), [strings, locked]);
+  const ignored = [
+    ...Object.keys(strings ?? {}).filter((k) => k in locked && (strings as Record<string, unknown>)[k] !== (locked as Record<string, unknown>)[k]),
+    ...Object.keys(settingsStrings ?? {}).filter((k) => k !== 'plan'),
+  ].join(', ');
+  useEffect(() => {
+    if (ignored && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: ${ignored} are the kit's words and the same in every app, so the app's version is not used. Change them in the kit.`);
+  }, [ignored]);
   // The approved About page has the app's picture, Features, Rate, Share and Kits. Say in development which ones this app is missing.
   const missing = missingAboutParts(about).join(', ');
   useEffect(() => {
