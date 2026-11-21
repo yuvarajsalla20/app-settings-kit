@@ -139,7 +139,8 @@ describe('Writing rule (9.0.0)', () => {
   });
   it('Coming Soon and the Data Export menu line read as professional copy', async () => {
     const { DEFAULT_SETTINGS_STRINGS: w } = await import('../src/strings');
-    expect(w.comingSoonLine('Moonpenny', 'Premium')).toBe('Moonpenny is free to use. Premium will be available soon.');
+    expect(w.comingSoonLine('Moonpenny', 'Premium')).toBe('Every current Moonpenny feature is free. Premium will be available soon.');
+    expect(w.compareTitle('Premium')).toBe('Compare Free and Premium');
     expect(w.exportHead).toBe('Choose a Format to Export');
   });
   it('the Erase warning names Google Play on Android and the Apple ID on iPhone', async () => {

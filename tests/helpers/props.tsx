@@ -18,6 +18,6 @@ export const fullProps = (over: Partial<AppSettingsProps> = {}): AppSettingsProp
   actions: { confirmsWithPassword: true, onSignOut: async () => {}, onDeleteAccount: async () => {} },
   preferences: <Text>Currency</Text>,
   dataExport: { formats: [CSV] },
-  plan: { id: 'vip', content: <Text>VIP page</Text> },
+  plan: { id: 'vip', content: <Text>VIP page</Text>, features: ['Shared Ledger'], freeFeatures: ['Unlimited Expenses'] },
   ...over,
 });

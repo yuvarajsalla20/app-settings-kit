@@ -22,10 +22,17 @@ export interface SettingsStrings {
   comingSoon: string;
   /** 7.0.0: the line under the plan's name on its Coming Soon page. */
   comingSoonLine: (appName: string, planName: string) => string;
-  /** 7.0.0: the heading over what the plan will add. */
-  planWillAdd: (planName: string) => string;
-  /** 7.0.0: the heading over what is free today. */
-  freeToday: (appName: string) => string;
+  /** 10.0.0: the heading over the Free and Premium comparison on the plan page. */
+  compareTitle: (planName: string) => string;
+  /** 10.0.0: the comparison's first column. */
+  compareFeature: string;
+  /** 10.0.0: the comparison's Free column. */
+  compareFree: string;
+  /** 10.0.0: under the plan's column once the person pays for it. */
+  compareYourPlan: string;
+  /** 10.0.0: what screen readers hear for a tick and a dash in the comparison. */
+  compareIncluded: string;
+  compareNotIncluded: string;
   /** 8.0.0: the card at the end of Preferences that holds Appearance. */
   display: string;
   /** 8.0.0: the Light / Dark row. */
@@ -49,9 +56,13 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   exportHead: 'Choose a Format to Export',
   exportPick: 'Choose',
   comingSoon: 'Coming Soon',
-  comingSoonLine: (appName, planName) => `${appName} is free to use. ${planName} will be available soon.`,
-  planWillAdd: (planName) => `What ${planName} Will Add`,
-  freeToday: (appName) => `Free in ${appName} Today`,
+  comingSoonLine: (appName, planName) => `Every current ${appName} feature is free. ${planName} will be available soon.`,
+  compareTitle: (planName) => `Compare Free and ${planName}`,
+  compareFeature: 'Feature',
+  compareFree: 'Free',
+  compareYourPlan: 'Your Plan',
+  compareIncluded: 'Included',
+  compareNotIncluded: 'Not included',
   display: 'Display',
   appearance: 'Appearance',
   security: 'Security',

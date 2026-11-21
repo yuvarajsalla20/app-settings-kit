@@ -143,11 +143,37 @@ describe('AppSettings', () => {
     const h = mount(<AppSettings {...props()} plan={{ features: ['Shared household'], freeFeatures: ['Unlimited expenses'] }} />, false);
     expect(h.has('Coming Soon')).toBe(true);
     await press(h.byText('Premium'));
-    expect(h.has('My App is free to use. Premium will be available soon.')).toBe(true);
-    expect(h.has('What Premium Will Add')).toBe(true);
+    expect(h.has('Every current My App feature is free. Premium will be available soon.')).toBe(true);
+    expect(h.has('Compare Free and Premium')).toBe(true);
     expect(h.has('Shared household')).toBe(true);
-    expect(h.has('Free in My App Today')).toBe(true);
     expect(h.has('Unlimited expenses')).toBe(true);
+    // 10.0.0: the two old lists are gone.
+    expect(h.has('What Premium Will Add')).toBe(false);
+    expect(h.has('Free in My App Today')).toBe(false);
+  });
+
+  it('10.0.0: the comparison marks Premium features apart from free ones, in order, for screen readers too', async () => {
+    const h = mount(<AppSettings {...props()} plan={{ features: [{ label: 'Repeat Alerts', detail: 'Up to 5 Times', icon: 'repeat' }, 'Workspaces'], freeFeatures: ['Sync Across Devices'] }} />, false);
+    await press(h.byText('Premium'));
+    const said = h.root.root.findAll((n) => n.type === 'View' && typeof n.props.accessibilityLabel === 'string' && n.props.accessibilityLabel.includes('Free:')).map((n) => n.props.accessibilityLabel);
+    expect(said).toEqual([
+      'Repeat Alerts, Up to 5 Times. Free: Not included. Premium: Included.',
+      'Workspaces. Free: Not included. Premium: Included.',
+      'Sync Across Devices. Free: Included. Premium: Included.',
+    ]);
+    expect(h.has('Up to 5 Times')).toBe(true);
+    expect(h.has('FREE')).toBe(true);
+    expect(h.has('PREMIUM')).toBe(true);
+    expect(h.has('Your Plan')).toBe(false);
+  });
+
+  it("10.0.0: a plan on sale shows the app's page and then the same comparison; a subscriber's column reads Your Plan", async () => {
+    const h = mount(<AppSettings {...props()} plan={{ content: <Text>Own plans</Text>, subscribed: true, features: ['Workspaces'], freeFeatures: ['Sync Across Devices'] }} />, false);
+    await press(h.byText('Premium'));
+    const texts = h.texts();
+    expect(texts.indexOf('Own plans')).toBeGreaterThan(-1);
+    expect(texts.indexOf('Compare Free and Premium')).toBeGreaterThan(texts.indexOf('Own plans'));
+    expect(h.has('Your Plan')).toBe(true);
   });
 
   it('7.0.0: the plan is called Premium in every app; an app\'s own name (VIP, Plus) is not used', () => {
