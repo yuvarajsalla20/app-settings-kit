@@ -1,6 +1,21 @@
 # Changelog
 
-Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
+Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
+
+## 6.0.0 (2026-11-21)
+
+**Every Settings section is now locked to the approved layout, in every app.** 5.0.0 made every row required; an app could still reorder the list, move Data Export, turn off the approved look, rename or re-icon the plan and Data Export rows, bring its own Back button, replace the Version line, or leave out Log Out and Erase Account. None of that is possible now. Only Theme and Security (rows in `preferences`) are an app's choice.
+
+- **Log Out and Erase Account are required** (`actions.onSignOut`, `actions.onDeleteAccount`) and always on Profile. `exitMenu` takes only `{ unlock, losses }`.
+- **The list order is fixed:** About, Profile, Preferences, plan, then the app's own pages. `order` is gone.
+- **Data Export is always a pull-down row on Profile**, headed "Make a file and share it" (new kit word `exportHead`). `dataExportIn` and `dataExport.menu` are gone.
+- **The look is fixed:** plain headers, pull-down pickers, the centered photo and the kit's round Back button with swipe-back. `plainHeaders`, `pickers` and `components.BackButton`/`EdgeSwipe` are ignored.
+- **Row names and icons are the kit's:** `plan.label`, `plan.icon`, `dataExport.label`, `dataExport.icon` are gone. The plan's name is now `plan.name` (required), replacing `settingsStrings`. The tile color still comes from the app's palette (the kit has no colors).
+- **Version always comes from `build`:** `about.version` is gone. The old My data row (`data`) is gone; Data Export replaces it.
+- Anything an app still passes for these is dropped and named in a development warning.
+
+### Upgrading from 5.x
+Pass `actions.onDeleteAccount` and `plan.name`. Delete `order`, `dataExportIn`, `plainHeaders`, `pickers`, `settingsStrings`, `exitMenu` (except `unlock`/`losses`), `data`, `about.version`, `plan.label`, `plan.icon`, `dataExport.label`, `dataExport.icon` and `dataExport.menu`. An app that had Data Export on Preferences now finds it on Profile.
 
 ## 5.0.0 (2026-11-21)
 

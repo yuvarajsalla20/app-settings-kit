@@ -2,11 +2,11 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 4.0.0** (tag `v4.0.0`). Needs app-account-kit **7.26.0** or later.
+**Current version: 6.0.0** (tag `v6.0.0`). Needs app-account-kit **7.30.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
-**The approved Settings look is the default (4.0.0).** With no settings an app gets: the row and page called **Profile**, plain page headers with no logo, pull-down pickers, the profile photo centered, and Log Out as its own row on Profile with the Delete row under it. Apps should take these from the kit and not repeat them. Each still turns off: `plainHeaders={false}`, `pickers="sheet"`, `profile.centered: false`, `exitMenu={{}}` (the 3.x ⋯ menu) or `exitMenu={false}`.
+**The approved Settings look is locked (6.0.0).** Every app gets the same list order (About, Profile, Preferences, plan), plain page headers, pull-down pickers, the profile photo centered, Log Out and Erase Account on Profile, Data Export as a pull-down row on Profile, the kit's row names and icons, and the kit's round Back button. None of these can be changed by an app; anything an app still passes for them is ignored and named in development. The app gives only its values: its theme and palette, its plan's name, its own Preferences rows and pages, and what each export makes.
 
 No colors, no payment code and no export code of its own: the app passes its theme, its plan page and what each export makes. It does not depend on the payments, subscriptions or export kits.
 
@@ -49,13 +49,13 @@ Pin the full commit SHA of a release tag so every build gets exactly the code yo
 ## The layout every app gets
 
 - **Main list:** About, Account, Preferences, the plan page, then any parent page of the app's own.
-- **Log Out and Close Account (3.0.0, words 3.1.0):** behind a ⋯ menu on Account, each on its own page (Close: what you lose, "Log out instead", type DELETE, password; the steps still say the data is deleted forever, as Apple requires). Optional `exitMenu={{ unlock, losses }}`; `exitMenu={false}` puts them back on the main list. `exitMenu={{ place: 'page' }}` (3.2.0) drops the ⋯ and puts one **Access** row at the bottom of Account, opening a page with Log Out and a red Close Account (same steps).
-- **Features live inside a parent, never on the list.** Place a feature by what it is, not by what it costs; the plan pill shows the price wherever the row lives. Data Export is about the person's data, so by default it is a row called **Data Export** on Account. An app can instead put it on Preferences (see [Profile and Preferences layout](#profile-and-preferences-layout)).
+- **Log Out and Erase Account (6.0.0: required, always on Profile):** Log Out is its own row and opens a small menu; Erase Account under it opens the delete steps (what you lose, type DELETE, password; the steps say the data is deleted forever, as Apple requires). `actions.onSignOut` and `actions.onDeleteAccount` are required. `exitMenu` takes only the optional `{ unlock, losses }`.
+- **Features live inside a parent, never on the list.** Data Export is about the person's data, so it is a row called **Data Export** on Profile in every app, opening a pull-down menu headed "Make a file and share it".
 - **About:** the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support**, **Privacy Policy**; **Kits**, **Version**. Kits and Version fill themselves from `kitSources` and `build`. A missing part hides its row, and the kit warns in development.
 - **Wording:** approved Title Case words by default ("Rate MyApp", "Contact Support", "Privacy Policy", "Log Out", "Erase Account" (4.0.0), "We're Here to Help", "Write to Us"). 4.0.0: **enforced**. These words, the card headings and the page names are the same in every app; an app's own version through `strings` is not used (development shows a warning). `strings` is only for the app's own sentences, such as `deleteWarning`.
 - **Back:** a round 44 pt Back button in `theme.accent` with a `theme.ink` arrow, and swipe from the left edge to go back, on every page.
 
-Leave a prop out and its row is hidden (no `plan`: no plan page; no `dataExport`: no Data Export; no `preferences` and no page under it: no Preferences).
+Every part is required (5.0.0 and 6.0.0): a missing one is a type error, not a hidden row. Only Change password shows for email sign-in alone (Apple and Google have no password).
 
 ## Quick start
 
@@ -93,7 +93,7 @@ import { AppSettings } from 'app-settings-kit';
     ],
     onLocked: OPEN_PLANS,
   }}
-  plan={{ id: 'premium', label: PLAN_NAME, icon: 'award', tint: TINT, value: CURRENT_PLAN_WORD, badge: PLAN_PILL, content: PLAN_PAGE }}
+  plan={{ id: 'premium', name: PLAN_NAME, tint: TINT, value: CURRENT_PLAN_WORD, badge: PLAN_PILL, content: PLAN_PAGE }}
   extraPages={APP_EXTRA_PAGES}             // optional
 />
 ```
@@ -115,20 +115,22 @@ const KITS_USED = [
 
 ## `AppSettings` props
 
-Every app-account-kit `SettingsScreen` prop passes straight through (`theme`, `strings`, `components`, `brand`, `onBack`, `profile`, `nickname`, `photo`, `password`, `data`, `actions`, `describeError`, `actionTimeoutMs`, `onError`). On top of those:
+These app-account-kit `SettingsScreen` props pass through: `theme`, `strings` (the app's own sentences only), `components` (the kit's Back button and swipe always win), `brand`, `onBack`, `profile`, `nickname`, `password`, `describeError`, `actionTimeoutMs`, `onError`. On top of those, all required unless marked:
 
 | Prop | Type | Notes |
 |---|---|---|
-| `about` | app-account-kit `AboutProps` | `version` and `kits` may be left out when `build` and `kitSources` are passed. Values the app passes still win |
+| `about` | `AboutConfig` | `appName`, `logo`, `privacyUrl`, `featuresUrl`, `supportEmail`, `appStoreId`; optional `playPackage`, `shareMessage`. Version and Kits always come from `build` and `kitSources` |
+| `actions` | `{ onSignOut, onDeleteAccount, confirmsWithPassword }` | 6.0.0: Log Out and Erase Account are required |
+| `photo` | app-account-kit `PhotoProps` | Change photo on Profile |
+| `exitMenu` | `{ unlock?, losses? }` | Optional extras for the delete steps. The layout is the kit's |
 | `build` | `{ version, buildNumber?, stamp?, fallbackStamp?, buildWord? }` | Fills About > Version as "v1.2.0 \| Build 12" and the build time ("dev build" in a local run) |
 | `kitSources` | `{ dependencies, kits: { name, pkg, version }[] }` | Fills About > Kits, each build read from its pin |
 | `preferences` | `ReactNode` | The app's own settings rows |
 | `dataExport` | `DataExportConfig` | The Data Export page (see below) |
-| `dataExportIn` | `'account' \| 'preferences'` | Where the Data Export row lives. Default `'account'` |
-| `plan` | `PlanConfig` | The plan page: `{ content, id?, label?, icon?, tint?, value?, badge? }` |
-| `extraPages` | `ExtraPage[]` | The app's own pages. `under: 'preferences'` or `'account'` puts one inside that parent; left out, it is a parent on the list |
-| `order` | `string[]` | The list order. Default `['about', 'account', 'app', 'plan']` (`DEFAULT_ORDER`; `'app'` is Preferences). Use an extra page's id to place it. Data Export is never on the list |
-| `settingsStrings` | `{ plan?: string }` | 4.0.0: only the plan's name (Premium, VIP). Every other word is the kit's |
+| `plan` | `PlanConfig` | The plan page: `{ name, content, id?, tint?, value?, badge? }`. `name` (Premium, VIP) is the only word on Settings that is the app's |
+| `extraPages` | `ExtraPage[]` | Optional: the app's own pages. `under: 'preferences'` or `'account'` puts one inside that parent; left out, it follows the four parents on the list |
+
+6.0.0 removed `order`, `dataExportIn`, `plainHeaders`, `pickers`, `settingsStrings`, `data`, `about.version`, and the `label`, `icon` and `menu` of `plan` and `dataExport`. They are the kit's now.
 
 Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, the headings (Account, Your Data, Sign In on the Profile page; the app's name, Help, Info), Log Out and Erase Account.
 
@@ -149,28 +151,20 @@ interface ExportFormat {
 }
 ```
 
-`dataExport` also takes `onLocked` (usually opens the plans), `onError`, `onProblem` (show the failure yourself) or `renderProblem` (drawn under the card), `Row` (your own row design, which gets `{ format, last, onPress }`), and the row fields `id`, `label`, `icon`, `tint`, `value`, `badge`.
+`dataExport` also takes `onLocked` (usually opens the plans), `onError`, `onProblem` (show the failure yourself) or `renderProblem` (drawn under the card), `Row` (your own row design, which gets `{ format, last, onPress }`), and the row fields `id`, `tint`, `value`, `badge`.
 
-The page makes one file at a time. A locked format shows a padlock (from `theme.lock`) and a tap calls `onLocked`; an open one shows a download icon. A failure goes to `onError` and shows "Could not create the file. Please try again."
+6.0.0: the row is always a pull-down menu on Profile, one line per format, headed "Make a file and share it". It makes one file at a time. A locked format shows a padlock (from `theme.lock`) and a tap calls `onLocked`; an open one shows a download icon. A failure goes to `onError` and shows "Could not create the file. Please try again."
 
 `DataExportPage` can also be used on its own.
 
-To open Data Export from another page (a perk row on the plan page), call `useSettingsNav()?.open(DEFAULT_IDS.export)` (or the id you gave it). Back then returns to the page that opened it.
+## The app's own pages in Preferences
 
-## Profile and Preferences layout
-
-An app can choose this layout. Apps that set none of these options keep the default.
-
-- **Profile** is the kit's word since 4.0.0, in every app. It cannot be reworded.
-- **Data Export inside Preferences:** `dataExportIn="preferences"`. The row sits on Preferences under the app's own settings, and Back returns to Preferences.
-- **The app's own feature pages inside Preferences:** give the `extraPages` entry `under: 'preferences'`. Add `group: 'Widgets'` for a titled card of its own.
+Give an `extraPages` entry `under: 'preferences'` to make it a row on Preferences. Add `group: 'Widgets'` for a titled card of its own. Theme and Security, when an app has them, are rows in `preferences`.
 
 ```tsx
 <AppSettings
   {...EVERYTHING_ELSE}
   preferences={APP_OWN_ROWS}
-  dataExportIn="preferences"
-  dataExport={{ formats: [...] }}
   extraPages={[
     { id: 'family', label: 'Connect as Family', icon: 'users', content: FAMILY_PAGE, under: 'preferences' },
     { id: 'widgets', label: 'Home Screen Widgets', icon: 'grid', content: WIDGETS_PAGE, under: 'preferences', group: 'Widgets' },
@@ -178,7 +172,7 @@ An app can choose this layout. Apps that set none of these options keep the defa
 />
 ```
 
-The list stays About, Profile, Preferences, plan. If the app passes no `preferences` rows but puts a page there, Preferences still shows with just those rows.
+The list stays About, Profile, Preferences, plan.
 
 ## Theming
 
@@ -249,9 +243,8 @@ tests/                logic, build stamp, no colors, and the real screens render
 
 - No colors in `src/`. Every color comes from the app's theme.
 - No dependency on the payments, subscriptions or export kits. They connect through `locked`, `onExport`, `onLocked` and the plan page `content`.
-- Every word can be changed. Every page is optional.
-- Define `theme`, `strings`, `settingsStrings` and `components` once, outside your component.
-- New options default to the old behavior.
+- The words, the layout and every section are the kit's, the same in every app (4.0.0 to 6.0.0). Only Theme and Security rows are an app's choice.
+- Define `theme`, `strings` and `components` once, outside your component.
 
 ## Development
 

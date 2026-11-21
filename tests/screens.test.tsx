@@ -1,13 +1,11 @@
-import { SettingRow, SettingsGroup } from 'app-account-kit';
 import { Pressable, Text } from 'react-native';
 import { describe, expect, it, vi } from 'vitest';
-import { AppSettings, type AppSettingsProps } from '../src/AppSettings';
-import { useSettingsNav } from '../src';
+import { AppSettings } from '../src/AppSettings';
 import { DataExportPage, exportMenu } from '../src/pages/DataExportPage';
 import { DEFAULT_SETTINGS_STRINGS as W } from '../src/strings';
 import type { ExportFormat } from '../src/types';
-import { THEME } from './helpers/theme';
 import { mount, press, settle } from './helpers/render';
+import { fullProps as props } from './helpers/props';
 
 const csv = (over: Partial<ExportFormat> = {}): ExportFormat => ({ id: 'csv', label: 'CSV File', icon: 'file-text', tint: 'mint', onExport: vi.fn().mockResolvedValue(undefined), ...over });
 const pdf = (over: Partial<ExportFormat> = {}): ExportFormat => ({ id: 'pdf', label: 'PDF Report', icon: 'file', tint: 'gold', onExport: vi.fn().mockResolvedValue(undefined), ...over });
@@ -71,65 +69,40 @@ describe('Data Export page', () => {
   });
 });
 
-const props = (over: Partial<AppSettingsProps> = {}): AppSettingsProps => ({
-  theme: THEME,
-  onBack: vi.fn(),
-  profile: { name: 'Yuva', fallbackName: 'App', email: 'a@b.com', photo: '' },
-  nickname: { max: 20, onSave: async () => {} },
-  about: { appName: 'My App', version: { number: '1.2.0', label: 'v1.2' }, privacyUrl: 'https://x.y/p', supportEmail: 'h@x.com' },
-  actions: { confirmsWithPassword: true, onSignOut: async () => {} },
-  ...over,
-});
-
 const rowsOnList = (texts: string[], names: string[]) => texts.filter((t) => names.includes(t));
+const NAMES = ['About', 'Account', 'Profile', 'Preferences', 'Data Export', 'VIP', 'Premium', 'Plan', 'Family'];
+/** The Data Export menu the kit hands to app-account-kit. */
+const exportMenuOf = (h: ReturnType<typeof mount>) => h.root.root.findAll((n) => Array.isArray(n.props.items) && 'head' in n.props && typeof n.props.onPick === 'function')[0]!;
 
 describe('AppSettings', () => {
-  const NAMES = ['About', 'Account', 'Profile', 'Preferences', 'Data Export', 'VIP', 'Plan', 'Family'];
-
-  it('lists the four parents About, Account, Preferences, plan, then the app\'s other pages; Data Export is not on the list', () => {
-    const h = mount(
-      <AppSettings
-        {...props()}
-        preferences={<SettingsGroup><SettingRow icon="tag" tint="x" label="Categories" last /></SettingsGroup>}
-        dataExport={{ formats: [csv()] }}
-        plan={{ id: 'vip', label: 'VIP', value: 'Lite', content: <Text>VIP page</Text> }}
-        extraPages={[{ id: 'family', label: 'Family', icon: 'users', content: <Text>Family page</Text> }]}
-      />,
-      false,
-    );
+  it("lists the four parents About, Profile, Preferences, plan, then the app's other pages; Data Export is not on the list", () => {
+    const h = mount(<AppSettings {...props()} extraPages={[{ id: 'family', label: 'Family', icon: 'users', content: <Text>Family page</Text> }]} />, false);
     expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile', 'Preferences', 'VIP', 'Family']);
   });
 
-  it('4.0.0: the approved layout with no settings: Profile, Log Out and Erase Account on Profile, no logo, no ⋯', async () => {
-    const actions = { confirmsWithPassword: true, onSignOut: async () => {}, onDeleteAccount: async () => {} };
-    const h = mount(<AppSettings {...props({ actions })} />, false);
-    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile']);
-    expect(h.has('Account')).toBe(false);
-    await press(h.byLabel('Profile'));
-    expect(h.has('Log Out')).toBe(true);
-    expect(h.has('Erase Account')).toBe(true);
-    expect(h.byLabel('More options')).toBeUndefined();
-    // The 3.x ⋯ menu is still there for an app that asks for it.
-    const old = mount(<AppSettings {...props({ actions })} exitMenu={{}} />, false);
-    await press(old.byLabel('Profile'));
-    expect(old.byLabel('More options')).toBeDefined();
+  it('6.0.0: the order, the place of Data Export and the look are the kit\'s; what an app passes for them is ignored', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    (globalThis as { __DEV__?: boolean }).__DEV__ = true;
+    const locked = { order: ['plan', 'about'], dataExportIn: 'preferences', plainHeaders: false, pickers: 'sheet', settingsStrings: { plan: 'X' } } as never;
+    const h = mount(<AppSettings {...props()} {...(locked as object)} />, false);
+    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile', 'Preferences', 'VIP']);
+    await press(h.byText('Profile'));
+    expect(h.has('Data Export')).toBe(true);
+    expect(warn.mock.calls.flat().join(' ')).toMatch(/order, dataExportIn, plainHeaders, pickers, settingsStrings/);
+    delete (globalThis as { __DEV__?: boolean }).__DEV__;
+    warn.mockRestore();
   });
 
-  it('keeps Log Out off the main list by default (3.0.0: behind the ⋯ on Account), and puts it back with exitMenu={false}', () => {
-    const on = mount(<AppSettings {...props()} />, false);
-    expect(on.has('Log Out')).toBe(false);
-    const off = mount(<AppSettings {...props()} exitMenu={false} />, false);
-    expect(off.has('Log Out')).toBe(true);
-  });
-
-  it("exitMenu place 'page' (3.2.0): an Access row on Account opens Log Out and Close Account; no ⋯", async () => {
-    const h = mount(<AppSettings {...props({ actions: { confirmsWithPassword: true, onSignOut: async () => {}, onDeleteAccount: async () => {} } })} exitMenu={{ place: 'page' }} />, false);
-    await press(h.byLabel('Profile'));
-    expect(h.has('Access')).toBe(true);
-    expect(h.byLabel('More options')).toBeUndefined();
-    await press(h.byLabel('Access'));
-    expect(h.has('Log Out')).toBe(true);
-    expect(h.has('Erase Account')).toBe(true);
+  it('6.0.0: Log Out and Erase Account are always on Profile, with no ⋯, whatever exitMenu the app passes', async () => {
+    for (const exitMenu of [undefined, {}, false, { place: 'menu' }] as never[]) {
+      const h = mount(<AppSettings {...props()} exitMenu={exitMenu} />, false);
+      expect(h.has('Log Out')).toBe(false);
+      await press(h.byLabel('Profile'));
+      expect(h.has('Log Out')).toBe(true);
+      expect(h.has('Erase Account')).toBe(true);
+      expect(h.has('Access')).toBe(false);
+      expect(h.byLabel('More options')).toBeUndefined();
+    }
   });
 
   it('3.4.0: the Data Export pill names every format', () => {
@@ -137,22 +110,18 @@ describe('AppSettings', () => {
     expect(exportMenu({ formats: [csv()], menu: true }, () => {}).pill).toBe('CSV');
   });
 
-  it('3.4.0: the same card headings in every app, and Erase Account under Log Out', async () => {
-    const actions = { confirmsWithPassword: true, onSignOut: async () => {}, onDeleteAccount: async () => {} };
-    const h = mount(<AppSettings {...props({ actions })} exitMenu={{ place: 'page', signOutOnAccount: true }} />, false);
+  it('3.4.0: the same card headings in every app; the app\'s own versions of kit words are not used', async () => {
+    const h = mount(<AppSettings {...props()} />, false);
     await press(h.byLabel('Profile'));
-    expect(h.has('Profile')).toBe(true);
+    expect(h.has('Account')).toBe(true);
     expect(h.has('Sign In')).toBe(true);
     expect(h.has('Erase Account')).toBe(true);
-    expect(h.has('Access')).toBe(false);
-    // 4.0.0: enforced. An app's own version of a kit word is not used (it is warned about in development).
-    const own = mount(<AppSettings {...props({ actions })} strings={{ access: 'Close Account', exitGroup: 'Sign-in', aboutInfoGroup: 'App info' }} exitMenu={{ place: 'page', signOutOnAccount: true }} />, false);
+    const own = mount(<AppSettings {...props()} strings={{ access: 'Close Account', exitGroup: 'Sign-in', aboutInfoGroup: 'App info' }} />, false);
     await press(own.byLabel('Profile'));
     expect(own.has('Erase Account')).toBe(true);
     expect(own.has('Close Account')).toBe(false);
     expect(own.has('Sign In')).toBe(true);
     expect(own.has('Sign-in')).toBe(false);
-    expect(own.has('Account')).toBe(true);
   });
 
   it("4.0.1: About's Version and Kits card is headed 'Info' in every app, even when the app passes its own word", async () => {
@@ -162,59 +131,38 @@ describe('AppSettings', () => {
     expect(own.has('App info')).toBe(false);
   });
 
-  it('hides what the app leaves out, and names the plan page "Plan" until the app names it', () => {
-    const h = mount(<AppSettings {...props()} plan={{ content: <Text>Plans</Text> }} />, false);
-    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile', 'Plan']);
+  it("6.0.0: the plan row is the plan's name with the kit's icon; an app's own label or icon is not used", () => {
+    const h = mount(<AppSettings {...props()} plan={{ id: 'vip', name: 'Premium', label: 'Gold', icon: 'star', content: <Text>Plans</Text> } as never} />, false);
+    expect(rowsOnList(h.texts(), [...NAMES, 'Gold'])).toEqual(['About', 'Profile', 'Preferences', 'Premium']);
+    const icons = h.root.root.findAll((n) => n.type === 'Icon').map((n) => n.props.name);
+    expect(icons).toContain('award');
+    expect(icons).not.toContain('star');
   });
 
-  it('puts Data Export straight on Account under Your Data (3.4.0), opens its formats, and Back returns to Account', async () => {
-    const h = mount(<AppSettings {...props()} order={['export', 'about']} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn() }} />, false);
-    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile']);
+  it("6.0.0: Data Export is a row on Profile that opens the kit's menu, with the kit's line on top and the kit's name", async () => {
+    const h = mount(<AppSettings {...props()} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn(), label: 'Downloads', menu: { head: 'Own line' } } as never} />, false);
     await press(h.byText('Profile'));
-    expect(h.has('Your Data')).toBe(true);
-    await press(h.byText('Data Export'));
-    expect(h.has('CSV File')).toBe(true);
-    expect(h.has('PDF Report')).toBe(true);
-    await press(h.byLabel('Back'));
     expect(h.has('Data Export')).toBe(true);
+    expect(h.has('Downloads')).toBe(false);
+    const menu = exportMenuOf(h);
+    expect(menu.props.head).toBe('Make a file and share it');
+    expect(menu.props.items.map((i: { label: string }) => i.label)).toEqual(['CSV File', 'PDF Report']);
   });
 
-  it('opens Data Export from the plan page through useSettingsNav, and Back returns to the plan page', async () => {
-    function Perk() {
-      const nav = useSettingsNav();
-      return <Pressable accessibilityRole="button" accessibilityLabel="Open Data Export" onPress={() => nav?.open('export')}><Text>perk</Text></Pressable>;
-    }
-    const h = mount(<AppSettings {...props()} plan={{ id: 'vip', label: 'VIP', content: <Perk /> }} dataExport={{ formats: [csv()] }} />, false);
-    await press(h.byText('VIP'));
-    await press(h.byLabel('Open Data Export'));
-    expect(h.has('CSV File')).toBe(true);
-    await press(h.byLabel('Back'));
-    expect(h.has('perk')).toBe(true);
-  });
-
-  it('draws the approved About: Title Case words with the app name in Rate and Share', async () => {
-    const h = mount(<AppSettings {...props()} about={{ ...props().about, logo: { uri: 'https://x.y/logo.png', width: 1024 }, featuresUrl: 'https://x.y/features', appStoreId: '6830296391' }} kitSources={{ dependencies: { 'app-core-kit': 'git+https://github.com/x/app-core-kit.git#abcdef1234567' }, kits: [{ name: 'Core Kit', pkg: 'app-core-kit', version: 'v1.0.0' }] }} />, false);
-    await press(h.byText('About'));
-    for (const word of ['Features', 'Contact Support', 'Privacy Policy', 'Kits', 'Version']) expect(h.has(word)).toBe(true);
-    expect(h.texts().some((t) => /^Rate /.test(t))).toBe(true);
-    expect(h.texts().some((t) => /^Share /.test(t))).toBe(true);
-  });
-
-  it('5.0.0: About keeps its title and shows the logo under it, never the name; Rate and Share come from the App Store number', async () => {
-    const h = mount(<AppSettings {...props()} about={{ ...props().about, logo: { uri: 'https://x.y/logo.png', width: 1024 }, featuresUrl: 'https://x.y/features', appStoreId: '6830296391' }} />, false);
+  it('draws the approved About: the logo under the title, every row, Rate and Share from the App Store number', async () => {
+    const h = mount(<AppSettings {...props()} />, false);
     await press(h.byText('About'));
     expect(h.byLabel('My App logo')).toBeTruthy();
-    expect(h.texts().filter((t) => t === 'About').length).toBeGreaterThan(0);
+    for (const word of ['Features', 'Contact Support', 'Privacy Policy', 'Kits', 'Version', 'Info']) expect(h.has(word)).toBe(true);
     expect(h.texts().some((t) => /^Rate /.test(t))).toBe(true);
     expect(h.texts().some((t) => /^Share /.test(t))).toBe(true);
   });
 
-  it('fills Version and Kits from the build and package.json when the app passes neither', async () => {
-    const { version: _drop, ...about } = props().about;
+  it('fills Version and Kits from the build and package.json; 6.0.0: an app\'s own Version line is not used', async () => {
     const h = mount(
       <AppSettings
         {...props()}
-        about={about}
+        about={{ ...props().about, version: { number: '9', label: 'own' } } as never}
         build={{ version: '4.18.0', buildNumber: '12', stamp: 'Nov 14, 2026 | 10:45 AM CT' }}
         kitSources={{ dependencies: { 'app-core-kit': 'git+https://github.com/x/app-core-kit.git#abcdef1234567' }, kits: [{ name: 'Core Kit', pkg: 'app-core-kit', version: 'v1.0.0' }] }}
       />,
@@ -223,29 +171,22 @@ describe('AppSettings', () => {
     await press(h.byText('About'));
     await press(h.byText('Version'));
     expect(h.has('v4.18.0 | Build 12')).toBe(true);
-    expect(h.has('Nov 14, 2026 | 10:45 AM CT')).toBe(true);
+    expect(h.has('own')).toBe(false);
     await press(h.byText('Kits'));
     expect(h.texts().some((t) => t.includes('Core Kit') && t.includes('abcdef1'))).toBe(true);
   });
 
-  it('draws the approved round Back button and swipe-back by default, and keeps the app\'s own when passed', () => {
-    const h = mount(<AppSettings {...props()} />, false);
-    expect(h.root.root.findAll((n) => n.type === 'Animated.View').length).toBe(1);
-    const back = h.root.root.findAll((n) => n.type === 'Pressable' && n.props.hitSlop === 12);
-    expect(back.length).toBe(1);
+  it("6.0.0: always draws the kit's round Back button and swipe-back, even when the app passes its own", () => {
     const Mine = ({ onPress }: { onPress: () => void }) => <Pressable onPress={onPress} accessibilityLabel="mine"><Text>MINE</Text></Pressable>;
-    const h2 = mount(<AppSettings {...props()} components={{ BackButton: Mine }} />, false);
-    expect(h2.has('MINE')).toBe(true);
+    for (const h of [mount(<AppSettings {...props()} />, false), mount(<AppSettings {...props()} components={{ BackButton: Mine }} />, false)]) {
+      expect(h.root.root.findAll((n) => n.type === 'Animated.View').length).toBe(1);
+      expect(h.root.root.findAll((n) => n.type === 'Pressable' && n.props.hitSlop === 12).length).toBe(1);
+      expect(h.has('MINE')).toBe(false);
+    }
   });
 
-  it('4.0.0: Preferences is the same in every app, even when the app tries to rename it', () => {
-    const h = mount(<AppSettings {...props()} strings={{ app: 'Options' }} settingsStrings={{ preferences: 'Options' } as never} preferences={<Text>rows</Text>} />, false);
-    expect(h.has('Preferences')).toBe(true);
-    expect(h.has('Options')).toBe(false);
-  });
-
-  it('4.0.0: the plan keeps the app\'s own name', () => {
-    const h = mount(<AppSettings {...props()} settingsStrings={{ plan: 'Premium' }} plan={{ content: <Text>Plans</Text> }} />, false);
-    expect(h.has('Premium')).toBe(true);
+  it('4.0.0: Preferences and Profile are the same in every app, even when the app tries to rename them', () => {
+    const h = mount(<AppSettings {...props()} strings={{ app: 'Options', account: 'Me' }} />, false);
+    expect(rowsOnList(h.texts(), [...NAMES, 'Options', 'Me'])).toEqual(['About', 'Profile', 'Preferences', 'VIP']);
   });
 });
