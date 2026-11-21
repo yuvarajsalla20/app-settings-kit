@@ -130,3 +130,25 @@ describe('card headings', () => {
     expect(cardHeadings('HringNring')).toMatchObject({ profileGroup: 'Account', dataGroup: 'Your Data', exitGroup: 'Sign In' });
   });
 });
+
+describe('About is complete (5.0.0)', () => {
+  it('flags a missing or blurry logo, a non-https Features page and a bad App Store number', async () => {
+    const { aboutProblems, LOGO_MIN_PIXELS } = await import('../src/logic/about');
+    const ok = { logo: 1, featuresUrl: 'https://x.y/f', appStoreId: '6830296391' };
+    expect(aboutProblems(ok, 1024)).toEqual([]);
+    expect(aboutProblems(ok, undefined)).toEqual([]);
+    expect(aboutProblems(ok, 120).join(' ')).toMatch(`at least ${LOGO_MIN_PIXELS} px`);
+    expect(aboutProblems({ ...ok, logo: undefined }).join(' ')).toMatch(/logo/);
+    expect(aboutProblems({ ...ok, featuresUrl: 'http://x.y' }).join(' ')).toMatch(/Features/);
+    expect(aboutProblems({ ...ok, appStoreId: '' }).join(' ')).toMatch(/App Store number/);
+  });
+  it('Share sends the App Store page for the number', async () => {
+    const { appStorePage } = await import('../src/AppSettings');
+    expect(appStorePage(' 6830296391 ')).toBe('https://apps.apple.com/app/id6830296391');
+  });
+  it('reads the pixel width of a { uri, width } logo', async () => {
+    const { logoPixels } = await import('../src/logic/about');
+    expect(logoPixels({ uri: 'x', width: 1024 })).toBe(1024);
+    expect(logoPixels(undefined)).toBeUndefined();
+  });
+});

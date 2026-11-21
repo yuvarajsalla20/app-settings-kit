@@ -1,5 +1,5 @@
-export { AppSettings } from './AppSettings';
-export type { AppSettingsProps } from './AppSettings';
+export { AppSettings, appStorePage } from './AppSettings';
+export type { AboutConfig, AppSettingsProps } from './AppSettings';
 export { DataExportPage } from './pages/DataExportPage';
 /** The approved round Back button and swipe-from-the-edge, for the app's own inner screens too. */
 export { BACK_BUTTON, makeBackButton } from './parts/BackButton';
@@ -9,7 +9,7 @@ export { assemblePages } from './assemble';
 export { DEFAULT_SETTINGS_STRINGS } from './strings';
 export type { SettingsStrings } from './strings';
 export { KIT_NAME, KIT_VERSION } from './kit';
-export { DEFAULT_IDS, DEFAULT_ORDER, SWIPE_BACK, createOneAtATime, finishesSwipe, hubOrder, isEdgeSwipe, kitList, missingAboutParts, pinnedBuild, titleCaseStrings, versionLines } from './logic';
+export { DEFAULT_IDS, DEFAULT_ORDER, SWIPE_BACK, createOneAtATime, finishesSwipe, hubOrder, isEdgeSwipe, kitList, LOGO_MIN_PIXELS, aboutProblems, logoPixels, missingAboutParts, pinnedBuild, titleCaseStrings, versionLines } from './logic';
 export type { AboutParts, KitEntry, KitSource, SectionName, VersionInfo, VersionParts } from './logic';
 export type { AccountExtraPage, DataExportConfig, DataExportPageProps, DataExportPlace, ExportFormat, ExportRowProps, ExtraPage, PageRow, PlanConfig } from './types';
 /** Opens another Settings page from an app's own page, such as the plan page's Data Export perk. Back returns to the page that opened it. */

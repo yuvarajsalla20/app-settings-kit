@@ -2,7 +2,7 @@ import { SettingsScreen, type AboutProps, type AccountStrings, type ExitMenuProp
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 import { assemblePages } from './assemble';
-import { cardHeadings, missingAboutParts, titleCaseStrings } from './logic/about';
+import { aboutProblems, cardHeadings, logoPixels, titleCaseStrings } from './logic/about';
 import { kitList, type KitSource } from './logic/kits';
 import { versionLines, type VersionParts } from './logic/version';
 import { makeBackButton } from './parts/BackButton';
@@ -14,25 +14,55 @@ import type { DataExportConfig, DataExportPlace, ExtraPage, PlanConfig } from '.
 
 type AccountScreenProps = ComponentProps<typeof SettingsScreen>;
 
-export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | 'hubOrder' | 'about' | 'exitMenu'> & {
+/**
+ * 5.0.0: what an app gives the About page. Everything the approved page shows is required.
+ */
+export type AboutConfig = Omit<AboutProps, 'version' | 'logo' | 'showHeader' | 'featuresUrl' | 'rate' | 'share' | 'kits'> & {
+  /**
+   * The app's one master logo (its glossy app icon), shown under the About title at 104 pt. Pass the same file the app uses
+   * everywhere, at least 312 px square (3x) so it stays sharp; 1024 px is best. Smaller images are flagged in development.
+   */
+  logo: NonNullable<AboutProps['logo']>;
+  /** A secure (https) page listing what the app does. The Features row. */
+  featuresUrl: string;
+  /** The app's App Store number (digits, such as 6830296391). The Rate row opens its review screen, and Share sends its App Store page. */
+  appStoreId: string;
+  /** Optional: the Google Play package name (com.example.app), for Rate on Android. */
+  playPackage?: string;
+  /** Optional: the words sent with Share. The kit's default names the app. */
+  shareMessage?: string;
+  /** Optional: replaces the Version line the kit builds from `build`. */
+  version?: AboutProps['version'];
+};
+
+/** The App Store page for an app number, which Share sends. */
+export const appStorePage = (appStoreId: string) => `https://apps.apple.com/app/id${appStoreId.trim()}`;
+
+export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | 'hubOrder' | 'about' | 'exitMenu' | 'photo'> & {
   /**
    * Sign out and Delete account behind a ⋯ menu on Account, each on its own page (since 3.0.0, ON by default).
    * Pass app-account-kit's `ExitMenuProps` to add the optional unlock step or the "You will lose" lines; pass `false` to keep both on the main list as in 2.x.
    * Since 3.2.0, `{ place: 'page' }` swaps the ⋯ for an Access row at the bottom of Account that opens a page with Log Out and a red Close Account.
    */
   exitMenu?: ExitMenuProps | false;
-  /** The About page. `version` and `kits` can be left out when `build` and `kitSources` are passed: the kit fills them in. */
-  about: Omit<AboutProps, 'version'> & { version?: AboutProps['version'] };
-  /** The app's version, build number and build stamp (from `app-settings-kit/build-stamp`). Fills About > Version as "v1.2.0 | Build 12" and the build time. */
-  build?: VersionParts;
-  /** The kits the app uses and its package.json `dependencies`. Fills About > Kits, with each kit's build read from its pin. */
-  kitSources?: { dependencies: Readonly<Record<string, string>>; kits: readonly KitSource[] };
-  /** The app's own settings (currency, reminders...), built with SettingsGroup and SettingRow. Leave out to hide Preferences. */
-  preferences?: ReactNode;
-  /** The Data Export page, a row straight on Account (no heading), called Data Export. Leave out to hide it. To open it from another page (the plan page's perk), use `useSettingsNav().open(DEFAULT_IDS.export)` (or its own id). */
-  dataExport?: DataExportConfig;
-  /** The plan page (VIP, Premium). Leave out for an app with no plans. */
-  plan?: PlanConfig;
+  /**
+   * The About page. 5.0.0: every part of the approved About is required, so no app can leave a row out by accident:
+   * the logo (shown under the About title), Features, Rate and Share (both from `appStoreId`), Contact Support, Privacy Policy,
+   * and Version and Kits (from `build` and `kitSources`).
+   */
+  about: AboutConfig;
+  /** The app's version, build number and build stamp (from `app-settings-kit/build-stamp`). Fills About > Version as "v1.2.0 | Build 12" and the build time. Required (5.0.0). */
+  build: VersionParts;
+  /** The kits the app uses and its package.json `dependencies`. Fills About > Kits, with each kit's build read from its pin. Required (5.0.0). */
+  kitSources: { dependencies: Readonly<Record<string, string>>; kits: readonly KitSource[] };
+  /** The app's own settings (reminders, currency...), built with SettingsGroup and SettingRow. Required (5.0.0): every app has Preferences. Theme and security rows, when an app has them, go here. */
+  preferences: ReactNode;
+  /** The Data Export page, a row on Profile, called Data Export. Required (5.0.0). To open it from another page (the plan page's perk), use `useSettingsNav().open(DEFAULT_IDS.export)` (or its own id). */
+  dataExport: DataExportConfig;
+  /** The plan page (Premium, VIP). Required (5.0.0): every app on the kit shows its plan. */
+  plan: PlanConfig;
+  /** Change photo on Profile. Required (5.0.0). */
+  photo: NonNullable<AccountScreenProps['photo']>;
   /**
    * Where the Data Export row lives (since 2.2.0): `'account'` (the default, as in 2.1) or `'preferences'`, a row on Preferences under the app's own settings.
    * Back from Data Export returns to that parent.
@@ -59,15 +89,24 @@ export const DEFAULT_EXIT_MENU: ExitMenuProps = Object.freeze({ place: 'page', s
  * Everything app-account-kit takes (theme, strings, components, profile, about, actions...) passes straight through.
  */
 export function AppSettings({ preferences, dataExport, dataExportIn, plan, extraPages, order, settingsStrings, strings, about: aboutIn, build, kitSources, components: componentsIn, exitMenu = DEFAULT_EXIT_MENU, plainHeaders = true, pickers = 'pullDown', profile: profileIn, ...rest }: AppSettingsProps) {
-  // 4.0.0: the approved look is the default, so an app passes nothing to get it: plain page headers (no logo), pull-down pickers,
-  // the profile photo centered, and no logo and name at the top of About. Each still turns off with its own value.
+  // 4.0.0: the approved look is the default, so an app passes nothing to get it: plain page headers, pull-down pickers and
+  // the profile photo centered. 5.0.0: About always shows the app's logo under its title.
   const profile = useMemo(() => (profileIn ? { centered: true, ...profileIn } : profileIn), [profileIn]);
   // Version and Kits filled in from the build and package.json, unless the app passed its own.
+  // 5.0.0: the approved About in every app: the title "About" with the logo under it, then every row. Nothing here can be left out.
   const about = useMemo<AboutProps>(() => {
+    const { appStoreId, playPackage, shareMessage, version: ownVersion, ...restAbout } = aboutIn;
     const filled = build ? versionLines(build) : undefined;
-    const version = aboutIn.version ?? (filled ? { number: build!.version, ...filled } : { number: '', label: '' });
-    const kits = aboutIn.kits ?? (kitSources ? kitList(kitSources.dependencies, kitSources.kits) : undefined);
-    return { showHeader: false, ...aboutIn, version, kits };
+    const version = ownVersion ?? (filled ? { number: build.version, ...filled } : { number: '', label: '' });
+    const kits = kitSources ? kitList(kitSources.dependencies, kitSources.kits) : undefined;
+    return {
+      ...restAbout,
+      showHeader: 'logo',
+      version,
+      kits,
+      rate: { appStoreId, playPackage },
+      share: { url: appStoreId ? appStorePage(appStoreId) : undefined, message: shareMessage },
+    };
   }, [aboutIn, build, kitSources]);
   // The approved round Back button (in the theme's accent) and swipe-from-the-edge to go back, unless the app brings its own.
   // Made again only when a color it uses changes, so an app that writes its theme inline does not remount the button on every render.
@@ -98,11 +137,12 @@ export function AppSettings({ preferences, dataExport, dataExportIn, plan, extra
   useEffect(() => {
     if (ignored && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: ${ignored} are the kit's words and the same in every app, so the app's version is not used. Change them in the kit.`);
   }, [ignored]);
-  // The approved About page has the app's picture, Features, Rate, Share and Kits. Say in development which ones this app is missing.
-  const missing = missingAboutParts(about).join(', ');
+  // 5.0.0: the types require every part; this also catches a value that would still hide a row (a malformed App Store number,
+  // a Features page that is not https, a logo too small to stay sharp), and says so in development.
+  const problems = aboutProblems(aboutIn, logoPixels(aboutIn.logo)).join(' ');
   useEffect(() => {
-    if (missing && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: About is missing ${missing}. Pass them in "about" to get the full About page.`);
-  }, [missing]);
+    if (problems && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: ${problems}`);
+  }, [problems]);
   // The menu has no page to draw on, so renderProblem cannot show there: say so in development instead of dropping it quietly.
   const lostProblem = !!(dataExport?.menu && dataExport.renderProblem && !dataExport.onProblem);
   useEffect(() => {
