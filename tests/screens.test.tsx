@@ -84,7 +84,7 @@ const props = (over: Partial<AppSettingsProps> = {}): AppSettingsProps => ({
 const rowsOnList = (texts: string[], names: string[]) => texts.filter((t) => names.includes(t));
 
 describe('AppSettings', () => {
-  const NAMES = ['About', 'Account', 'Preferences', 'Data Export', 'VIP', 'Plan', 'Family'];
+  const NAMES = ['About', 'Account', 'Profile', 'Preferences', 'Data Export', 'VIP', 'Plan', 'Family'];
 
   it('lists the four parents About, Account, Preferences, plan, then the app\'s other pages; Data Export is not on the list', () => {
     const h = mount(
@@ -97,7 +97,22 @@ describe('AppSettings', () => {
       />,
       false,
     );
-    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Account', 'Preferences', 'VIP', 'Family']);
+    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile', 'Preferences', 'VIP', 'Family']);
+  });
+
+  it('4.0.0: the approved layout with no settings: Profile, Log Out and Erase Account on Profile, no logo, no ⋯', async () => {
+    const actions = { confirmsWithPassword: true, onSignOut: async () => {}, onDeleteAccount: async () => {} };
+    const h = mount(<AppSettings {...props({ actions })} />, false);
+    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile']);
+    expect(h.has('Account')).toBe(false);
+    await press(h.byLabel('Profile'));
+    expect(h.has('Log Out')).toBe(true);
+    expect(h.has('Erase Account')).toBe(true);
+    expect(h.byLabel('More options')).toBeUndefined();
+    // The 3.x ⋯ menu is still there for an app that asks for it.
+    const old = mount(<AppSettings {...props({ actions })} exitMenu={{}} />, false);
+    await press(old.byLabel('Profile'));
+    expect(old.byLabel('More options')).toBeDefined();
   });
 
   it('keeps Log Out off the main list by default (3.0.0: behind the ⋯ on Account), and puts it back with exitMenu={false}', () => {
@@ -109,12 +124,12 @@ describe('AppSettings', () => {
 
   it("exitMenu place 'page' (3.2.0): an Access row on Account opens Log Out and Close Account; no ⋯", async () => {
     const h = mount(<AppSettings {...props({ actions: { confirmsWithPassword: true, onSignOut: async () => {}, onDeleteAccount: async () => {} } })} exitMenu={{ place: 'page' }} />, false);
-    await press(h.byLabel('Account'));
+    await press(h.byLabel('Profile'));
     expect(h.has('Access')).toBe(true);
     expect(h.byLabel('More options')).toBeUndefined();
     await press(h.byLabel('Access'));
     expect(h.has('Log Out')).toBe(true);
-    expect(h.has('Close Account')).toBe(true);
+    expect(h.has('Erase Account')).toBe(true);
   });
 
   it('3.4.0: the Data Export pill names every format', () => {
@@ -122,36 +137,38 @@ describe('AppSettings', () => {
     expect(exportMenu({ formats: [csv()], menu: true }, () => {}).pill).toBe('CSV');
   });
 
-  it('3.4.0: the same card headings in every app, and Deactivate under Log Out', async () => {
+  it('3.4.0: the same card headings in every app, and Erase Account under Log Out', async () => {
     const actions = { confirmsWithPassword: true, onSignOut: async () => {}, onDeleteAccount: async () => {} };
     const h = mount(<AppSettings {...props({ actions })} exitMenu={{ place: 'page', signOutOnAccount: true }} />, false);
-    await press(h.byLabel('Account'));
+    await press(h.byLabel('Profile'));
     expect(h.has('Profile')).toBe(true);
     expect(h.has('Sign In')).toBe(true);
-    expect(h.has('Deactivate')).toBe(true);
+    expect(h.has('Erase Account')).toBe(true);
     expect(h.has('Access')).toBe(false);
-    const own = mount(<AppSettings {...props({ actions })} strings={{ access: 'Close Account', exitGroup: '' }} exitMenu={{ place: 'page', signOutOnAccount: true }} />, false);
-    await press(own.byLabel('Account'));
-    expect(own.has('Close Account')).toBe(true);
-    expect(own.has('Sign In')).toBe(false);
+    // 4.0.0: enforced. An app's own version of a kit word is not used (it is warned about in development).
+    const own = mount(<AppSettings {...props({ actions })} strings={{ access: 'Close Account', exitGroup: 'Sign-in', aboutInfoGroup: 'App info' }} exitMenu={{ place: 'page', signOutOnAccount: true }} />, false);
+    await press(own.byLabel('Profile'));
+    expect(own.has('Erase Account')).toBe(true);
+    expect(own.has('Close Account')).toBe(false);
+    expect(own.has('Sign In')).toBe(true);
+    expect(own.has('Sign-in')).toBe(false);
   });
 
   it('hides what the app leaves out, and names the plan page "Plan" until the app names it', () => {
     const h = mount(<AppSettings {...props()} plan={{ content: <Text>Plans</Text> }} />, false);
-    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Account', 'Plan']);
+    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile', 'Plan']);
   });
 
   it('puts Data Export straight on Account under Your Data (3.4.0), opens its formats, and Back returns to Account', async () => {
-    const strings = { dataExport: 'Downloads' };
-    const h = mount(<AppSettings {...props()} settingsStrings={strings} order={['export', 'about']} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn() }} />, false);
-    expect(rowsOnList(h.texts(), [...NAMES, 'Downloads'])).toEqual(['About', 'Account']);
-    await press(h.byText('Account'));
+    const h = mount(<AppSettings {...props()} order={['export', 'about']} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn() }} />, false);
+    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile']);
+    await press(h.byText('Profile'));
     expect(h.has('Your Data')).toBe(true);
-    await press(h.byText('Downloads'));
+    await press(h.byText('Data Export'));
     expect(h.has('CSV File')).toBe(true);
     expect(h.has('PDF Report')).toBe(true);
     await press(h.byLabel('Back'));
-    expect(h.has('Downloads')).toBe(true);
+    expect(h.has('Data Export')).toBe(true);
   });
 
   it('opens Data Export from the plan page through useSettingsNav, and Back returns to the plan page', async () => {
@@ -204,9 +221,14 @@ describe('AppSettings', () => {
     expect(h2.has('MINE')).toBe(true);
   });
 
-  it("keeps the app's own name for Preferences when it already renamed it", () => {
-    const h = mount(<AppSettings {...props()} strings={{ app: 'Options' }} preferences={<Text>rows</Text>} />, false);
-    expect(h.has('Options')).toBe(true);
-    expect(h.has('Preferences')).toBe(false);
+  it('4.0.0: Preferences is the same in every app, even when the app tries to rename it', () => {
+    const h = mount(<AppSettings {...props()} strings={{ app: 'Options' }} settingsStrings={{ preferences: 'Options' } as never} preferences={<Text>rows</Text>} />, false);
+    expect(h.has('Preferences')).toBe(true);
+    expect(h.has('Options')).toBe(false);
+  });
+
+  it('4.0.0: the plan keeps the app\'s own name', () => {
+    const h = mount(<AppSettings {...props()} settingsStrings={{ plan: 'Premium' }} plan={{ content: <Text>Plans</Text> }} />, false);
+    expect(h.has('Premium')).toBe(true);
   });
 });

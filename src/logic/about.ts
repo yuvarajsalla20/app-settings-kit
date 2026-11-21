@@ -20,25 +20,25 @@ export const titleCaseStrings = (appName: string): Partial<AccountStrings> => ({
   writeToUs: 'Write to Us',
   rate: `Rate ${appName}`,
   share: `Share ${appName}`,
-  // 3.1.0: "Log Out" and "Close Account". The Close steps still say the data is deleted forever and ask for DELETE (Apple's account-deletion rule).
+  // 3.1.0: "Log Out" and "Close Account"; 4.0.0: "Erase Account". The steps still say the data is deleted forever and ask for DELETE (Apple's account-deletion rule).
   signOut: 'Log Out',
   signOutTitle: 'Log out?',
   stayIn: 'Stay logged in',
   deleteBreakAction: 'Log out instead',
   signOutAction: 'log out',
-  deleteAccount: 'Close Account',
-  deleteTitle: 'Close your account?',
-  deleteForever: 'Close my account forever',
+  deleteAccount: 'Erase Account',
+  deleteTitle: 'Erase your account?',
+  deleteForever: 'Erase my account forever',
   deleteEverything: 'Delete Everything',
   keepAccount: 'Keep My Account',
   // 3.2.0: the Access page (exitMenu place 'page'), in the same words.
   access: 'Access',
-  accessNote: 'Logging out keeps your data safe in your account. Closing your account erases it for good, after a few checks.',
+  accessNote: 'Logging out keeps your data safe. Erasing your account wipes it for good, after a few checks.',
 });
 
 /**
  * 3.4.0: the grey headings over the cards, the same in every app. Account: Profile, Your Data, Sign In. About: the app's
- * name, Help, Info (Version before Kits). An app can still reword or blank any of them through `strings`.
+ * name, Help, Info (Version before Kits). 4.0.0: enforced, an app cannot reword them.
  */
 export const cardHeadings = (appName: string) => ({
   profileGroup: 'Profile',

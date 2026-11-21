@@ -2,7 +2,9 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 3.4.0** (tag `v3.4.0`). Needs app-account-kit **7.26.0** or later.
+**Current version: 4.0.0** (tag `v4.0.0`). Needs app-account-kit **7.26.0** or later.
+
+**The approved Settings look is the default (4.0.0).** With no settings an app gets: the row and page called **Profile**, plain page headers with no logo, pull-down pickers, the profile photo centered, no logo and name at the top of About, and Log Out as its own row on Profile with the Delete row under it. Apps should take these from the kit and not repeat them. Each still turns off: `plainHeaders={false}`, `pickers="sheet"`, `profile.centered: false`, `about.showHeader: true`, `exitMenu={{}}` (the 3.x ⋯ menu) or `exitMenu={false}`.
 
 No colors, no payment code and no export code of its own: the app passes its theme, its plan page and what each export makes. It does not depend on the payments, subscriptions or export kits.
 
@@ -48,7 +50,7 @@ Pin the full commit SHA of a release tag so every build gets exactly the code yo
 - **Log Out and Close Account (3.0.0, words 3.1.0):** behind a ⋯ menu on Account, each on its own page (Close: what you lose, "Log out instead", type DELETE, password; the steps still say the data is deleted forever, as Apple requires). Optional `exitMenu={{ unlock, losses }}`; `exitMenu={false}` puts them back on the main list. `exitMenu={{ place: 'page' }}` (3.2.0) drops the ⋯ and puts one **Access** row at the bottom of Account, opening a page with Log Out and a red Close Account (same steps).
 - **Features live inside a parent, never on the list.** Place a feature by what it is, not by what it costs; the plan pill shows the price wherever the row lives. Data Export is about the person's data, so by default it is a row called **Data Export** on Account. An app can instead put it on Preferences (see [Profile and Preferences layout](#profile-and-preferences-layout)).
 - **About:** the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support**, **Privacy Policy**; **Kits**, **Version**. Kits and Version fill themselves from `kitSources` and `build`. A missing part hides its row, and the kit warns in development.
-- **Wording:** approved Title Case words by default ("Rate MyApp", "Contact Support", "Privacy Policy", "Log Out", "Close Account", "We're Here to Help", "Write to Us"). Any of them can be changed through `strings`.
+- **Wording:** approved Title Case words by default ("Rate MyApp", "Contact Support", "Privacy Policy", "Log Out", "Erase Account" (4.0.0), "We're Here to Help", "Write to Us"). 4.0.0: **enforced**. These words, the card headings and the page names are the same in every app; an app's own version through `strings` is not used (development shows a warning). `strings` is only for the app's own sentences, such as `deleteWarning`.
 - **Back:** a round 44 pt Back button in `theme.accent` with a `theme.ink` arrow, and swipe from the left edge to go back, on every page.
 
 Leave a prop out and its row is hidden (no `plan`: no plan page; no `dataExport`: no Data Export; no `preferences` and no page under it: no Preferences).
@@ -125,9 +127,9 @@ Every app-account-kit `SettingsScreen` prop passes straight through (`theme`, `s
 | `plan` | `PlanConfig` | The plan page: `{ content, id?, label?, icon?, tint?, value?, badge? }` |
 | `extraPages` | `ExtraPage[]` | The app's own pages. `under: 'preferences'` or `'account'` puts one inside that parent; left out, it is a parent on the list |
 | `order` | `string[]` | The list order. Default `['about', 'account', 'app', 'plan']` (`DEFAULT_ORDER`; `'app'` is Preferences). Use an extra page's id to place it. Data Export is never on the list |
-| `settingsStrings` | `Partial<SettingsStrings>` | This kit's words: `preferences`, `account`, `dataExport`, `plan`, `exportFailed` |
+| `settingsStrings` | `{ plan?: string }` | 4.0.0: only the plan's name (Premium, VIP). Every other word is the kit's |
 
-`strings.app` and `strings.account` (app-account-kit's words) win over `settingsStrings.preferences` and `settingsStrings.account` when both are set.
+Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, the headings (Profile, Your Data, Sign In; the app's name, Help, Info), Log Out and Erase Account.
 
 ## Data Export
 
@@ -158,20 +160,19 @@ To open Data Export from another page (a perk row on the plan page), call `useSe
 
 An app can choose this layout. Apps that set none of these options keep the default.
 
-- **Profile** in place of Account: `settingsStrings={{ account: 'Profile' }}`.
+- **Profile** is the kit's word since 4.0.0, in every app. It cannot be reworded.
 - **Data Export inside Preferences:** `dataExportIn="preferences"`. The row sits on Preferences under the app's own settings, and Back returns to Preferences.
-- **The app's own feature pages inside Preferences:** give the `extraPages` entry `under: 'preferences'`. Add `group: 'On Your iPhone'` for a titled card of its own.
+- **The app's own feature pages inside Preferences:** give the `extraPages` entry `under: 'preferences'`. Add `group: 'Widgets'` for a titled card of its own.
 
 ```tsx
 <AppSettings
   {...EVERYTHING_ELSE}
-  settingsStrings={{ account: 'Profile' }}
   preferences={APP_OWN_ROWS}
   dataExportIn="preferences"
   dataExport={{ formats: [...] }}
   extraPages={[
     { id: 'family', label: 'Connect as Family', icon: 'users', content: FAMILY_PAGE, under: 'preferences' },
-    { id: 'widgets', label: 'Home Screen Widgets', icon: 'grid', content: WIDGETS_PAGE, under: 'preferences', group: 'On Your iPhone' },
+    { id: 'widgets', label: 'Home Screen Widgets', icon: 'grid', content: WIDGETS_PAGE, under: 'preferences', group: 'Widgets' },
   ]}
 />
 ```

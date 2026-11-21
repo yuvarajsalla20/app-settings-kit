@@ -2,6 +2,19 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 4.0.0 (2026-11-21)
+
+**Every app gets the approved Settings from the kit, with nothing to copy.** Before, each app had to turn on seven settings by hand and an app that missed one showed the old look (the row read "Account", the logo came back).
+
+- **The kit's words are enforced.** Profile, Preferences, Data Export, the card headings (Profile, Your Data, Sign In; the app's name, Help, Info), Log Out, Erase Account and the other Title Case words are the same in every app. An app's own version through `strings` is ignored, with a warning in development. `settingsStrings` now takes only `plan` (the plan's name). `strings` stays for the app's own sentences such as `deleteWarning`.
+- **Defaults now on:** `plainHeaders`, `pickers="pullDown"`, `profile.centered`, `about.showHeader: false`, and `exitMenu` = `{ place: 'page', signOutOnAccount: true, signOutMenu: true, deleteOnAccess: true }` (exported as `DEFAULT_EXIT_MENU`).
+- **Layout opt-outs** still exist for a special case: `plainHeaders={false}`, `pickers="sheet"`, `profile.centered: false`, `about.showHeader: true`, `exitMenu={{}}`. Words have no opt-out.
+- **Data Export menu:** `renderProblem` cannot show with `menu` (there is no page). It now says so in development instead of dropping it quietly; pass `onProblem`.
+- **Erase Account** in place of Deactivate and Close Account: the row under Log Out, its page title, "Erase your account?" and "Erase my account forever". The steps still say it is forever and ask for DELETE (Apple 5.1.1(v)).
+- Tested against app-account-kit 7.27.1.
+
+Major version because the defaults change what an app shows. Apps can delete those props.
+
 ## 3.4.0 (2026-11-21)
 
 **The same Settings words in every app.** So each app stops re-adding them:
