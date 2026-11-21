@@ -24,3 +24,37 @@ export const kitList = (dependencies: Readonly<Record<string, string>>, kits: re
     const build = pinnedBuild(dependencies[pkg]);
     return build ? { name, version, build } : { name, version };
   });
+
+/** 8.0.0: the order kits are listed in About > Kits in every app; any other kit follows, A to Z. */
+export const KIT_ORDER: readonly string[] = ['app-core-kit', 'app-auth-kit', 'app-account-kit', 'app-settings-kit', 'app-export-kit', 'app-payments-kit', 'app-subscriptions-kit'];
+
+/** "app-core-kit" -> "Core Kit". */
+export const kitDisplayName = (pkg: string): string =>
+  pkg
+    .replace(/^app-/, '')
+    .split('-')
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(' ');
+
+/** The parts of the app's package.json the Kits list reads. */
+export interface AppPackage {
+  dependencies: Readonly<Record<string, string>>;
+  /** The release tag of each kit, such as "v7.30.0" (the pin check reads the same list). */
+  kitVersions?: Readonly<Record<string, string>>;
+}
+
+/**
+ * 8.0.0: About > Kits straight from the app's package.json: every `app-...-kit` dependency, named by the kit ("Core Kit"),
+ * its version from `kitVersions` and its build from the pin. The app lists nothing by hand.
+ */
+export const kitsFromPackage = ({ dependencies, kitVersions = {} }: AppPackage): KitEntry[] => {
+  const rank = (pkg: string) => {
+    const i = KIT_ORDER.indexOf(pkg);
+    return i === -1 ? KIT_ORDER.length : i;
+  };
+  const kits = Object.keys(dependencies)
+    .filter((pkg) => /^app-[a-z0-9-]+-kit$/.test(pkg))
+    .sort((a, b) => rank(a) - rank(b) || a.localeCompare(b))
+    .map((pkg) => ({ name: kitDisplayName(pkg), pkg, version: (kitVersions[pkg] ?? '').replace(/^v/, '') }));
+  return kitList(dependencies, kits);
+};

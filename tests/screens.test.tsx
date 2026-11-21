@@ -183,22 +183,67 @@ describe('AppSettings', () => {
     expect(h.texts().some((t) => /^Share /.test(t))).toBe(true);
   });
 
-  it('fills Version and Kits from the build and package.json; 6.0.0: an app\'s own Version line is not used', async () => {
+  it("8.0.0: fills Version from the app itself and Kits from its package.json; an app's own Version line or build is not used", async () => {
     const h = mount(
       <AppSettings
         {...props()}
         about={{ ...props().about, version: { number: '9', label: 'own' } } as never}
-        build={{ version: '4.18.0', buildNumber: '12', stamp: 'Nov 14, 2026 | 10:45 AM CT' }}
-        kitSources={{ dependencies: { 'app-core-kit': 'git+https://github.com/x/app-core-kit.git#abcdef1234567' }, kits: [{ name: 'Core Kit', pkg: 'app-core-kit', version: 'v1.0.0' }] }}
+        build={{ version: '1.0.0', buildNumber: '1', stamp: 'own stamp' }}
+        appPackage={{
+          dependencies: { react: '19.3.0', 'app-settings-kit': 'git+https://github.com/x/app-settings-kit.git#1234567abcdef', 'app-core-kit': 'git+https://github.com/x/app-core-kit.git#abcdef1234567' },
+          kitVersions: { 'app-core-kit': 'v1.7.0', 'app-settings-kit': 'v8.0.0' },
+        }}
       />,
       false,
     );
     await press(h.byText('About'));
     await press(h.byText('Version'));
-    expect(h.has('v4.18.0 | Build 12')).toBe(true);
+    // From the expo-constants / expo-application stand-ins: app.json's version, the phone's build, the build-stamp time.
+    expect(h.has('v4.18.0 | Build 22')).toBe(true);
+    expect(h.has('Nov 14, 2026 | 10:45 AM CT')).toBe(true);
     expect(h.has('own')).toBe(false);
+    expect(h.has('own stamp')).toBe(false);
     await press(h.byText('Kits'));
-    expect(h.texts().some((t) => t.includes('Core Kit') && t.includes('abcdef1'))).toBe(true);
+    const kits = h.texts().filter((t) => t.includes(' Kit'));
+    expect(kits.findIndex((t) => t.includes('Core Kit') && t.includes('v1.7.0') && t.includes('abcdef1'))).toBeLessThan(kits.findIndex((t) => t.includes('Settings Kit') && t.includes('1234567')));
+    expect(h.texts().some((t) => t.includes('React'))).toBe(false);
+  });
+
+  it('8.0.0: Appearance is the kit\'s row in a Display card at the end of Preferences', async () => {
+    const onChange = vi.fn();
+    const h = mount(<AppSettings {...props()} appearance={{ value: 'dark', onChange }} />, false);
+    await press(h.byText('Preferences'));
+    const texts = h.texts();
+    expect(texts.indexOf('Display')).toBeGreaterThan(texts.indexOf('Currency'));
+    expect(h.has('Appearance')).toBe(true);
+    const none = mount(<AppSettings {...props()} />, false);
+    await press(none.byText('Preferences'));
+    expect(none.has('Appearance')).toBe(false);
+  });
+
+  it("8.0.0: Security is the kit's row in Preferences, opening the app's lock page", async () => {
+    const h = mount(<AppSettings {...props()} security={{ content: <Text>PIN page</Text> }} />, false);
+    expect(rowsOnList(h.texts(), [...NAMES, 'Security'])).toEqual(['About', 'Profile', 'Preferences', 'Premium']);
+    await press(h.byText('Preferences'));
+    await press(h.byText('Security'));
+    expect(h.has('PIN page')).toBe(true);
+  });
+
+  it('8.0.0: the Erase Account warning is the kit\'s; a paying person is also told to cancel the subscription first', async () => {
+    for (const [subscribed, says] of [[false, false], [true, true]] as const) {
+      const h = mount(<AppSettings {...props()} strings={{ deleteWarning: 'own words' }} plan={{ content: <Text>P</Text>, subscribed }} />, false);
+      await press(h.byText('Profile'));
+      await press(h.byText('Erase Account'));
+      expect(h.has('own words')).toBe(false);
+      expect(h.texts().some((t) => t.startsWith('This erases every setting'))).toBe(true);
+      expect(h.texts().some((t) => t.includes('Premium subscription keeps billing'))).toBe(says);
+    }
+  });
+
+  it('8.0.0: the kit chooses the tile colors of the plan and Data Export rows from the theme', () => {
+    const h = mount(<AppSettings {...props()} plan={{ tint: 'pink', content: <Text>P</Text> } as never} />, false);
+    const tints = h.root.root.findAll((n) => typeof n.props.tint === 'string').map((n) => n.props.tint);
+    expect(tints).not.toContain('pink');
   });
 
   it("6.0.0: always draws the kit's round Back button and swipe-back, even when the app passes its own", () => {
@@ -213,5 +258,15 @@ describe('AppSettings', () => {
   it('4.0.0: Preferences and Profile are the same in every app, even when the app tries to rename them', () => {
     const h = mount(<AppSettings {...props()} strings={{ app: 'Options', account: 'Me' }} />, false);
     expect(rowsOnList(h.texts(), [...NAMES, 'Options', 'Me'])).toEqual(['About', 'Profile', 'Preferences', 'Premium']);
+  });
+});
+
+describe('8.0.0 Share on Android', () => {
+  it('sends the Google Play page on Android when the app has one, the App Store page otherwise', async () => {
+    const { Platform } = await import('react-native');
+    const { playStorePage, appStorePage } = await import('../src/AppSettings');
+    expect(playStorePage('com.example.app')).toBe('https://play.google.com/store/apps/details?id=com.example.app');
+    expect(appStorePage(' 6830296391 ')).toBe('https://apps.apple.com/app/id6830296391');
+    expect(Platform.OS).toBe('ios');
   });
 });

@@ -11,6 +11,6 @@ export default defineConfig({
     server: { deps: { inline: [/app-account-kit/] } },
   },
   esbuild: { jsx: 'automatic' },
-  resolve: { alias: { 'react-native': stub('react-native'), '@expo/vector-icons/Feather': stub('vector-icons') } },
+  resolve: { alias: { 'react-native': stub('react-native'), '@expo/vector-icons/Feather': stub('vector-icons'), 'expo-application': stub('expo-application'), 'expo-constants': stub('expo-constants'), 'app-account-kit/photo': stub('account-photo') } },
   define: { __DEV__: false },
 });

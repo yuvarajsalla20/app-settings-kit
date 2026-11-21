@@ -24,6 +24,17 @@ export interface SettingsStrings {
   planWillAdd: (planName: string) => string;
   /** 7.0.0: the heading over what is free today. */
   freeToday: (appName: string) => string;
+  /** 8.0.0: the card at the end of Preferences that holds Appearance. */
+  display: string;
+  /** 8.0.0: the Light / Dark row. */
+  appearance: string;
+  /** 8.0.0: the lock row (Face ID, PIN) in Preferences. */
+  security: string;
+  /**
+   * 8.0.0: the warning on Erase Account, the same in every app. `subscribed` adds the line about cancelling a paid plan first,
+   * since deleting the account does not stop App Store billing.
+   */
+  deleteWarning: (planName: string, subscribed: boolean) => string;
 }
 
 export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
@@ -37,4 +48,11 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   comingSoonLine: (appName, planName) => `${appName} is free to use. ${planName} is on the way.`,
   planWillAdd: (planName) => `What ${planName} Will Add`,
   freeToday: (appName) => `Free in ${appName} Today`,
+  display: 'Display',
+  appearance: 'Appearance',
+  security: 'Security',
+  deleteWarning: (planName, subscribed) =>
+    'This erases every setting and piece of data, and your login. It cannot be undone.' +
+    (subscribed ? ` Your ${planName} subscription keeps billing until you cancel it in your Apple ID settings, so cancel it first.` : '') +
+    ' Use Data Export first if you want a copy.',
 };

@@ -22,8 +22,8 @@ export interface ExportFormat {
   /** A second, smaller line under the label. */
   detail?: string;
   icon: IconName;
-  /** The color of the icon tile. */
-  tint: string;
+  /** Only for a standalone DataExportPage (its own tile color). In AppSettings the kit colors Data Export itself (theme.tints.data) and ignores this. */
+  tint?: string;
   /** True while the person's plan does not include this format: a tap calls `onLocked` (open the plans) instead of making the file. Each format has its own lock. */
   locked?: boolean;
   /** The line under the label while locked. Default: `detail`. */
@@ -59,6 +59,8 @@ export interface DataExportPageProps {
   renderProblem?: (text: string) => ReactNode;
   /** Draws each row instead of app-account-kit's `SettingRow`, such as an app's own Premium row. */
   Row?: ComponentType<ExportRowProps>;
+  /** The tile color of a format that has no `tint` of its own. Pass the theme's `tints.data`. */
+  tint?: string;
 }
 
 /**
@@ -98,6 +100,8 @@ export interface PlanConfig extends PageRow {
   content?: ReactNode;
   /** 7.0.0, Coming Soon page only: what the plan will add, one line each. */
   features?: readonly string[];
+  /** 8.0.0: the person pays for the plan now. Erase Account then also says to cancel the subscription first. */
+  subscribed?: boolean;
   /** 7.0.0, Coming Soon page only: what the app gives for free today, one line each. */
   freeFeatures?: readonly string[];
 }
