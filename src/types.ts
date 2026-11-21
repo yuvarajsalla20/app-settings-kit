@@ -98,6 +98,8 @@ export interface PlanConfig extends PageRow {
   content?: ReactNode;
   /** 7.0.0, Coming Soon page only: what the plan will add, one line each. */
   features?: readonly string[];
+  /** 8.0.0: the person pays for the plan now. Erase Account then also says to cancel the subscription first. */
+  subscribed?: boolean;
   /** 7.0.0, Coming Soon page only: what the app gives for free today, one line each. */
   freeFeatures?: readonly string[];
 }

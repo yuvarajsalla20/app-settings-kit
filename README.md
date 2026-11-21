@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 7.0.0** (tag `v7.0.0`). Needs app-account-kit **7.30.0** or later.
+**Current version: 8.0.0** (tag `v8.0.0`). Needs app-account-kit **7.30.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -35,7 +35,7 @@ Part of the shared kits:
 
 Pin the full commit SHA of a release tag so every build gets exactly the code you tested, and write the tag in `kitVersions`. Find a SHA with `git ls-remote https://github.com/yuvarajsalla20/app-settings-kit refs/tags/v2.3.0`.
 
-**Peer dependencies:** `app-account-kit` ≥ 7.12.0, `react` ≥ 18, `react-native` ≥ 0.74, `@expo/vector-icons` ≥ 14.
+**Peer dependencies:** `app-account-kit` ≥ 7.30.0, `react` ≥ 18, `react-native` ≥ 0.74, `@expo/vector-icons` ≥ 14, and (8.0.0) `expo-application`, `expo-constants`, `expo-image-picker`, `expo-image-manipulator`.
 
 ## Entry points
 
@@ -51,7 +51,7 @@ Pin the full commit SHA of a release tag so every build gets exactly the code yo
 - **Main list:** About, Account, Preferences, the plan page, then any parent page of the app's own.
 - **Log Out and Erase Account (6.0.0: required, always on Profile):** Log Out is its own row and opens a small menu; Erase Account under it opens the delete steps (what you lose, type DELETE, password; the steps say the data is deleted forever, as Apple requires). `actions.onSignOut` and `actions.onDeleteAccount` are required. `exitMenu` takes only the optional `{ unlock, losses }`.
 - **Features live inside a parent, never on the list.** Data Export is about the person's data, so it is a row called **Data Export** on Profile in every app, opening a pull-down menu headed "Make a file and share it".
-- **About:** the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support**, **Privacy Policy**; **Kits**, **Version**. Kits and Version fill themselves from `kitSources` and `build`. A missing part hides its row, and the kit warns in development.
+- **About:** the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support**, **Privacy Policy**; **Kits**, **Version**. Kits and Version fill themselves (8.0.0: from `appPackage` and the app itself). A missing part hides its row, and the kit warns in development.
 - **Wording:** approved Title Case words by default ("Rate MyApp", "Contact Support", "Privacy Policy", "Log Out", "Erase Account" (4.0.0), "We're Here to Help", "Write to Us"). 4.0.0: **enforced**. These words, the card headings and the page names are the same in every app; an app's own version through `strings` is not used (development shows a warning). `strings` is only for the app's own sentences, such as `deleteWarning`.
 - **Back:** a round 44 pt Back button in `theme.accent` with a `theme.ink` arrow, and swipe from the left edge to go back, on every page.
 
@@ -71,7 +71,7 @@ import { AppSettings } from 'app-settings-kit';
   onBack={GO_HOME}
   profile={{ name: NICKNAME, fallbackName: APP_NAME, email: EMAIL, photo: PHOTO }}
   nickname={{ max: MAX_NICKNAME, onSave: SAVE_NICKNAME }}
-  photo={{ pick: PICK_PHOTO, onChange: SAVE_PHOTO, cameraSupported: true }}
+  photo={{ onChange: SAVE_PHOTO }}          // 8.0.0: the picker is app-account-kit's
   password={HAS_PASSWORD ? { onChange: CHANGE_PASSWORD } : undefined}
   about={{
     appName: APP_NAME,
@@ -81,8 +81,9 @@ import { AppSettings } from 'app-settings-kit';
     supportEmail: SUPPORT_EMAIL,
     appStoreId: APP_STORE_ID,              // required: Rate and Share both come from it
   }}
-  build={{ version: APP_VERSION, buildNumber: STORE_BUILD_NUMBER, stamp: BUILD_STAMP }}  // fills About > Version
-  kitSources={{ dependencies: APP_PACKAGE_JSON.dependencies, kits: KITS_USED }}           // fills About > Kits
+  appPackage={APP_PACKAGE_JSON}            // 8.0.0: About > Kits from its app-...-kit dependencies; Version reads itself
+  appearance={{ value: THEME_CHOICE, onChange: SET_THEME_CHOICE }}   // optional: the kit's Appearance row
+  security={{ content: <SecurityPage /> }}  // optional: the kit's Security row (app-guard-kit)
   actions={{ onSignOut: SIGN_OUT, onDeleteAccount: DELETE_ACCOUNT, confirmsWithPassword: NEEDS_PASSWORD }}
   onError={REPORT_ERROR}
   preferences={APP_OWN_ROWS}               // required: SettingsGroup + SettingRow from app-account-kit (Theme, Security go here when an app has them)
@@ -93,23 +94,12 @@ import { AppSettings } from 'app-settings-kit';
     ],
     onLocked: OPEN_PLANS,
   }}
-  plan={{ id: 'premium', tint: TINT, value: CURRENT_PLAN_WORD, badge: PLAN_PILL, content: PLAN_PAGE }}   // called Premium in every app
+  plan={{ id: 'premium', value: CURRENT_PLAN_WORD, subscribed: PAYS_NOW, badge: PLAN_PILL, content: PLAN_PAGE }}   // called Premium in every app
   extraPages={APP_EXTRA_PAGES}             // optional
 />
 ```
 
-`KITS_USED` is a list of `{ name, pkg, version }`, one per kit:
-
-```ts
-import account from 'app-account-kit/package.json';
-import settings from 'app-settings-kit/package.json';
-
-const KITS_USED = [
-  { name: 'Account Kit', pkg: 'app-account-kit', version: account.version },
-  { name: 'Settings Kit', pkg: 'app-settings-kit', version: settings.version },
-];
-// About > Kits shows "Account Kit | v7.12.0 | Build 874b317", the build read from the app's package.json pin.
-```
+`APP_PACKAGE_JSON` is the app's own package.json (`import pkg from '../../package.json'`). 8.0.0: About > Kits lists every `app-...-kit` dependency by itself, in the same order in every app, like "Account Kit | v7.30.0 | Build da25d6e" (the version from `kitVersions`, the build from the pin). About > Version reads app.json's version, the phone's build number and the build time from app.config.js.
 
 `PLAN_PAGE` is usually app-subscriptions-kit's `PremiumPage`, and `MAKE_CSV` / `MAKE_PDF` usually call app-export-kit.
 
@@ -119,12 +109,13 @@ These app-account-kit `SettingsScreen` props pass through: `theme`, `strings` (t
 
 | Prop | Type | Notes |
 |---|---|---|
-| `about` | `AboutConfig` | `appName`, `logo`, `privacyUrl`, `featuresUrl`, `supportEmail`, `appStoreId`; optional `playPackage`, `shareMessage`. Version and Kits always come from `build` and `kitSources` |
+| `about` | `AboutConfig` | `appName`, `logo`, `privacyUrl`, `featuresUrl`, `supportEmail`, `appStoreId`; optional `playPackage`, `shareMessage`. Version and Kits fill themselves. 8.0.0: Share sends the Google Play page on Android when `playPackage` is set |
 | `actions` | `{ onSignOut, onDeleteAccount, confirmsWithPassword }` | 6.0.0: Log Out and Erase Account are required |
 | `photo` | app-account-kit `PhotoProps` | Change photo on Profile |
 | `exitMenu` | `{ unlock?, losses? }` | Optional extras for the delete steps. The layout is the kit's |
-| `build` | `{ version, buildNumber?, stamp?, fallbackStamp?, buildWord? }` | Fills About > Version as "v1.2.0 \| Build 12" and the build time ("dev build" in a local run) |
-| `kitSources` | `{ dependencies, kits: { name, pkg, version }[] }` | Fills About > Kits, each build read from its pin |
+| `appPackage` | `{ dependencies, kitVersions? }` | 8.0.0: the app's package.json. Fills About > Kits by itself. (`kitSources` still works for 7.x apps; `build` is ignored: Version reads the app itself) |
+| `appearance` | `{ value, onChange }` | 8.0.0, optional: the kit's Appearance row (System, Light, Dark) in a Display card at the end of Preferences |
+| `security` | `{ content, value? }` | 8.0.0, optional: the kit's Security row in Preferences, opening the app's lock page (app-guard-kit's `SecurityPage`) |
 | `preferences` | `ReactNode` | The app's own settings rows |
 | `dataExport` | `DataExportConfig` | The Data Export page (see below) |
 | `plan` | `PlanConfig` | The plan page: `{ content?, id?, tint?, value?, badge?, features?, freeFeatures? }`. 7.0.0: it is called **Premium** in every app (the kit's word). Leave out `content` while nothing is on sale and the kit draws its Coming Soon page (see below) |
@@ -139,7 +130,7 @@ Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, Premi
 Every app shows its plan page. An app whose plan is not on sale yet passes no `content`, and the kit draws the same Coming Soon page in every app:
 
 ```tsx
-plan={{ tint: TINT, features: ['Shared household', 'Monthly budget'], freeFeatures: ['Unlimited expenses'] }}
+plan={{ features: ['Shared household', 'Monthly budget'], freeFeatures: ['Unlimited expenses'] }}
 ```
 
 - The row on the list reads **Coming Soon**.
@@ -195,6 +186,15 @@ The kit uses app-account-kit's `AccountTheme` and adds no colors of its own (a t
 
 Pass `components.BackButton` or `components.EdgeSwipe` to replace the built-in Back button or swipe-back.
 
+**The same header on your own screens (8.0.0):**
+
+```tsx
+import { makePageHeader } from 'app-settings-kit/parts';
+
+export const PageHeader = makePageHeader(APP_THEME, { Text });   // round Back, then the title, like every Settings page
+<PageHeader title="Categories" onBack={goBack} titleRight="Nov 2026" />
+```
+
 **The same Back on your own screens:**
 
 ```tsx
@@ -220,7 +220,7 @@ module.exports = ({ config }) => ({ ...config, extra: { ...config.extra, buildSt
 // buildStamp(new Date(), { timeZone: 'Asia/Kolkata', zoneNames: { 'GMT+5:30': 'IST' } })
 ```
 
-Read it back in the app with `Constants.expoConfig?.extra?.buildStamp` (`expo-constants`), and the store build number with `Application.nativeBuildVersion` (`expo-application`), then pass both in `build`.
+8.0.0: the kit reads it back by itself (`expoBuild()`: `Constants.expoConfig.extra.buildStamp`, and the store build number from `expo-application`, none in Expo Go). The app passes nothing.
 
 ## Helpers
 

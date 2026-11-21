@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import pkg from '../package.json';
 import { KIT_VERSION } from '../src/kit';
-import { missingAboutParts, titleCaseStrings, createOneAtATime, DEFAULT_ORDER, hubOrder, kitList, pinnedBuild, versionLines } from '../src/logic';
+import { missingAboutParts, titleCaseStrings, createOneAtATime, DEFAULT_ORDER, hubOrder, kitDisplayName, kitList, kitsFromPackage, pinnedBuild, versionLines } from '../src/logic';
 import { finishesSwipe, isEdgeSwipe } from '../src/logic/swipe';
 
 describe('kits list', () => {
@@ -150,5 +150,23 @@ describe('About is complete (5.0.0)', () => {
     const { logoPixels } = await import('../src/logic/about');
     expect(logoPixels({ uri: 'x', width: 1024 })).toBe(1024);
     expect(logoPixels(undefined)).toBeUndefined();
+  });
+});
+
+describe('8.0.0 kitsFromPackage', () => {
+  it('lists every app-...-kit dependency in the standard order, named by the kit, version from kitVersions, build from the pin', () => {
+    const list = kitsFromPackage({
+      dependencies: { react: '19', 'app-zebra-kit': '1.0.0', 'app-auth-kit': 'https://codeload.github.com/x/app-auth-kit/tar.gz/3c3d5705e01916de0b0fc66515afeab9c3634b9f', 'app-core-kit': 'git+https://github.com/x/app-core-kit.git#0cbed17f433cd2eb9e5e467d876d45d4116f3e28' },
+      kitVersions: { 'app-core-kit': 'v1.7.0', 'app-auth-kit': 'v1.17.0' },
+    });
+    expect(list).toEqual([
+      { name: 'Core Kit', version: '1.7.0', build: '0cbed17' },
+      { name: 'Auth Kit', version: '1.17.0', build: '3c3d570' },
+      { name: 'Zebra Kit', version: '' },
+    ]);
+  });
+
+  it('names a kit from its package', () => {
+    expect(kitDisplayName('app-subscriptions-kit')).toBe('Subscriptions Kit');
   });
 });

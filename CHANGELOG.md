@@ -2,6 +2,23 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 8.0.0 (2026-11-21)
+
+**Even less for an app to wire by hand, so every app on the kit is the same.**
+
+- **Theme and Security are the kit's rows.** `appearance={{ value, onChange }}` draws Appearance (System, Light, Dark) in a "Display" card at the end of Preferences; `security={{ content }}` (app-guard-kit's `SecurityPage`) draws a "Security" row with a lock in Preferences. Both stay optional; the words, icons and place are the same in every app.
+- **Kits and Version fill themselves.** `appPackage` (the app's package.json) lists every `app-...-kit` dependency in a standard order (Core, Auth, Account, Settings, Export, Payments, Subscriptions, then A to Z), with its version from `kitVersions` and its build from the pin. Version comes from the app itself (`expoBuild()`: app.json's version, the phone's build number, none in Expo Go, and `extra.buildStamp` from `app-settings-kit/build-stamp`). `build` and `kitSources` are deprecated; `build` is ignored.
+- **The kit picks its rows' tile colors** from the theme: the plan uses `tints.rate`, Data Export `tints.data`, Security `tints.password`, Appearance `tints.app`. `plan.tint` and `dataExport.tint` are ignored.
+- **Photo and password defaults.** `photo` needs only `onChange`; the picker and camera check are app-account-kit's `pickProfilePhoto` and `cameraSupported`. `password.minLength` defaults to app-account-kit's `MIN_PASSWORD` (8).
+- **The Erase Account warning is the kit's**, with "Your Premium subscription keeps billing until you cancel it..." when `plan.subscribed`. An app's own `strings.deleteWarning` is ignored.
+- **Share on Android** sends the Google Play page when `about.playPackage` is set (`playStorePage`).
+- **`makePageHeader`** (`app-settings-kit/parts`): the Settings header (round Back, then the title) for an app's own screens.
+- **Contrast check:** in development, the kit warns about text the app's theme makes hard to read (app-account-kit's `themeContrast`), in whichever look is showing.
+- New peer dependencies: `expo-application`, `expo-constants`, `expo-image-picker`, `expo-image-manipulator` (every Expo app on the kits has them).
+
+### Upgrading from 7.x
+Replace `kitSources` with `appPackage={pkg}` and delete `build` (add `buildStamp()` from `app-settings-kit/build-stamp` to app.config.js `extra.buildStamp` if the app has none). Move an Appearance row to `appearance` and a Security page to `security`. Delete `photo.pick`, `photo.cameraSupported`, `password.minLength`, `plan.tint`, `dataExport.tint` and `strings.deleteWarning`; pass `plan.subscribed` when the person pays.
+
 ## 7.0.0 (2026-11-21)
 
 **One plan name and one Coming Soon page, the same in every app.**
