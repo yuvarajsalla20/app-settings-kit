@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 9.1.0** (tag `v9.1.0`). Needs app-account-kit **7.31.0** or later.
+**Current version: 10.0.0** (tag `v10.0.0`). Needs app-account-kit **7.31.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.31.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v9.1.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v10.0.0>"
 },
 "kitVersions": {
   "app-account-kit": "v7.31.0",
-  "app-settings-kit": "v9.1.0"
+  "app-settings-kit": "v10.0.0"
 }
 ```
 
@@ -124,24 +124,29 @@ These app-account-kit `SettingsScreen` props pass through: `theme`, `strings` (t
 | `security` | `{ content, value? }` | 8.0.0, optional: the kit's Security row in Preferences, opening the app's lock page (app-guard-kit's `SecurityPage`) |
 | `preferences` | `ReactNode` | The app's own settings rows |
 | `dataExport` | `DataExportConfig` | The Data Export page (see below) |
-| `plan` | `PlanConfig` | The plan page: `{ content?, id?, tint?, value?, badge?, features?, freeFeatures? }`. 7.0.0: it is called **Premium** in every app (the kit's word). Leave out `content` while nothing is on sale and the kit draws its Coming Soon page (see below) |
+| `plan` | `PlanConfig` | The plan page: `{ features, freeFeatures, content?, subscribed?, id?, value?, badge? }`. 7.0.0: it is called **Premium** in every app (the kit's word). 10.0.0: `features` and `freeFeatures` are required; every plan page ends with the kit's Free and Premium comparison. Leave out `content` while nothing is on sale and the kit draws its Coming Soon page (see below) |
 | `extraPages` | `ExtraPage[]` | Optional: the app's own pages. `under: 'preferences'` or `'account'` puts one inside that parent; left out, it follows the four parents on the list |
 
 6.0.0 removed `order`, `dataExportIn`, `plainHeaders`, `pickers`, `settingsStrings`, `data`, `about.version`, and the `label`, `icon` and `menu` of `plan` and `dataExport`. They are the kit's now.
 
 Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, Premium (7.0.0), the headings (Account, Your Data, Sign In on the Profile page; the app's name, Help, Info), Log Out and Erase Account.
 
-## The plan page while nothing is on sale (7.0.0)
+## The plan page and the Free and Premium comparison (10.0.0)
 
-Every app shows its plan page. An app whose plan is not on sale yet passes no `content`, and the kit draws the same Coming Soon page in every app:
+Every app shows its plan page, and every plan page ends with the same comparison table, so a person can always tell which features are Premium and which are free:
 
 ```tsx
-plan={{ features: ['Shared household', 'Monthly budget'], freeFeatures: ['Unlimited expenses'] }}
+plan={{
+  features: [{ label: 'Repeat Alerts', detail: 'Up to 5 Times', icon: 'repeat' }, 'Workspaces'],
+  freeFeatures: [{ label: 'Sync Across Devices', icon: 'refresh-cw' }],
+  content: <PremiumPage features={...} onOpenPlans={...} />, // leave out while nothing is on sale
+  subscribed,
+}}
 ```
 
-- The row on the list reads **Coming Soon**.
-- The page: **Premium** with **Coming Soon** and "&lt;App&gt; is free to use. Premium is on the way.", then **What Premium Will Add** (`features`) and **Free in &lt;App&gt; Today** (`freeFeatures`), each card only when the app lists something. Rows only: nothing to buy.
-- Once the plan is on sale, pass `content` (usually app-subscriptions-kit's `PremiumPage`) and the app's own page and row value come back.
+- **The comparison:** under the heading **Compare Free and Premium**, one table with a **Free** column and a **Premium** column under the award mark, tinted in the plan's color (the theme's `tints.rate`). What the plan adds comes first, with tiles in the plan's color and a dash under Free; what every account has follows, with quiet tiles (`tints.version`) and a tick in both columns. With `subscribed`, the Premium column reads **Your Plan**. Each entry is a line, or `{ label, detail?, icon? }` (a Feather icon name). The table, its words and its colors are the kit's; the app gives only the two lists.
+- **Nothing on sale yet:** leave out `content`. The row on the list reads **Coming Soon**, and the page opens with **Premium**, **Coming Soon** and "Every current &lt;App&gt; feature is free. Premium will be available soon.", then the comparison. Nothing to buy.
+- **On sale:** pass `content` (app-subscriptions-kit's `PremiumPage`). The page shows it, then the comparison. Since app-subscriptions-kit 3.0.0, `PremiumPage` no longer repeats the feature list; subscribers see only the features that have their own controls, under **Premium Settings**.
 
 ## Data Export
 

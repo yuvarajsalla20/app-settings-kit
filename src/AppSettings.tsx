@@ -1,6 +1,6 @@
 import { PickerRow, SettingsGroup, SettingsScreen, themeContrast, MIN_PASSWORD, type AboutProps, type AccountStrings, type ActionsProps, type Choice, type ExitMenuProps } from 'app-account-kit';
 import { cameraSupported as defaultCameraSupported, pickProfilePhoto } from 'app-account-kit/photo';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 import { assemblePages } from './assemble';
@@ -12,6 +12,7 @@ import { makeBackButton } from './parts/BackButton';
 import { EdgeSwipeBack } from './parts/EdgeSwipeBack';
 import { exportMenu } from './pages/DataExportPage';
 import { ComingSoonPage } from './pages/ComingSoonPage';
+import { PlanCompare } from './pages/PlanCompare';
 import { createOneAtATime } from './logic/oneAtATime';
 import { DEFAULT_SETTINGS_STRINGS, type SettingsStrings } from './strings';
 import type { DataExportConfig, ExtraPage, PlanConfig } from './types';
@@ -202,6 +203,11 @@ export function AppSettings(props: AppSettingsProps) {
   useEffect(() => {
     if (contrast && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: hard to read in this look: ${contrast}.`);
   }, [contrast]);
+  // 10.0.0: the comparison needs both lists; an empty one is said in development (the types already require them).
+  const missingLists = [!plan.features?.length && 'plan.features', !plan.freeFeatures?.length && 'plan.freeFeatures'].filter(Boolean).join(' and ');
+  useEffect(() => {
+    if (missingLists && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: ${missingLists} is empty. Every plan page shows the Free and Premium comparison, so list what the plan adds and what is free.`);
+  }, [missingLists]);
   // The menu has no page to draw on, so renderProblem cannot show there: say so in development instead of dropping it quietly.
   const lostProblem = !!(dataExport.renderProblem && !dataExport.onProblem);
   useEffect(() => {
@@ -222,12 +228,31 @@ export function AppSettings(props: AppSettingsProps) {
   // 8.0.0: the kit's rows take their tile color from the theme, the same key in every app (the plan: Rate's gold; Data Export: data).
   const tints = rest.theme.tints;
   const planTint = tints.rate;
+  // 10.0.0: every plan page ends with the kit's Free and Premium comparison, on sale or Coming Soon, so Premium features
+  // always read apart from free ones. The app gives the two lists; the table, its words and its colors are the kit's.
+  const compare = (
+    <PlanCompare theme={rest.theme} gold={planTint} planName={words.plan} features={plan.features ?? []} freeFeatures={plan.freeFeatures ?? []}
+      subscribed={!!plan.subscribed} Text={componentsIn?.Text as never} strings={words} />
+  );
   const planSection = comingSoon
     ? {
         row: kitRow({ id: plan.id, tint: planTint, value: words.comingSoon }),
-        content: <ComingSoonPage appName={appName} planName={words.plan} tint={planTint} features={plan.features} freeFeatures={plan.freeFeatures} strings={words} />,
+        content: (
+          <View style={{ gap: 16 }}>
+            <ComingSoonPage appName={appName} planName={words.plan} tint={planTint} strings={words} />
+            {compare}
+          </View>
+        ),
       }
-    : { row: kitRow({ ...plan, tint: planTint }), content: plan.content };
+    : {
+        row: kitRow({ ...plan, tint: planTint }),
+        content: (
+          <View style={{ gap: 16 }}>
+            {plan.content}
+            {compare}
+          </View>
+        ),
+      };
   // 8.0.0: Security, when the app has one, is the kit's row in Preferences.
   const allPages: readonly ExtraPage[] = security
     ? [...(extraPages ?? []), { id: 'security', label: words.security, icon: 'lock', tint: tints.password, under: 'preferences', content: security.content, ...(security.value !== undefined ? { value: security.value } : {}) }]

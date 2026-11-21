@@ -86,6 +86,9 @@ export type DataExportConfig = PageRow &
   };
 
 /** The plan page (VIP, Premium): its row, and what the page shows (for example app-subscriptions-kit's `PremiumPage`). */
+/** 10.0.0: one feature in the plan comparison: a line, or a line with a short second line and a Feather icon name. */
+export type PlanFeature = string | { label: string; detail?: string; icon?: IconName };
+
 export interface PlanConfig extends PageRow {
   /**
    * @deprecated 7.0.0: the plan is called "Premium" in every app (the kit's word). Still accepted so 6.x apps compile; a different
@@ -98,10 +101,13 @@ export interface PlanConfig extends PageRow {
    * app, and the row reads "Coming Soon".
    */
   content?: ReactNode;
-  /** 7.0.0, Coming Soon page only: what the plan will add, one line each. */
-  features?: readonly string[];
-  /** 8.0.0: the person pays for the plan now. Erase Account then also says to cancel the subscription first. */
+  /**
+   * What the plan adds, one entry each (a line, or `{ label, detail, icon }`). 10.0.0: required, and shown on every plan
+   * page, on sale or Coming Soon, in the kit's Free and Premium comparison table.
+   */
+  features: readonly PlanFeature[];
+  /** 8.0.0: the person pays for the plan now. Erase Account then also says to cancel the subscription first, and the comparison marks the plan as "Your Plan" (10.0.0). */
   subscribed?: boolean;
-  /** 7.0.0, Coming Soon page only: what the app gives for free today, one line each. */
-  freeFeatures?: readonly string[];
+  /** What every account has for free, one entry each. 10.0.0: required, and shown in the same comparison table. */
+  freeFeatures: readonly PlanFeature[];
 }

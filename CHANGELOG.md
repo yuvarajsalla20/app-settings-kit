@@ -2,6 +2,19 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 10.0.0 (2026-11-21)
+
+**A Free and Premium comparison on every plan page.** Premium and free features looked alike (the same gold tiles, with only a star or a tick between them). Every plan page now ends with one comparison table, the same in every app: a Free column and a Premium column under the award mark, tinted in the plan's color. Premium features come first, with tiles in the plan's color and a dash under Free; free features follow, with quiet tiles and a tick in both columns.
+
+- **On sale and Coming Soon alike.** The table follows the app's own plan page (`content`) and the Coming Soon card.
+- **Coming Soon:** the two lists ("What Premium Will Add", "Free in <App> Today") are replaced by the table. The line reads "Every current <App> feature is free. Premium will be available soon." (was "<App> is free to use. …").
+- **Subscribers:** with `plan.subscribed`, the Premium column reads "Your Plan".
+- **`plan.features` and `plan.freeFeatures` are required**, and accept `{ label, detail?, icon? }` as well as a line. An empty list is named in development.
+- New strings: `compareTitle`, `compareFeature`, `compareFree`, `compareYourPlan`, `compareIncluded`, `compareNotIncluded`. Removed: `planWillAdd`, `freeToday`.
+- New exports: `PlanCompare`, `featureParts`, `PlanFeature`.
+
+Upgrading: pass `plan.features` and `plan.freeFeatures` (an app on sale now passes them too, beside `content`). Use app-subscriptions-kit 3.0.0 or later, whose `PremiumPage` no longer repeats the feature list.
+
 ## 9.2.0 (2026-11-21)
 
 **The Data Export row's pill says "Choose".** With two or more formats the pill read "CSV / PDF", which looked like a chosen setting. It now says "Choose" (the kit's `exportPick` word, the same in every app). With one format the pill still shows its short name, such as "CSV". The menu, its locks and the Premium pill are unchanged.
