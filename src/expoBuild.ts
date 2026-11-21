@@ -1,5 +1,6 @@
 import * as Application from 'expo-application';
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 import type { VersionParts } from './logic/version';
 
 /** Expo Go's own app id: there the phone reports Expo Go's build number, not the app's. */
@@ -19,4 +20,15 @@ export function expoBuild(): VersionParts {
     buildNumber: inExpoGo ? null : (Application.nativeBuildVersion ?? null),
     stamp: typeof stamp === 'string' ? stamp : null,
   };
+}
+
+/**
+ * 9.1.0: the app's Google Play id, read from the app itself so no app has to pass it: the Android package from app.json
+ * (`expo.android.package`), or the installed app's own id on an Android phone. Undefined in Expo Go and when there is none.
+ */
+export function expoPlayPackage(): string | undefined {
+  const fromConfig = (Constants.expoConfig as { android?: { package?: unknown } } | null | undefined)?.android?.package;
+  if (typeof fromConfig === 'string' && fromConfig.trim()) return fromConfig.trim();
+  const id = Application.applicationId ?? '';
+  return id && !EXPO_GO_IDS.includes(id) && Platform.OS === 'android' ? id : undefined;
 }

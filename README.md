@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 9.0.0** (tag `v9.0.0`). Needs app-account-kit **7.31.0** or later.
+**Current version: 9.1.0** (tag `v9.1.0`). Needs app-account-kit **7.31.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,15 +31,15 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.31.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v9.0.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v9.1.0>"
 },
 "kitVersions": {
   "app-account-kit": "v7.31.0",
-  "app-settings-kit": "v9.0.0"
+  "app-settings-kit": "v9.1.0"
 }
 ```
 
-Pin the full commit SHA of a release tag so every build gets exactly the code you tested, and write the tag in `kitVersions`. Find a SHA with `git ls-remote https://github.com/yuvarajsalla20/app-settings-kit refs/tags/v9.0.0`.
+Pin the full commit SHA of a release tag so every build gets exactly the code you tested, and write the tag in `kitVersions`. Find a SHA with `git ls-remote https://github.com/yuvarajsalla20/app-settings-kit refs/tags/v9.1.0`.
 
 **Peer dependencies:** `app-account-kit` ≥ 7.30.0, `react` ≥ 18, `react-native` ≥ 0.74, `@expo/vector-icons` ≥ 14, and (8.0.0) `expo-application`, `expo-constants`, `expo-image-picker`, `expo-image-manipulator`.
 
@@ -115,7 +115,7 @@ These app-account-kit `SettingsScreen` props pass through: `theme`, `strings` (t
 
 | Prop | Type | Notes |
 |---|---|---|
-| `about` | `AboutConfig` | `appName`, `logo`, `privacyUrl`, `featuresUrl`, `supportEmail`, `appStoreId`; optional `playPackage`, `shareMessage`. Version and Kits fill themselves. 8.0.0: Share sends the Google Play page on Android when `playPackage` is set |
+| `about` | `AboutConfig` | `appName`, `logo`, `privacyUrl`, `featuresUrl`, `supportEmail`, `appStoreId`; optional `playPackage`, `shareMessage`. Version and Kits fill themselves. 9.1.0: Share and Rate use Google Play on Android, read from app.json (`expo.android.package`); `playPackage` is only a fallback |
 | `actions` | `{ onSignOut, onDeleteAccount, confirmsWithPassword }` | 6.0.0: Log Out and Erase Account are required |
 | `photo` | app-account-kit `PhotoProps` | Change photo on Profile |
 | `exitMenu` | `{ unlock?, losses? }` | Optional extras for the delete steps. The layout is the kit's |

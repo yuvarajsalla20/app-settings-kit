@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { assemblePages } from './assemble';
 import { aboutProblems, cardHeadings, logoPixels, titleCaseStrings } from './logic/about';
 import { kitList, kitsFromPackage, type AppPackage, type KitSource } from './logic/kits';
-import { expoBuild } from './expoBuild';
+import { expoBuild, expoPlayPackage } from './expoBuild';
 import { versionLines, type VersionParts } from './logic/version';
 import { makeBackButton } from './parts/BackButton';
 import { EdgeSwipeBack } from './parts/EdgeSwipeBack';
@@ -31,7 +31,7 @@ export type AboutConfig = Omit<AboutProps, 'version' | 'logo' | 'showHeader' | '
   featuresUrl: string;
   /** The app's App Store number (digits, such as 6830296391). The Rate row opens its review screen, and Share sends its App Store page. */
   appStoreId: string;
-  /** Optional: the Google Play package name (com.example.app), for Rate on Android. */
+  /** Deprecated in 9.1.0: the kit reads the Google Play package from app.json (expo.android.package). Used only when app.json has none. */
   playPackage?: string;
   /** Optional: the words sent with Share. The kit's default names the app. */
   shareMessage?: string;
@@ -134,12 +134,14 @@ export function AppSettings(props: AppSettingsProps) {
   // Version and Kits filled in from the build and package.json, unless the app passed its own.
   // 5.0.0: the approved About in every app: the title "About" with the logo under it, then every row. Nothing here can be left out.
   const about = useMemo<AboutProps>(() => {
-    const { appStoreId, playPackage, shareMessage, ...restAbout } = aboutIn as AboutConfig & { version?: unknown };
+    const { appStoreId, playPackage: ownPlayPackage, shareMessage, ...restAbout } = aboutIn as AboutConfig & { version?: unknown };
     delete (restAbout as { version?: unknown }).version;
     // 8.0.0: Version from the app itself and Kits from its package.json, the same in every app.
     const build = expoBuild();
     const version = { number: build.version, ...versionLines(build) };
     const kits = appPackage ? kitsFromPackage(appPackage) : kitSources ? kitList(kitSources.dependencies, kitSources.kits) : undefined;
+    // 9.1.0: the Google Play id comes from app.json, so Share and Rate work on Android in every app without app code.
+    const playPackage = expoPlayPackage() ?? ownPlayPackage;
     // 8.0.0: Share sends the Google Play page on Android when the app has one, the App Store page everywhere else.
     const shareUrl = Platform.OS === 'android' && playPackage ? playStorePage(playPackage) : appStoreId ? appStorePage(appStoreId) : undefined;
     return {
