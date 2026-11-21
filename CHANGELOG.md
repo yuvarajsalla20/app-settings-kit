@@ -2,6 +2,19 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 9.0.0 (2026-11-21)
+
+**Professional default words on Premium, Coming Soon, Data Export, Log Out and Erase Account.** The words people see change, so this is a major version; nothing changes in code.
+
+- **Coming Soon:** "Moonpenny is free to use. Premium will be available soon." (was "…Premium is on the way.").
+- **Data Export menu line:** "Choose a Format to Export" (was "Make a file and share it").
+- **Erase Account warning names the right store.** For a paying person it says to cancel in "Google Play subscriptions" on Android and in "your Apple ID settings" on iPhone (it said Apple ID on both). `deleteWarning` takes an optional third argument, `platform` (the kit passes `Platform.OS`).
+- **Log Out and Erase Account read in one vocabulary, in Title Case:** "Log Out?", "Stay Logged In", "Log Out Instead", "Erase Your Account?", "What You Will Lose" (was "You will lose, forever:"), "Prefer to Keep Your Data?" (was "Just want a break?"), "Confirm It Is You" (was "Last step: sign in again"), "Erase My Account Forever", "Erase Everything" (was "Delete Everything"). The confirmation word stays DELETE (Apple's account-deletion rule). "Your data stays safe. Log in at any time to see it again." replaces "…Sign in any time…".
+- **Contact Support:** "Send us a question, an idea or a problem, and a member of our team will reply." and "No mail app is set up. Please write to <email>."
+- **Screen readers hear the lock.** A locked format in the Data Export menu carries the plan's name, so VoiceOver reads "CSV File, Premium" (or the format's `lockedValue`), and the word shows beside the padlock.
+
+Upgrading: nothing to change in code. App tests that matched the old words need the new ones. These words are locked: an app's `strings` cannot change them.
+
 ## 8.0.0 (2026-11-21)
 
 **Even less for an app to wire by hand, so every app on the kit is the same.**

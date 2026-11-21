@@ -170,7 +170,7 @@ export function AppSettings(props: AppSettingsProps) {
       app: words.preferences,
       account: words.account,
       // 8.0.0: the Erase Account warning is the kit's too.
-      deleteWarning: words.deleteWarning(words.plan, !!plan.subscribed),
+      deleteWarning: words.deleteWarning(words.plan, !!plan.subscribed, Platform.OS),
     }),
     [appName, words, plan.subscribed],
   );

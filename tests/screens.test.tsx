@@ -143,7 +143,7 @@ describe('AppSettings', () => {
     const h = mount(<AppSettings {...props()} plan={{ features: ['Shared household'], freeFeatures: ['Unlimited expenses'] }} />, false);
     expect(h.has('Coming Soon')).toBe(true);
     await press(h.byText('Premium'));
-    expect(h.has('My App is free to use. Premium is on the way.')).toBe(true);
+    expect(h.has('My App is free to use. Premium will be available soon.')).toBe(true);
     expect(h.has('What Premium Will Add')).toBe(true);
     expect(h.has('Shared household')).toBe(true);
     expect(h.has('Free in My App Today')).toBe(true);
@@ -170,7 +170,7 @@ describe('AppSettings', () => {
     expect(h.has('Data Export')).toBe(true);
     expect(h.has('Downloads')).toBe(false);
     const menu = exportMenuOf(h);
-    expect(menu.props.head).toBe('Make a file and share it');
+    expect(menu.props.head).toBe('Choose a Format to Export');
     expect(menu.props.items.map((i: { label: string }) => i.label)).toEqual(['CSV File', 'PDF Report']);
   });
 
@@ -237,6 +237,21 @@ describe('AppSettings', () => {
       expect(h.has('own words')).toBe(false);
       expect(h.texts().some((t) => t.startsWith('This erases every setting'))).toBe(true);
       expect(h.texts().some((t) => t.includes('Premium subscription keeps billing'))).toBe(says);
+    }
+  });
+
+  it('9.0.0: on Android the Erase Account warning says to cancel in Google Play subscriptions', async () => {
+    const { Platform } = await import('react-native');
+    const was = Platform.OS;
+    (Platform as { OS: string }).OS = 'android';
+    try {
+      const h = mount(<AppSettings {...props()} plan={{ content: <Text>P</Text>, subscribed: true }} />, false);
+      await press(h.byText('Profile'));
+      await press(h.byText('Erase Account'));
+      expect(h.texts().some((t) => t.includes('cancel it in Google Play subscriptions'))).toBe(true);
+      expect(h.texts().some((t) => t.includes('Apple ID'))).toBe(false);
+    } finally {
+      (Platform as { OS: string }).OS = was;
     }
   });
 

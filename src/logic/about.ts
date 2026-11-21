@@ -22,18 +22,25 @@ export const titleCaseStrings = (appName: string): Partial<AccountStrings> => ({
   share: `Share ${appName}`,
   // 3.1.0: "Log Out" and "Close Account"; 4.0.0: "Erase Account". The steps still say the data is deleted forever and ask for DELETE (Apple's account-deletion rule).
   signOut: 'Log Out',
-  signOutTitle: 'Log out?',
-  stayIn: 'Stay logged in',
-  deleteBreakAction: 'Log out instead',
+  // 9.0.0: Title Case for every title and button, one vocabulary (Log Out / Log In, Erase), calm full sentences.
+  signOutTitle: 'Log Out?',
+  signOutBody: 'Your data stays safe. Log in at any time to see it again.',
+  stayIn: 'Stay Logged In',
+  deleteBreakTitle: 'Prefer to Keep Your Data?',
+  deleteBreakAction: 'Log Out Instead',
   signOutAction: 'log out',
   deleteAccount: 'Erase Account',
-  deleteTitle: 'Erase your account?',
-  deleteForever: 'Erase my account forever',
-  deleteEverything: 'Delete Everything',
+  deleteTitle: 'Erase Your Account?',
+  deleteLoseTitle: 'What You Will Lose',
+  deleteFinalTitle: 'Confirm It Is You',
+  deleteForever: 'Erase My Account Forever',
+  deleteEverything: 'Erase Everything',
   keepAccount: 'Keep My Account',
+  supportBody: 'Send us a question, an idea or a problem, and a member of our team will reply.',
+  noMail: (email: string) => `No mail app is set up. Please write to ${email}.`,
   // 3.2.0: the Access page (exitMenu place 'page'), in the same words.
   access: 'Access',
-  accessNote: 'Logging out keeps your data safe. Erasing your account wipes it for good, after a few checks.',
+  accessNote: 'Logging out keeps your data safe. Erasing your account removes it permanently, after a few confirmation steps.',
 });
 
 /**

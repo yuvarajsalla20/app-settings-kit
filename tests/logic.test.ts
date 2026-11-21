@@ -122,6 +122,32 @@ describe('exportMenu (3.3.0)', () => {
     expect(onLocked).toHaveBeenCalled();
     expect(run).not.toHaveBeenCalled();
   });
+  it('9.0.0: a locked format names the plan, so a screen reader hears "CSV File, Premium"; an open one adds nothing', () => {
+    const m = exportMenu({ formats: [{ ...csv, locked: true }, { ...csv, id: 'pdf', label: 'PDF' }, { ...csv, id: 'own', label: 'Own', locked: true, lockedValue: 'Pro' }], menu: true }, vi.fn());
+    expect(m.items.map((i) => i.detail)).toEqual(['Premium', undefined, 'Pro']);
+  });
+});
+
+describe('Writing rule (9.0.0)', () => {
+  it('Log Out and Erase Account titles and buttons are Title Case, in one vocabulary, with calm sentences', () => {
+    const s = titleCaseStrings('Moonpenny');
+    expect(s).toMatchObject({ signOutTitle: 'Log Out?', stayIn: 'Stay Logged In', deleteBreakAction: 'Log Out Instead', deleteTitle: 'Erase Your Account?',
+      deleteForever: 'Erase My Account Forever', deleteEverything: 'Erase Everything', deleteLoseTitle: 'What You Will Lose', deleteFinalTitle: 'Confirm It Is You' });
+    expect(s.deleteBreakTitle).not.toMatch(/Just want/);
+    expect(s.signOutBody).toBe('Your data stays safe. Log in at any time to see it again.');
+    expect(s.noMail?.('help@example.com')).toBe('No mail app is set up. Please write to help@example.com.');
+  });
+  it('Coming Soon and the Data Export menu line read as professional copy', async () => {
+    const { DEFAULT_SETTINGS_STRINGS: w } = await import('../src/strings');
+    expect(w.comingSoonLine('Moonpenny', 'Premium')).toBe('Moonpenny is free to use. Premium will be available soon.');
+    expect(w.exportHead).toBe('Choose a Format to Export');
+  });
+  it('the Erase warning names Google Play on Android and the Apple ID on iPhone', async () => {
+    const { DEFAULT_SETTINGS_STRINGS: w } = await import('../src/strings');
+    expect(w.deleteWarning('Premium', true, 'android')).toContain('cancel it in Google Play subscriptions, so cancel it first.');
+    expect(w.deleteWarning('Premium', true, 'ios')).toContain('cancel it in your Apple ID settings, so cancel it first.');
+    expect(w.deleteWarning('Premium', false, 'android')).not.toMatch(/Google Play|Apple ID/);
+  });
 });
 
 describe('card headings', () => {
