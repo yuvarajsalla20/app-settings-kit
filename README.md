@@ -17,23 +17,29 @@ Part of the shared kits:
 **app-settings-kit** ·
 [app-subscriptions-kit](https://github.com/yuvarajsalla20/app-subscriptions-kit) ·
 [app-payments-kit](https://github.com/yuvarajsalla20/app-payments-kit) ·
-[app-export-kit](https://github.com/yuvarajsalla20/app-export-kit)
+[app-export-kit](https://github.com/yuvarajsalla20/app-export-kit) ·
+[app-guard-kit](https://github.com/yuvarajsalla20/app-guard-kit) ·
+[app-theme-kit](https://github.com/yuvarajsalla20/app-theme-kit) ·
+[app-invite-kit](https://github.com/yuvarajsalla20/app-invite-kit) ·
+[app-goldrates-api-kit](https://github.com/yuvarajsalla20/app-goldrates-api-kit)
+
+Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsalla20/code-review-kit) (reviews) and app-insights-kit (store numbers, private).
 
 ## Install
 
 ```jsonc
 // package.json
 "dependencies": {
-  "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.12.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v2.4.0>"
+  "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.30.0>",
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v8.0.0>"
 },
 "kitVersions": {
-  "app-account-kit": "v7.12.0",
-  "app-settings-kit": "v2.3.0"
+  "app-account-kit": "v7.30.0",
+  "app-settings-kit": "v8.0.0"
 }
 ```
 
-Pin the full commit SHA of a release tag so every build gets exactly the code you tested, and write the tag in `kitVersions`. Find a SHA with `git ls-remote https://github.com/yuvarajsalla20/app-settings-kit refs/tags/v2.3.0`.
+Pin the full commit SHA of a release tag so every build gets exactly the code you tested, and write the tag in `kitVersions`. Find a SHA with `git ls-remote https://github.com/yuvarajsalla20/app-settings-kit refs/tags/v8.0.0`.
 
 **Peer dependencies:** `app-account-kit` ≥ 7.30.0, `react` ≥ 18, `react-native` ≥ 0.74, `@expo/vector-icons` ≥ 14, and (8.0.0) `expo-application`, `expo-constants`, `expo-image-picker`, `expo-image-manipulator`.
 
@@ -253,15 +259,16 @@ tests/                logic, build stamp, no colors, and the real screens render
 
 ## Writing rule: every word is professional
 
-This rule covers app-settings-kit and every kit it brings in: core, auth, account, subscriptions, payments, export, guard and theme. It applies to every caption, tagline, sub-line, placeholder, note, message and button these kits show, and to every new word anyone adds.
+This rule is the standard for every shared kit (core, auth, account, settings, subscriptions, payments, export, guard, theme, invite and goldrates-api), for code-review-kit and app-insights-kit, and for every app built on them. It applies to every word a person reads: each caption, tagline, sub-line, placeholder, note, message and button, and equally to the READMEs, changelogs, code comments, commit messages and pull requests.
 
 - **Titles, row labels and buttons** use Title Case: "Confirm Your PIN", "Not Now", "Sign In Again", "Data Export". Small words (a, an, the, and, or, to, of, in, on, for, by) stay lower case unless they come first.
 - **Captions, notes and messages** are calm, complete sentences with a full stop: "Unable to save your PIN. Please try again." Never chatty fragments ("Add your own, rename, recolor or hide"), never slang, never exclamation marks.
-- **Errors** say what happened and what to do next: "Unable to verify your PIN. Please try again." Not "Oops" or "Something broke".
+- **Errors** state what happened and what to do next: "Unable to verify your PIN. Please try again." Never "Oops" or "Something broke".
 - **Examples** use "e.g.,": "New category name (e.g., Pets)". Not "like Pets".
 - **Status words** are capitalized after a dot: "Estimated rates · Offline", "Updated 9:00 AM".
-- **Consistent words** across kits: Log Out, Erase Account, Profile, Preferences, Premium, Data Export, App Lock, Face ID (Face Unlock and Fingerprint on Android), "device" rather than "phone" in messages.
-- Apps do not override kit words. If a word must change, change the kit default so every app gets it.
+- **Consistent words** across kits and apps: Log Out, Erase Account, Profile, Preferences, Premium, Data Export, App Lock, Face ID (Face Unlock and Fingerprint on Android), and "device" rather than "phone" in messages.
+- **Documentation** is written in the same voice: complete sentences, exact version numbers and tags, commands that work as written (on Windows PowerShell, join commands with `;`), and no casual shorthand. A README states the current version and is updated in the same pull request that changes the version.
+- Apps do not override kit words. If a word must change, change the kit default so every app receives it.
 
 ## Rules it follows
 
