@@ -8,6 +8,7 @@ import { versionLines, type VersionParts } from './logic/version';
 import { makeBackButton } from './parts/BackButton';
 import { EdgeSwipeBack } from './parts/EdgeSwipeBack';
 import { exportMenu } from './pages/DataExportPage';
+import { ComingSoonPage } from './pages/ComingSoonPage';
 import { createOneAtATime } from './logic/oneAtATime';
 import { DEFAULT_SETTINGS_STRINGS, type SettingsStrings } from './strings';
 import type { DataExportConfig, ExtraPage, PlanConfig } from './types';
@@ -117,8 +118,8 @@ export function AppSettings(props: AppSettingsProps) {
   const BackButton = useMemo(() => makeBackButton({ accent, ink, text, shadow }), [accent, ink, text, shadow]);
   // 6.0.0: the kit's Back button and swipe always win; an app still passes its own Text and the like.
   const components = useMemo(() => ({ ...componentsIn, BackButton, EdgeSwipe: EdgeSwipeBack }), [BackButton, componentsIn]);
-  // 4.0.0: the kit's words are enforced, so every app reads the same. Only the plan's name (Premium, VIP) is the app's.
-  const words = useMemo<SettingsStrings>(() => ({ ...DEFAULT_SETTINGS_STRINGS, plan: plan.name }), [plan.name]);
+  // 4.0.0: the kit's words are enforced, so every app reads the same. 7.0.0: the plan's name too: "Premium" in every app.
+  const words: SettingsStrings = DEFAULT_SETTINGS_STRINGS;
   const appName = about.appName;
   const locked = useMemo(
     () => ({
@@ -137,6 +138,7 @@ export function AppSettings(props: AppSettingsProps) {
     ...Object.keys(strings ?? {}).filter((k) => k in locked && (strings as Record<string, unknown>)[k] !== (locked as Record<string, unknown>)[k]),
     ...lockedProps,
     ...rowOverrides(plan, dataExport),
+    ...(plan.name !== undefined && plan.name !== DEFAULT_SETTINGS_STRINGS.plan ? ['plan.name'] : []),
   ].join(', ');
   useEffect(() => {
     if (ignored && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: ${ignored} are the kit's words and the same in every app, so the app's version is not used. Change them in the kit.`);
@@ -162,9 +164,18 @@ export function AppSettings(props: AppSettingsProps) {
   });
   // 6.0.0: Data Export is always the pull-down menu on its row, with the kit's line at the top.
   const menu = exportMenu({ ...dataExport, menu: { head: words.exportHead } }, (job) => runner.current?.run(job));
+  // 7.0.0: an app with nothing on sale yet passes no content; the kit draws the standard Coming Soon page and the row reads "Coming Soon".
+  const comingSoon = plan.content === undefined || plan.content === null;
+  const planTint = plan.tint ?? rest.theme.accent;
+  const planSection = comingSoon
+    ? {
+        row: kitRow({ id: plan.id, tint: plan.tint, value: words.comingSoon }),
+        content: <ComingSoonPage appName={appName} planName={words.plan} tint={planTint} features={plan.features} freeFeatures={plan.freeFeatures} strings={words} />,
+      }
+    : { row: kitRow(plan), content: plan.content };
   const pages = assemblePages({
     dataExport: { row: kitRow(dataExport), content: null, menu },
-    plan: { row: kitRow(plan), content: plan.content },
+    plan: planSection,
     extraPages,
     strings: words,
   });
