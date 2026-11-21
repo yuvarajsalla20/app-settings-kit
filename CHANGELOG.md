@@ -2,6 +2,19 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Later releases stay backward compatible: a new option defaults to the old behavior.
 
+## 4.0.0 (2026-11-21)
+
+**Every app gets the approved Settings from the kit, with nothing to copy.** Before, each app had to turn on seven settings by hand and an app that missed one showed the old look (the row read "Account", the logo came back).
+
+- **Profile** is the kit's word for the Account row and page (`settingsStrings.account` defaults to "Profile").
+- **Defaults now on:** `plainHeaders`, `pickers="pullDown"`, `profile.centered`, `about.showHeader: false`, and `exitMenu` = `{ place: 'page', signOutOnAccount: true, signOutMenu: true, deleteOnAccess: true }` (exported as `DEFAULT_EXIT_MENU`).
+- **To keep the 3.x look:** `plainHeaders={false}`, `pickers="sheet"`, `profile.centered: false`, `about.showHeader: true`, `exitMenu={{}}`, `settingsStrings={{ account: 'Account' }}`.
+- **Data Export menu:** `renderProblem` cannot show with `menu` (there is no page). It now says so in development instead of dropping it quietly; pass `onProblem`.
+- **Erase Account** in place of Deactivate and Close Account: the row under Log Out, its page title, "Erase your account?" and "Erase my account forever". The steps still say it is forever and ask for DELETE (Apple 5.1.1(v)).
+- Tested against app-account-kit 7.27.1.
+
+Major version because the defaults change what an app shows. Apps can delete those props.
+
 ## 3.4.0 (2026-11-21)
 
 **The same Settings words in every app.** So each app stops re-adding them:

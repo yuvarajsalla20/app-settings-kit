@@ -68,9 +68,9 @@ describe('AppSettings with Profile and Preferences', () => {
     expect(h.has('Currency')).toBe(true);
   });
 
-  it("strings.account still wins over settingsStrings.account; without either the row stays 'Account'", () => {
+  it("strings.account still wins over settingsStrings.account; without either the row is 'Profile' (4.0.0)", () => {
     expect(onList(mount(<AppSettings {...props()} settingsStrings={{ account: 'Profile' }} strings={{ account: 'Me' }} />, false).texts())).toEqual(['About']);
     expect(mount(<AppSettings {...props()} settingsStrings={{ account: 'Profile' }} strings={{ account: 'Me' }} />, false).has('Me')).toBe(true);
-    expect(onList(mount(<AppSettings {...props()} />, false).texts())).toEqual(['About', 'Account']);
+    expect(onList(mount(<AppSettings {...props()} />, false).texts())).toEqual(['About', 'Profile']);
   });
 });

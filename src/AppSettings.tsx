@@ -46,21 +46,28 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
   settingsStrings?: Partial<SettingsStrings>;
 };
 
-/** The ⋯ menu with no extras: no unlock step, no "You will lose" lines. One object, so the screen does not see a new value on every render. */
-const DEFAULT_EXIT_MENU: ExitMenuProps = Object.freeze({});
+/**
+ * 4.0.0: the approved exit layout is the default in every app. Log Out is its own row on Profile and opens a small menu;
+ * the row under it opens the Delete steps at once. One object, so the screen does not see a new value on every render.
+ * Pass `{}` for the 3.x ⋯ menu, or `false` to put both back on the main list.
+ */
+export const DEFAULT_EXIT_MENU: ExitMenuProps = Object.freeze({ place: 'page', signOutOnAccount: true, signOutMenu: true, deleteOnAccess: true });
 
 /**
  * The standard Settings screen in one config: four parents, About, Account, Preferences and the plan page. Sign out and Delete account sit behind a ⋯ on Account (`exitMenu={false}` puts them back on the list).
  * Data Export (a lock per format) is a feature, so it is a row inside Account, called Data Export, or inside Preferences with `dataExportIn: 'preferences'`.
  * Everything app-account-kit takes (theme, strings, components, profile, about, actions...) passes straight through.
  */
-export function AppSettings({ preferences, dataExport, dataExportIn, plan, extraPages, order, settingsStrings, strings, about: aboutIn, build, kitSources, components: componentsIn, exitMenu = DEFAULT_EXIT_MENU, ...rest }: AppSettingsProps) {
+export function AppSettings({ preferences, dataExport, dataExportIn, plan, extraPages, order, settingsStrings, strings, about: aboutIn, build, kitSources, components: componentsIn, exitMenu = DEFAULT_EXIT_MENU, plainHeaders = true, pickers = 'pullDown', profile: profileIn, ...rest }: AppSettingsProps) {
+  // 4.0.0: the approved look is the default, so an app passes nothing to get it: plain page headers (no logo), pull-down pickers,
+  // the profile photo centered, and no logo and name at the top of About. Each still turns off with its own value.
+  const profile = useMemo(() => (profileIn ? { centered: true, ...profileIn } : profileIn), [profileIn]);
   // Version and Kits filled in from the build and package.json, unless the app passed its own.
   const about = useMemo<AboutProps>(() => {
     const filled = build ? versionLines(build) : undefined;
     const version = aboutIn.version ?? (filled ? { number: build!.version, ...filled } : { number: '', label: '' });
     const kits = aboutIn.kits ?? (kitSources ? kitList(kitSources.dependencies, kitSources.kits) : undefined);
-    return { ...aboutIn, version, kits };
+    return { showHeader: false, ...aboutIn, version, kits };
   }, [aboutIn, build, kitSources]);
   // The approved round Back button (in the theme's accent) and swipe-from-the-edge to go back, unless the app brings its own.
   // Made again only when a color it uses changes, so an app that writes its theme inline does not remount the button on every render.
@@ -76,10 +83,10 @@ export function AppSettings({ preferences, dataExport, dataExportIn, plan, extra
     () => ({
       ...titleCaseStrings(appName),
       ...cardHeadings(appName),
-      // 3.4.0: with Log Out as its own row, the row under it holds only Close Account, so it reads "Deactivate" in every app.
-      ...(exitMenu && exitMenu.signOutOnAccount ? { access: 'Deactivate' } : {}),
+      // 3.4.0: with Log Out as its own row, the row under it holds only Close Account, so it reads "Erase Account" in every app (4.0.0; was "Deactivate").
+      ...(exitMenu && exitMenu.signOutOnAccount ? { access: 'Erase Account' } : {}),
       app: words.preferences,
-      ...(words.account !== undefined ? { account: words.account } : {}),
+      account: words.account,
       ...strings,
     }),
     [appName, strings, words.preferences, words.account, exitMenu],
@@ -89,6 +96,11 @@ export function AppSettings({ preferences, dataExport, dataExportIn, plan, extra
   useEffect(() => {
     if (missing && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: About is missing ${missing}. Pass them in "about" to get the full About page.`);
   }, [missing]);
+  // The menu has no page to draw on, so renderProblem cannot show there: say so in development instead of dropping it quietly.
+  const lostProblem = !!(dataExport?.menu && dataExport.renderProblem && !dataExport.onProblem);
+  useEffect(() => {
+    if (lostProblem && typeof __DEV__ !== 'undefined' && __DEV__) console.warn('app-settings-kit: dataExport.renderProblem is not shown with dataExport.menu (there is no page). Pass dataExport.onProblem to show the sentence your own way.');
+  }, [lostProblem]);
   const exportPage = dataExport ? (
     <DataExportPage
       formats={dataExport.formats}
@@ -117,5 +129,5 @@ export function AppSettings({ preferences, dataExport, dataExportIn, plan, extra
     dataExportIn,
     strings: words,
   });
-  return <SettingsScreen {...rest} exitMenu={exitMenu === false ? undefined : exitMenu} about={about} components={components} strings={accountStrings} app={preferences !== undefined ? { content: preferences } : undefined} extraPages={pages.extraPages} hubOrder={pages.hubOrder} />;
+  return <SettingsScreen {...rest} profile={profile} plainHeaders={plainHeaders} pickers={pickers} exitMenu={exitMenu === false ? undefined : exitMenu} about={about} components={components} strings={accountStrings} app={preferences !== undefined ? { content: preferences } : undefined} extraPages={pages.extraPages} hubOrder={pages.hubOrder} />;
 }
