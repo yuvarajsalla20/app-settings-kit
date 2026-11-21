@@ -32,9 +32,10 @@ export interface SettingsStrings {
   security: string;
   /**
    * 8.0.0: the warning on Erase Account, the same in every app. `subscribed` adds the line about cancelling a paid plan first,
-   * since deleting the account does not stop App Store billing.
+   * since deleting the account does not stop App Store billing. 9.0.0: `platform` (Platform.OS) names where to cancel:
+   * Google Play subscriptions on Android, Apple ID settings everywhere else.
    */
-  deleteWarning: (planName: string, subscribed: boolean) => string;
+  deleteWarning: (planName: string, subscribed: boolean, platform?: string) => string;
 }
 
 export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
@@ -43,16 +44,18 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   dataExport: 'Data Export',
   plan: 'Premium',
   exportFailed: 'Could not create the file. Please try again.',
-  exportHead: 'Make a file and share it',
+  exportHead: 'Choose a Format to Export',
   comingSoon: 'Coming Soon',
-  comingSoonLine: (appName, planName) => `${appName} is free to use. ${planName} is on the way.`,
+  comingSoonLine: (appName, planName) => `${appName} is free to use. ${planName} will be available soon.`,
   planWillAdd: (planName) => `What ${planName} Will Add`,
   freeToday: (appName) => `Free in ${appName} Today`,
   display: 'Display',
   appearance: 'Appearance',
   security: 'Security',
-  deleteWarning: (planName, subscribed) =>
+  deleteWarning: (planName, subscribed, platform = 'ios') =>
     'This erases every setting and piece of data, and your login. It cannot be undone.' +
-    (subscribed ? ` Your ${planName} subscription keeps billing until you cancel it in your Apple ID settings, so cancel it first.` : '') +
+    (subscribed
+      ? ` Your ${planName} subscription keeps billing until you cancel it in ${platform === 'android' ? 'Google Play subscriptions' : 'your Apple ID settings'}, so cancel it first.`
+      : '') +
     ' Use Data Export first if you want a copy.',
 };
