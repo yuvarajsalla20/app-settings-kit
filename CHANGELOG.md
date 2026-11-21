@@ -2,6 +2,15 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 9.1.0 (2026-11-21)
+
+**Share and Rate use Google Play on Android in every app, with no app code.** The kit reads the app's Google Play id from app.json (`expo.android.package`), or from the installed app on an Android phone, so Share sends the Google Play page and Rate opens it on Android. iPhone is unchanged.
+
+- `about.playPackage` is deprecated: it is used only when app.json names no Android package.
+- New export from `expoBuild`: `expoPlayPackage()`.
+
+Upgrading: nothing to change. An app that passes `about.playPackage` may remove it.
+
 ## 9.0.0 (2026-11-21)
 
 **Professional default words on Premium, Coming Soon, Data Export, Log Out and Erase Account.** The words people see change, so this is a major version; nothing changes in code.

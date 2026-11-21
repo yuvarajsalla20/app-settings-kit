@@ -285,3 +285,21 @@ describe('8.0.0 Share on Android', () => {
     expect(Platform.OS).toBe('ios');
   });
 });
+
+describe('9.1.0 Google Play id from app.json', () => {
+  it('reads expo.android.package, so no app passes it', async () => {
+    const Constants = (await import('expo-constants')).default as { expoConfig: Record<string, unknown> };
+    const { expoPlayPackage } = await import('../src/expoBuild');
+    const before = Constants.expoConfig.android;
+    Constants.expoConfig.android = { package: ' com.example.reminders ' };
+    try {
+      expect(expoPlayPackage()).toBe('com.example.reminders');
+    } finally {
+      Constants.expoConfig.android = before;
+    }
+  });
+  it('has none on iPhone when app.json names no Android package', async () => {
+    const { expoPlayPackage } = await import('../src/expoBuild');
+    expect(expoPlayPackage()).toBeUndefined();
+  });
+});
