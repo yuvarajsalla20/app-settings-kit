@@ -13,6 +13,8 @@ interface Section {
   premium?: boolean;
   locked?: boolean;
   onLocked?: () => void;
+  /** 12.0.0: with no `onLocked`, a tap on the lock opens this Settings page (the plan page), app-account-kit 7.35.0. */
+  lockedOpens?: string;
 }
 
 interface Input {
@@ -46,10 +48,11 @@ const page = (row: PageRow | undefined, kit: { id: string; label: string; icon: 
 });
 
 /** 11.0.0: the Premium tag, the lock and what a tap on the lock does, as app-account-kit's page takes them. */
-const premiumParts = ({ premium, locked, onLocked }: Section) => ({
+const premiumParts = ({ premium, locked, onLocked, lockedOpens }: Section) => ({
   ...(premium ? { premium } : {}),
   ...(locked ? { locked } : {}),
   ...(onLocked ? { onLocked } : {}),
+  ...(lockedOpens ? { lockedOpens } : {}),
 });
 
 /**

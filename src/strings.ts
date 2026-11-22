@@ -56,7 +56,7 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   exportHead: 'Choose a Format to Export',
   exportPick: 'Choose',
   comingSoon: 'Coming Soon',
-  comingSoonLine: (appName, planName) => `Every current ${appName} feature is free. ${planName} will be available soon.`,
+  comingSoonLine: (appName, planName) => `${planName} for ${appName} will be available soon.`,
   compareTitle: (planName) => `Compare Free and ${planName}`,
   compareFeature: 'Feature',
   compareFree: 'Free',

@@ -4,6 +4,7 @@ import { Platform, View } from 'react-native';
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 import { assemblePages } from './assemble';
+import { DEFAULT_IDS } from './logic/order';
 import { aboutProblems, cardHeadings, logoPixels, titleCaseStrings } from './logic/about';
 import { kitList, kitsFromPackage, type AppPackage, type KitSource } from './logic/kits';
 import { expoBuild, expoPlayPackage } from './expoBuild';
@@ -12,10 +13,13 @@ import { makeBackButton } from './parts/BackButton';
 import { EdgeSwipeBack } from './parts/EdgeSwipeBack';
 import { exportMenu } from './pages/DataExportPage';
 import { ComingSoonPage } from './pages/ComingSoonPage';
-import { PlanCompare } from './pages/PlanCompare';
+import { PlanCompare, featureParts } from './pages/PlanCompare';
 import { createOneAtATime } from './logic/oneAtATime';
 import { DEFAULT_SETTINGS_STRINGS, type SettingsStrings } from './strings';
-import type { DataExportConfig, ExtraPage, PlanConfig } from './types';
+import type { DataExportConfig, ExtraPage, PlanConfig, PlanFeature } from './types';
+
+/** 12.0.0: a plan feature line that names Data Export. */
+const EXPORT_WORD = /data export/i;
 
 type AccountScreenProps = ComponentProps<typeof SettingsScreen>;
 
@@ -83,13 +87,14 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
   /** The app's own settings (currency, reminders...), built with SettingsGroup and SettingRow. Required (5.0.0): every app has Preferences. */
   preferences: ReactNode;
   /**
-   * 8.0.0, optional: the Light / Dark choice. The kit draws it the same way in every app: an Appearance row (System, Light,
-   * Dark) in a "Display" card at the end of Preferences.
+   * The Light / Dark choice. The kit draws it the same way in every app: an Appearance row (System, Light, Dark) in a
+   * "Display" card at the end of Preferences. 12.0.0: required and free in every app; the app gives the choice and keeps it.
    */
-  appearance?: { value: AppearanceChoice; onChange: (value: AppearanceChoice) => void };
+  appearance: { value: AppearanceChoice; onChange: (value: AppearanceChoice) => void };
   /**
    * 8.0.0, optional: the app's lock page (app-guard-kit's `SecurityPage`). The kit draws its row the same way in every app:
-   * "Security" with a lock, in Preferences.
+   * "Security" with a lock, in Preferences. 12.0.0: Security is the only part of Settings an app turns on or off, and it is
+   * free in every app that has it.
    */
   security?: { content: ReactNode; value?: string };
   /** The Data Export page, a row on Profile, called Data Export. Required (5.0.0). To open it from another page (the plan page's perk), use `useSettingsNav().open(DEFAULT_IDS.export)` (or its own id). */
@@ -222,7 +227,16 @@ export function AppSettings(props: AppSettingsProps) {
     report.current.onProblem?.(report.current.text);
   });
   // 6.0.0: Data Export is always the pull-down menu on its row, with the kit's line at the top.
-  const menu = exportMenu({ ...dataExport, menu: { head: words.exportHead } }, (job) => runner.current?.run(job));
+  // 12.0.0: Data Export is Premium in every app. Every format is locked unless the account pays for Premium (`plan.subscribed`);
+  // a format's own `locked` is not used, so no app can make export free. A tap on the lock opens the plan page unless the
+  // app passes its own `onLocked` (e.g., its plans screen).
+  const exportOpen = !!plan.subscribed;
+  const exportFormats = useMemo(() => dataExport.formats.map((f) => ({ ...f, locked: !exportOpen })), [dataExport.formats, exportOpen]);
+  const ownLocks = dataExport.formats.some((f) => 'locked' in f);
+  useEffect(() => {
+    if (ownLocks && typeof __DEV__ !== 'undefined' && __DEV__) console.warn('app-settings-kit: dataExport.formats[].locked is not used. Data Export is Premium in every app: the kit locks every format unless plan.subscribed is true.');
+  }, [ownLocks]);
+  const menu = exportMenu({ ...dataExport, formats: exportFormats, menu: { head: words.exportHead } }, (job) => runner.current?.run(job));
   // 7.0.0: an app with nothing on sale yet passes no content; the kit draws the standard Coming Soon page and the row reads "Coming Soon".
   const comingSoon = plan.content === undefined || plan.content === null;
   // 8.0.0: the kit's rows take their tile color from the theme, the same key in every app (the plan: Rate's gold; Data Export: data).
@@ -230,8 +244,20 @@ export function AppSettings(props: AppSettingsProps) {
   const planTint = tints.rate;
   // 10.0.0: every plan page ends with the kit's Free and Premium comparison, on sale or Coming Soon, so Premium features
   // always read apart from free ones. The app gives the two lists; the table, its words and its colors are the kit's.
+  // 12.0.0: Data Export is Premium in every app, so the comparison always lists it under Premium. An app that names it in
+  // its own `features` keeps its line; otherwise the kit adds "Data Export" with the formats (e.g., "CSV File or PDF File").
+  const exportFormatWords = dataExport.formats.map((f) => f.label).join(' or ');
+  const premiumFeatures = useMemo<readonly PlanFeature[]>(() => {
+    const own = plan.features ?? [];
+    if (own.some((f) => EXPORT_WORD.test(featureParts(f).label))) return own;
+    return [...own, { label: words.dataExport, icon: 'download', ...(exportFormatWords ? { detail: exportFormatWords } : {}) }];
+  }, [plan.features, words.dataExport, exportFormatWords]);
+  const exportListedFree = (plan.freeFeatures ?? []).some((f) => EXPORT_WORD.test(featureParts(f).label));
+  useEffect(() => {
+    if (exportListedFree && typeof __DEV__ !== 'undefined' && __DEV__) console.warn('app-settings-kit: plan.freeFeatures names Data Export, which is Premium in every app. Remove it from the free list.');
+  }, [exportListedFree]);
   const compare = (
-    <PlanCompare theme={rest.theme} gold={planTint} planName={words.plan} features={plan.features ?? []} freeFeatures={plan.freeFeatures ?? []}
+    <PlanCompare theme={rest.theme} gold={planTint} planName={words.plan} features={premiumFeatures} freeFeatures={plan.freeFeatures ?? []}
       subscribed={!!plan.subscribed} Text={componentsIn?.Text as never} strings={words} />
   );
   const planSection = comingSoon
@@ -257,7 +283,11 @@ export function AppSettings(props: AppSettingsProps) {
   const allPages: readonly ExtraPage[] = security
     ? [...(extraPages ?? []), { id: 'security', label: words.security, icon: 'lock', tint: tints.password, under: 'preferences', content: security.content, ...(security.value !== undefined ? { value: security.value } : {}) }]
     : (extraPages ?? []);
-  // 8.0.0: Appearance, when the app has one, is the kit's row in a Display card at the end of Preferences.
+  // 8.0.0: Appearance is the kit's row in a Display card at the end of Preferences. 12.0.0: every app has it, free.
+  const noAppearance = !appearance;
+  useEffect(() => {
+    if (noAppearance && typeof __DEV__ !== 'undefined' && __DEV__) console.warn('app-settings-kit: appearance is required. Every app offers System, Light and Dark: pass appearance={{ value, onChange }}.');
+  }, [noAppearance]);
   const preferencesPage = appearance ? (
     <>
       {preferences}
@@ -271,12 +301,12 @@ export function AppSettings(props: AppSettingsProps) {
   // 8.0.0: the photo picker and the camera check are app-account-kit's unless the app brings its own; the password length is the kit's.
   const photo = useMemo(() => ({ pick: pickProfilePhoto, cameraSupported: defaultCameraSupported, ...photoIn }), [photoIn]);
   const password = useMemo(() => (passwordIn ? { minLength: MIN_PASSWORD, ...passwordIn } : undefined), [passwordIn]);
-  // 11.0.0: Data Export is a Premium feature in every app: the gold Premium tag after its name for every account. While every
-  // format is locked the row shows only the gold padlock, and a tap opens the plans; once the plan includes it, the Choose menu.
-  // The app's own value and badge are not used (the tag and the padlock say it), so every app reads the same.
-  const exportLocked = dataExport.formats.length > 0 && dataExport.formats.every((f) => f.locked);
+  // 11.0.0: Data Export is a Premium feature in every app: the gold Premium tag after its name for every account. While the
+  // account does not pay for Premium (12.0.0) the row shows only the gold padlock, and a tap opens the plan page (or the app's
+  // `onLocked`); once it does, the Choose menu. The app's own value and badge are not used, so every app reads the same.
+  const exportLocked = !exportOpen;
   const pages = assemblePages({
-    dataExport: { row: kitRow({ id: dataExport.id, tint: tints.data }), content: null, menu, premium: true, locked: exportLocked, ...(dataExport.onLocked ? { onLocked: dataExport.onLocked } : {}) },
+    dataExport: { row: kitRow({ id: dataExport.id, tint: tints.data }), content: null, menu, premium: true, locked: exportLocked, ...(dataExport.onLocked ? { onLocked: dataExport.onLocked } : { lockedOpens: plan.id ?? DEFAULT_IDS.plan }) },
     plan: planSection,
     extraPages: allPages,
     strings: words,
