@@ -237,7 +237,9 @@ export function AppSettings(props: AppSettingsProps) {
     if (ownLocks && typeof __DEV__ !== 'undefined' && __DEV__) console.warn('app-settings-kit: dataExport.formats[].locked is not used. Data Export is Premium in every app: the kit locks every format unless plan.subscribed is true.');
   }, [ownLocks]);
   const menu = exportMenu({ ...dataExport, formats: exportFormats, menu: { head: words.exportHead } }, (job) => runner.current?.run(job));
-  // 7.0.0: an app with nothing on sale yet passes no content; the kit draws the standard Coming Soon page and the row reads "Coming Soon".
+  // 7.0.0: an app with nothing on sale yet passes no content; the kit draws the standard Coming Soon page.
+  // 13.0.0: the row is "Subscription" with nothing on its right in every app (no Free, Premium or Coming Soon beside it);
+  // the plan the account holds is shown on the page. The app's `plan.value` and `plan.badge` are not used.
   const comingSoon = plan.content === undefined || plan.content === null;
   // 8.0.0: the kit's rows take their tile color from the theme, the same key in every app (the plan: Rate's gold; Data Export: data).
   const tints = rest.theme.tints;
@@ -262,7 +264,7 @@ export function AppSettings(props: AppSettingsProps) {
   );
   const planSection = comingSoon
     ? {
-        row: kitRow({ id: plan.id, tint: planTint, value: words.comingSoon }),
+        row: kitRow({ id: plan.id, tint: planTint }),
         content: (
           <View style={{ gap: 16 }}>
             <ComingSoonPage appName={appName} planName={words.plan} tint={planTint} strings={words} />
@@ -271,7 +273,7 @@ export function AppSettings(props: AppSettingsProps) {
         ),
       }
     : {
-        row: kitRow({ ...plan, tint: planTint }),
+        row: kitRow({ id: plan.id, tint: planTint }),
         content: (
           <View style={{ gap: 16 }}>
             {plan.content}
@@ -314,12 +316,10 @@ export function AppSettings(props: AppSettingsProps) {
   return <SettingsScreen {...(rest as unknown as AccountScreenProps)} profile={profile} plainHeaders={LOCKED_LOOK.plainHeaders} pickers={LOCKED_LOOK.pickers} exitMenu={exitMenu} about={about} components={components} strings={accountStrings} app={{ content: preferencesPage }} photo={photo} password={password} extraPages={pages.extraPages} hubOrder={pages.hubOrder} />;
 }
 
-/** 6.0.0: only the page id, the tile color (the app's palette) and the live value or pill come from the app; the name and icon are the kit's. */
-const kitRow = (row: { id?: string; tint?: string; value?: string; badge?: ReactNode }) => ({
+/** 6.0.0: only the page id and the tile color (the app's palette) come from the app; the name and icon are the kit's. 13.0.0: neither row takes a value or pill. */
+const kitRow = (row: { id?: string; tint?: string }) => ({
   ...(row.id ? { id: row.id } : {}),
   ...(row.tint ? { tint: row.tint } : {}),
-  ...(row.value !== undefined ? { value: row.value } : {}),
-  ...(row.badge !== undefined ? { badge: row.badge } : {}),
 });
 
 /** Row parts an app still passes that 6.0.0 no longer reads, for the development warning. */
@@ -329,6 +329,9 @@ function rowOverrides(plan: object, dataExport: object): string[] {
     for (const k of ['label', 'icon', 'menu']) if (row && k in row) out.push(`${name}.${k}`);
   }
   // 11.0.0: Data Export's right side is the kit's (the Choose menu, or the gold padlock while locked).
-  for (const k of ['value', 'badge']) if (dataExport && k in dataExport && (dataExport as Record<string, unknown>)[k] !== undefined) out.push(`dataExport.${k}`);
+  // 13.0.0: the Subscription row shows nothing on its right, so the plan's value and badge are not used either.
+  for (const [name, row] of [['plan', plan], ['dataExport', dataExport]] as const) {
+    for (const k of ['value', 'badge']) if (row && k in row && (row as Record<string, unknown>)[k] !== undefined) out.push(`${name}.${k}`);
+  }
   return out;
 }

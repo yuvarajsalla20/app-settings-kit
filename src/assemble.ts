@@ -63,7 +63,7 @@ const premiumParts = ({ premium, locked, onLocked, lockedOpens }: Section) => ({
 export function assemblePages({ dataExport, plan, extraPages = [], order = DEFAULT_ORDER, dataExportIn = 'account', strings }: Input): { extraPages: AccountExtraPage[]; hubOrder: string[] } {
   const ids = { export: dataExport?.row?.id ?? DEFAULT_IDS.export, plan: plan?.row?.id ?? DEFAULT_IDS.plan };
   const pages: AccountExtraPage[] = [];
-  if (plan) pages.push(page(plan.row, { id: ids.plan, label: strings.plan, icon: 'award' }, plan.content));
+  if (plan) pages.push(page(plan.row, { id: ids.plan, label: strings.subscription, icon: 'award' }, plan.content));
   // Data Export is a feature, not a parent: a row straight on Account (or Preferences) with its Premium/VIP pill, and Back returns there.
   if (dataExport) pages.push({ ...page(dataExport.row, { id: ids.export, label: strings.dataExport, icon: 'download' }, dataExport.content), under: parentFor(dataExportIn), ...(dataExport.menu ? { menu: dataExport.menu } : {}), ...premiumParts(dataExport) });
   return { extraPages: [...pages, ...extraPages.map(toAccount)], hubOrder: hubOrder(order, ids) };

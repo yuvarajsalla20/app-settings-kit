@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 12.0.0** (tag `v12.0.0`). Needs app-account-kit **7.35.0** or later.
+**Current version: 13.0.0** (tag `v13.0.0`). Needs app-account-kit **7.35.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.31.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v12.0.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v13.0.0>"
 },
 "kitVersions": {
   "app-account-kit": "v7.31.0",
-  "app-settings-kit": "v12.0.0"
+  "app-settings-kit": "v13.0.0"
 }
 ```
 
@@ -100,7 +100,7 @@ import { AppSettings } from 'app-settings-kit';
     ],
     onLocked: OPEN_PLANS,                  // optional: leave out to open the kit's plan page
   }}                                       // 12.0.0: Premium in every app, locked unless plan.subscribed
-  plan={{ id: 'premium', value: CURRENT_PLAN_WORD, subscribed: PAYS_NOW, badge: PLAN_PILL, content: PLAN_PAGE }}   // called Premium in every app
+  plan={{ id: 'premium', subscribed: PAYS_NOW, content: PLAN_PAGE }}   // 13.0.0: the Subscription row, nothing on its right
   extraPages={APP_EXTRA_PAGES}             // optional
 />
 ```
@@ -124,7 +124,7 @@ These app-account-kit `SettingsScreen` props pass through: `theme`, `strings` (t
 | `security` | `{ content, value? }` | 8.0.0, optional: the kit's Security row in Preferences, opening the app's lock page (app-guard-kit's `SecurityPage`) |
 | `preferences` | `ReactNode` | The app's own settings rows |
 | `dataExport` | `DataExportConfig` | The Data Export page (see below) |
-| `plan` | `PlanConfig` | The plan page: `{ features, freeFeatures, content?, subscribed?, id?, value?, badge? }`. 7.0.0: it is called **Premium** in every app (the kit's word). 10.0.0: `features` and `freeFeatures` are required; every plan page ends with the kit's Free and Premium comparison. Leave out `content` while nothing is on sale and the kit draws its Coming Soon page (see below) |
+| `plan` | `PlanConfig` | The plan page: `{ features, freeFeatures, content?, subscribed?, id? }`. 13.0.0: its row and page are called **Subscription** in every app, with nothing on the row's right (`value` and `badge` are not used); the plan itself is called **Premium** (the kit's word, 7.0.0). 10.0.0: `features` and `freeFeatures` are required; every plan page ends with the kit's Free and Premium comparison. Leave out `content` while nothing is on sale and the kit draws its Coming Soon page (see below) |
 | `extraPages` | `ExtraPage[]` | Optional: the app's own pages. `under: 'preferences'` or `'account'` puts one inside that parent; left out, it follows the four parents on the list |
 
 6.0.0 removed `order`, `dataExportIn`, `plainHeaders`, `pickers`, `settingsStrings`, `data`, `about.version`, and the `label`, `icon` and `menu` of `plan` and `dataExport`. They are the kit's now.
@@ -156,7 +156,8 @@ plan={{
 ```
 
 - **The comparison:** under the heading **Compare Free and Premium**, one table with a **Free** column and a **Premium** column under the award mark, tinted in the plan's color (the theme's `tints.rate`). What the plan adds comes first, with tiles in the plan's color and a dash under Free; what every account has follows, with quiet tiles (`tints.version`) and a tick in both columns. With `subscribed`, the Premium column reads **Your Plan**. Each entry is a line, or `{ label, detail?, icon? }` (a Feather icon name). The table, its words and its colors are the kit's; the app gives only the two lists.
-- **Nothing on sale yet:** leave out `content`. The row on the list reads **Coming Soon**, and the page opens with **Premium**, **Coming Soon** and "Premium for &lt;App&gt; will be available soon.", then the comparison. Nothing to buy.
+- **The row:** **Subscription**, with the award mark and nothing on its right, in every app and for every account (13.0.0). The page it opens is titled **Subscription**; which plan the account holds (Free, Premium, Coming Soon) is shown on the page, not on the row.
+- **Nothing on sale yet:** leave out `content`. The page opens with **Premium**, **Coming Soon** and "Premium for &lt;App&gt; will be available soon.", then the comparison. Nothing to buy.
 - **On sale:** pass `content` (app-subscriptions-kit's `PremiumPage`). The page shows it, then the comparison. Since app-subscriptions-kit 3.0.0, `PremiumPage` no longer repeats the feature list; subscribers see only the features that have their own controls, under **Premium Settings**.
 
 ## Data Export

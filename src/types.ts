@@ -75,9 +75,12 @@ export interface PageRow {
   id?: string;
   /** The icon tile color, from the app's palette (the kit has no colors of its own). Default: the Preferences tile color. */
   tint?: string;
-  /** A short word on the right of the row, read out with the label ("Yearly", "VIP"). */
+  /**
+   * @deprecated 13.0.0: not used. The kit's rows draw their own right side: nothing on the Subscription row, the Choose menu
+   * or gold padlock on Data Export. Still accepted so older apps compile, and named in development.
+   */
   value?: string;
-  /** Drawn in place of `value`, such as a plan pill. */
+  /** @deprecated 13.0.0: not used (see `value`). */
   badge?: ReactNode;
 }
 
@@ -105,7 +108,7 @@ export interface PlanConfig extends PageRow {
   /**
    * The plan page, for an app whose plan is on sale (usually app-subscriptions-kit's `PremiumPage`).
    * 7.0.0: leave it out while there is nothing to buy: the kit then draws its standard Coming Soon page, the same in every
-   * app, and the row reads "Coming Soon".
+   * app. 13.0.0: the row reads "Subscription" with nothing on its right, on sale or not.
    */
   content?: ReactNode;
   /**
