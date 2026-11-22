@@ -78,7 +78,10 @@ export interface PageRow {
   badge?: ReactNode;
 }
 
-/** The Data Export page: its row, and the formats it offers. */
+/**
+ * The Data Export page: its row, and the formats it offers. 11.0.0: the row always carries the gold Premium tag; while every
+ * format is `locked` it shows the gold padlock and a tap calls `onLocked`. `value` and `badge` are not used.
+ */
 export type DataExportConfig = PageRow &
   DataExportPageProps & {
     /** @deprecated 6.0.0: Data Export is always the pull-down menu on its row, with the kit's line at the top. Ignored. */

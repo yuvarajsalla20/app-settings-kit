@@ -200,6 +200,23 @@ describe('AppSettings', () => {
     expect(menu.props.items.map((i: { label: string }) => i.label)).toEqual(['CSV File', 'PDF Report']);
   });
 
+  it('11.0.0: Data Export carries the gold Premium tag for every account; locked, only the padlock, and a tap opens the plans', async () => {
+    const onLocked = vi.fn();
+    const free = mount(<AppSettings {...props()} dataExport={{ formats: [csv({ locked: true }), pdf({ locked: true })], onLocked, value: 'Premium', badge: <Text>OWN PILL</Text> }} />, false);
+    await press(free.byText('Profile'));
+    expect(free.has('PREMIUM')).toBe(true);
+    expect(free.has('OWN PILL')).toBe(false);
+    expect(free.has('Choose')).toBe(false);
+    await press(free.byLabel('Data Export, Premium, Available with Premium'));
+    expect(onLocked).toHaveBeenCalledTimes(1);
+
+    const paid = mount(<AppSettings {...props()} dataExport={{ formats: [csv(), pdf()], onLocked }} />, false);
+    await press(paid.byText('Profile'));
+    expect(paid.has('PREMIUM')).toBe(true);
+    expect(paid.has('Choose')).toBe(true);
+    expect(exportMenuOf(paid).props.items.map((i: { label: string }) => i.label)).toEqual(['CSV File', 'PDF Report']);
+  });
+
   it('draws the approved About: the logo under the title, every row, Rate and Share from the App Store number', async () => {
     const h = mount(<AppSettings {...props()} />, false);
     await press(h.byText('About'));

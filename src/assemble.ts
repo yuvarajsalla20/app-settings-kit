@@ -9,6 +9,10 @@ interface Section {
   content: ReactNode;
   /** 3.3.0: a pull-down menu on the row instead of a page. */
   menu?: AccountExtraPage['menu'];
+  /** 11.0.0: the gold Premium tag after the row's name, and a gold padlock in place of the menu while `locked` (app-account-kit 7.34.0). */
+  premium?: boolean;
+  locked?: boolean;
+  onLocked?: () => void;
 }
 
 interface Input {
@@ -41,6 +45,13 @@ const page = (row: PageRow | undefined, kit: { id: string; label: string; icon: 
   content,
 });
 
+/** 11.0.0: the Premium tag, the lock and what a tap on the lock does, as app-account-kit's page takes them. */
+const premiumParts = ({ premium, locked, onLocked }: Section) => ({
+  ...(premium ? { premium } : {}),
+  ...(locked ? { locked } : {}),
+  ...(onLocked ? { onLocked } : {}),
+});
+
 /**
  * The pages and the list order to hand to app-account-kit: the plan page and Data Export (when the app has them) plus the app's own pages.
  * The list is About, Account, Preferences, plan; pages not named in `order` follow. Data Export is a row inside Account,
@@ -51,6 +62,6 @@ export function assemblePages({ dataExport, plan, extraPages = [], order = DEFAU
   const pages: AccountExtraPage[] = [];
   if (plan) pages.push(page(plan.row, { id: ids.plan, label: strings.plan, icon: 'award' }, plan.content));
   // Data Export is a feature, not a parent: a row straight on Account (or Preferences) with its Premium/VIP pill, and Back returns there.
-  if (dataExport) pages.push({ ...page(dataExport.row, { id: ids.export, label: strings.dataExport, icon: 'download' }, dataExport.content), under: parentFor(dataExportIn), ...(dataExport.menu ? { menu: dataExport.menu } : {}) });
+  if (dataExport) pages.push({ ...page(dataExport.row, { id: ids.export, label: strings.dataExport, icon: 'download' }, dataExport.content), under: parentFor(dataExportIn), ...(dataExport.menu ? { menu: dataExport.menu } : {}), ...premiumParts(dataExport) });
   return { extraPages: [...pages, ...extraPages.map(toAccount)], hubOrder: hubOrder(order, ids) };
 }

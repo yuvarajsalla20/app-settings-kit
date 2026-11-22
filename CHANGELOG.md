@@ -2,6 +2,15 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 11.0.0 (2026-11-22)
+
+**The Premium tag on Data Export.** Members saw no sign that Data Export belongs to Premium, and free accounts saw a pill that each app passed its own way. The kit now draws it, the same in every app:
+
+- **A gold Premium tag after the name**, the award mark and "PREMIUM", for every account (app-account-kit 7.34.0 `premium`). Screen readers hear "Data Export, Premium".
+- **Locked: only the gold padlock.** While every format is `locked`, the row shows the gold padlock instead of the menu, and a tap calls `dataExport.onLocked`. Once the plan includes it, the Choose menu works as before.
+- **Breaking:** `dataExport.value` and `dataExport.badge` are no longer used (named in development). Needs app-account-kit 7.34.0 or later.
+- Extra pages pass `premium`, `locked` and `onLocked` through to app-account-kit, so an app's other Premium rows (such as widgets) carry the same tag.
+
 ## 10.0.0 (2026-11-21)
 
 **A Free and Premium comparison on every plan page.** Premium and free features looked alike (the same gold tiles, with only a star or a tick between them). Every plan page now ends with one comparison table, the same in every app: a Free column and a Premium column under the award mark, tinted in the plan's color. Premium features come first, with tiles in the plan's color and a dash under Free; free features follow, with quiet tiles and a tick in both columns.

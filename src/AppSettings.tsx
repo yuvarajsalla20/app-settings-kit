@@ -271,8 +271,12 @@ export function AppSettings(props: AppSettingsProps) {
   // 8.0.0: the photo picker and the camera check are app-account-kit's unless the app brings its own; the password length is the kit's.
   const photo = useMemo(() => ({ pick: pickProfilePhoto, cameraSupported: defaultCameraSupported, ...photoIn }), [photoIn]);
   const password = useMemo(() => (passwordIn ? { minLength: MIN_PASSWORD, ...passwordIn } : undefined), [passwordIn]);
+  // 11.0.0: Data Export is a Premium feature in every app: the gold Premium tag after its name for every account. While every
+  // format is locked the row shows only the gold padlock, and a tap opens the plans; once the plan includes it, the Choose menu.
+  // The app's own value and badge are not used (the tag and the padlock say it), so every app reads the same.
+  const exportLocked = dataExport.formats.length > 0 && dataExport.formats.every((f) => f.locked);
   const pages = assemblePages({
-    dataExport: { row: kitRow({ ...dataExport, tint: tints.data }), content: null, menu },
+    dataExport: { row: kitRow({ id: dataExport.id, tint: tints.data }), content: null, menu, premium: true, locked: exportLocked, ...(dataExport.onLocked ? { onLocked: dataExport.onLocked } : {}) },
     plan: planSection,
     extraPages: allPages,
     strings: words,
@@ -294,5 +298,7 @@ function rowOverrides(plan: object, dataExport: object): string[] {
   for (const [name, row] of [['plan', plan], ['dataExport', dataExport]] as const) {
     for (const k of ['label', 'icon', 'menu']) if (row && k in row) out.push(`${name}.${k}`);
   }
+  // 11.0.0: Data Export's right side is the kit's (the Choose menu, or the gold padlock while locked).
+  for (const k of ['value', 'badge']) if (dataExport && k in dataExport && (dataExport as Record<string, unknown>)[k] !== undefined) out.push(`dataExport.${k}`);
   return out;
 }
