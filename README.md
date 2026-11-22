@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 10.0.0** (tag `v10.0.0`). Needs app-account-kit **7.31.0** or later.
+**Current version: 11.0.0** (tag `v11.0.0`). Needs app-account-kit **7.34.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.31.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v10.0.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v11.0.0>"
 },
 "kitVersions": {
   "app-account-kit": "v7.31.0",
-  "app-settings-kit": "v10.0.0"
+  "app-settings-kit": "v11.0.0"
 }
 ```
 
@@ -130,6 +130,10 @@ These app-account-kit `SettingsScreen` props pass through: `theme`, `strings` (t
 6.0.0 removed `order`, `dataExportIn`, `plainHeaders`, `pickers`, `settingsStrings`, `data`, `about.version`, and the `label`, `icon` and `menu` of `plan` and `dataExport`. They are the kit's now.
 
 Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, Premium (7.0.0), the headings (Account, Your Data, Sign In on the Profile page; the app's name, Help, Info), Log Out and Erase Account.
+
+## The Premium tag on Data Export (11.0.0)
+
+Data Export is a Premium feature in every app, and the kit says so on its row: a small gold tag, the award mark and the word "PREMIUM", right after the name, for every account. While every format is `locked` the row shows only the gold padlock, and a tap calls `dataExport.onLocked` (open the plans). Once the plan includes it, the row opens the Choose menu as before. The gold is app-account-kit's `theme.premium`, by default `tints.rate`, the comparison table's gold. `dataExport.value` and `dataExport.badge` are not used. For an app's own Premium rows, pass `premium` (and `locked`, `onLocked`) on an extra page, or use app-account-kit's `SettingRow premium` and `PremiumTag`.
 
 ## The plan page and the Free and Premium comparison (10.0.0)
 
