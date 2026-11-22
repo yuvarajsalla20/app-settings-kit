@@ -10,15 +10,17 @@ export interface SettingsStrings {
   dataExport: string;
   /** @deprecated Not shown since 2.1.0 (Data Export is a row on Account with no heading). Kept so apps that pass it still compile. */
   yourData?: string;
-  /** The plan row and page title. 7.0.0: "Premium" in every app. */
+  /** The plan's name, in the comparison, Coming Soon and the Erase Account warning. 7.0.0: "Premium" in every app. */
   plan: string;
+  /** 13.0.0: the plan row and its page title, "Subscription" in every app. The row shows nothing on its right. */
+  subscription: string;
   /** Shown when a file could not be made. */
   exportFailed: string;
   /** 6.0.0: the line at the top of the Data Export menu. */
   exportHead: string;
   /** 9.2.0: the pill on the Data Export row when there are two or more formats. One format shows its own short name. */
   exportPick: string;
-  /** 7.0.0: the plan row's value and the badge on its page while the plan is not on sale yet. */
+  /** 7.0.0: the badge on the Coming Soon page while the plan is not on sale yet. 13.0.0: no longer on the row. */
   comingSoon: string;
   /** 7.0.0: the line under the plan's name on its Coming Soon page. */
   comingSoonLine: (appName: string, planName: string) => string;
@@ -52,6 +54,7 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   account: 'Profile',
   dataExport: 'Data Export',
   plan: 'Premium',
+  subscription: 'Subscription',
   exportFailed: 'Could not create the file. Please try again.',
   exportHead: 'Choose a Format to Export',
   exportPick: 'Choose',

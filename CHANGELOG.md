@@ -2,6 +2,18 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 13.0.0 (2026-11-22)
+
+**The plan row is called Subscription and shows nothing on its right.** The row read "Premium" with "Free" beside it, which looked like a contradiction. The kit now draws it the same way in every app:
+
+- **Breaking: the row and its page are named "Subscription"** (new string `subscription`). The plan itself is still called Premium: the comparison ("Compare Free and Premium"), the Coming Soon card and the Erase Account warning are unchanged.
+- **Breaking: nothing on the row's right.** No Free, Premium, Yearly or Coming Soon beside it, on sale or not. `plan.value` and `plan.badge` are no longer used (named in development). The plan the account holds is shown on the page it opens.
+- `PageRow.value` and `PageRow.badge` are deprecated; neither kit row reads them.
+
+### Upgrading from 12.x
+
+Remove `value` and `badge` from `plan`. Nothing else changes.
+
 ## 12.0.0 (2026-11-22)
 
 **Data Export is Premium in every app, and Appearance is in every app.** 11.0.0 drew the Premium tag, but each app still decided which formats were locked, so an app could leave export free beside a Premium tag. The kit now decides:

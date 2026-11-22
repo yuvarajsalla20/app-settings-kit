@@ -70,14 +70,14 @@ describe('Data Export page', () => {
 });
 
 const rowsOnList = (texts: string[], names: string[]) => texts.filter((t) => names.includes(t));
-const NAMES = ['About', 'Account', 'Profile', 'Preferences', 'Data Export', 'VIP', 'Premium', 'Plan', 'Family'];
+const NAMES = ['About', 'Account', 'Profile', 'Preferences', 'Data Export', 'VIP', 'Premium', 'Subscription', 'Plan', 'Family'];
 /** The Data Export menu the kit hands to app-account-kit. */
 const exportMenuOf = (h: ReturnType<typeof mount>) => h.root.root.findAll((n) => Array.isArray(n.props.items) && 'head' in n.props && typeof n.props.onPick === 'function')[0]!;
 
 describe('AppSettings', () => {
   it("lists the four parents About, Profile, Preferences, plan, then the app's other pages; Data Export is not on the list", () => {
     const h = mount(<AppSettings {...props()} extraPages={[{ id: 'family', label: 'Family', icon: 'users', content: <Text>Family page</Text> }]} />, false);
-    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile', 'Preferences', 'Premium', 'Family']);
+    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile', 'Preferences', 'Subscription', 'Family']);
   });
 
   it('6.0.0: the order, the place of Data Export and the look are the kit\'s; what an app passes for them is ignored', async () => {
@@ -85,7 +85,7 @@ describe('AppSettings', () => {
     (globalThis as { __DEV__?: boolean }).__DEV__ = true;
     const locked = { order: ['plan', 'about'], dataExportIn: 'preferences', plainHeaders: false, pickers: 'sheet', settingsStrings: { plan: 'X' } } as never;
     const h = mount(<AppSettings {...props()} {...(locked as object)} />, false);
-    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile', 'Preferences', 'Premium']);
+    expect(rowsOnList(h.texts(), NAMES)).toEqual(['About', 'Profile', 'Preferences', 'Subscription']);
     await press(h.byText('Profile'));
     expect(h.has('Data Export')).toBe(true);
     expect(warn.mock.calls.flat().join(' ')).toMatch(/order, dataExportIn, plainHeaders, pickers, settingsStrings/);
@@ -133,16 +133,17 @@ describe('AppSettings', () => {
 
   it("6.0.0: the plan row is the plan's name with the kit's icon; an app's own label or icon is not used", () => {
     const h = mount(<AppSettings {...props()} plan={{ id: 'vip', name: 'Premium', label: 'Gold', icon: 'star', content: <Text>Plans</Text> } as never} />, false);
-    expect(rowsOnList(h.texts(), [...NAMES, 'Gold'])).toEqual(['About', 'Profile', 'Preferences', 'Premium']);
+    expect(rowsOnList(h.texts(), [...NAMES, 'Gold'])).toEqual(['About', 'Profile', 'Preferences', 'Subscription']);
     const icons = h.root.root.findAll((n) => n.type === 'Icon').map((n) => n.props.name);
     expect(icons).toContain('award');
     expect(icons).not.toContain('star');
   });
 
-  it("7.0.0: with no plan on sale (no content) the kit draws its Coming Soon page and the row reads Coming Soon", async () => {
+  it("7.0.0: with no plan on sale (no content) the kit draws its Coming Soon page; 13.0.0: Coming Soon is on the page, not the row", async () => {
     const h = mount(<AppSettings {...props()} plan={{ features: ['Shared household'], freeFeatures: ['Unlimited expenses'] }} />, false);
+    expect(h.has('Coming Soon')).toBe(false);
+    await press(h.byText('Subscription'));
     expect(h.has('Coming Soon')).toBe(true);
-    await press(h.byText('Premium'));
     expect(h.has('Premium for My App will be available soon.')).toBe(true);
     expect(h.has('Compare Free and Premium')).toBe(true);
     expect(h.has('Shared household')).toBe(true);
@@ -154,7 +155,7 @@ describe('AppSettings', () => {
 
   it('10.0.0: the comparison marks Premium features apart from free ones, in order, for screen readers too', async () => {
     const h = mount(<AppSettings {...props()} plan={{ features: [{ label: 'Repeat Alerts', detail: 'Up to 5 Times', icon: 'repeat' }, 'Workspaces'], freeFeatures: ['Sync Across Devices'] }} />, false);
-    await press(h.byText('Premium'));
+    await press(h.byText('Subscription'));
     const said = h.root.root.findAll((n) => n.type === 'View' && typeof n.props.accessibilityLabel === 'string' && n.props.accessibilityLabel.includes('Free:')).map((n) => n.props.accessibilityLabel);
     expect(said).toEqual([
       'Repeat Alerts, Up to 5 Times. Free: Not included. Premium: Included.',
@@ -171,14 +172,14 @@ describe('AppSettings', () => {
 
   it('12.0.0: an app that names Data Export in its features keeps its own line, listed once', async () => {
     const h = mount(<AppSettings {...props()} plan={{ features: [{ label: 'Data Export', detail: 'CSV or PDF' }], freeFeatures: ['Sync Across Devices'] }} />, false);
-    await press(h.byText('Premium'));
+    await press(h.byText('Subscription'));
     const said = h.root.root.findAll((n) => n.type === 'View' && typeof n.props.accessibilityLabel === 'string' && n.props.accessibilityLabel.includes('Free:')).map((n) => n.props.accessibilityLabel);
     expect(said).toEqual(['Data Export, CSV or PDF. Free: Not included. Premium: Included.', 'Sync Across Devices. Free: Included. Premium: Included.']);
   });
 
   it("10.0.0: a plan on sale shows the app's page and then the same comparison; a subscriber's column reads Your Plan", async () => {
     const h = mount(<AppSettings {...props()} plan={{ content: <Text>Own plans</Text>, subscribed: true, features: ['Workspaces'], freeFeatures: ['Sync Across Devices'] }} />, false);
-    await press(h.byText('Premium'));
+    await press(h.byText('Subscription'));
     const texts = h.texts();
     expect(texts.indexOf('Own plans')).toBeGreaterThan(-1);
     expect(texts.indexOf('Compare Free and Premium')).toBeGreaterThan(texts.indexOf('Own plans'));
@@ -187,16 +188,25 @@ describe('AppSettings', () => {
 
   it('7.0.0: the plan is called Premium in every app; an app\'s own name (VIP, Plus) is not used', () => {
     const h = mount(<AppSettings {...props()} plan={{ name: 'Plus', content: <Text>Own plans</Text> }} />, false);
-    expect(rowsOnList(h.texts(), [...NAMES, 'Plus'])).toEqual(['About', 'Profile', 'Preferences', 'Premium']);
+    expect(rowsOnList(h.texts(), [...NAMES, 'Plus'])).toEqual(['About', 'Profile', 'Preferences', 'Subscription']);
     expect(h.has('Plus')).toBe(false);
   });
 
-  it('7.0.0: an app whose plan is on sale keeps its own page and row value', async () => {
-    const h = mount(<AppSettings {...props()} plan={{ name: 'Premium', value: 'Yearly', content: <Text>Own plans</Text> }} />, false);
+  it('13.0.0: the row is Subscription with nothing on its right; the app\'s value and badge are not used and are named in development', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    (globalThis as { __DEV__?: boolean }).__DEV__ = true;
+    const h = mount(<AppSettings {...props()} plan={{ ...props().plan, value: 'Free', badge: <Text>OWN PILL</Text>, content: <Text>Own plans</Text> }} />, false);
+    expect(h.has('Subscription')).toBe(true);
+    expect(h.has('Premium')).toBe(false);
+    expect(h.has('Free')).toBe(false);
+    expect(h.has('OWN PILL')).toBe(false);
     expect(h.has('Coming Soon')).toBe(false);
-    expect(h.has('Yearly')).toBe(true);
-    await press(h.byText('Premium'));
+    expect(h.byLabel('Subscription')).toBeTruthy();
+    expect(warn.mock.calls.flat().join(' ')).toMatch(/plan\.value, plan\.badge/);
+    await press(h.byText('Subscription'));
     expect(h.has('Own plans')).toBe(true);
+    delete (globalThis as { __DEV__?: boolean }).__DEV__;
+    warn.mockRestore();
   });
 
   it("6.0.0: Data Export is a row on Profile that opens the kit's menu, with the kit's line on top and the kit's name", async () => {
@@ -287,7 +297,7 @@ describe('AppSettings', () => {
 
   it("8.0.0: Security is the kit's row in Preferences, opening the app's lock page", async () => {
     const h = mount(<AppSettings {...props()} security={{ content: <Text>PIN page</Text> }} />, false);
-    expect(rowsOnList(h.texts(), [...NAMES, 'Security'])).toEqual(['About', 'Profile', 'Preferences', 'Premium']);
+    expect(rowsOnList(h.texts(), [...NAMES, 'Security'])).toEqual(['About', 'Profile', 'Preferences', 'Subscription']);
     await press(h.byText('Preferences'));
     await press(h.byText('Security'));
     expect(h.has('PIN page')).toBe(true);
@@ -336,7 +346,7 @@ describe('AppSettings', () => {
 
   it('4.0.0: Preferences and Profile are the same in every app, even when the app tries to rename them', () => {
     const h = mount(<AppSettings {...props()} strings={{ app: 'Options', account: 'Me' }} />, false);
-    expect(rowsOnList(h.texts(), [...NAMES, 'Options', 'Me'])).toEqual(['About', 'Profile', 'Preferences', 'Premium']);
+    expect(rowsOnList(h.texts(), [...NAMES, 'Options', 'Me'])).toEqual(['About', 'Profile', 'Preferences', 'Subscription']);
   });
 });
 
