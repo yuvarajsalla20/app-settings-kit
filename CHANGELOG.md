@@ -2,6 +2,16 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 13.1.0 (2026-11-22)
+
+**One Home header and one Page header for every app.** A new app no longer draws its own headers:
+
+- **`makeHomeHeader`:** "Hi <nickname>" on one line (the app's name when there is no nickname), one optional button, and the profile photo on the right, which opens Profile. Without a photo it draws the first letter. `homeGreeting` and `homeInitial` give the same words for tests.
+- **`makePageHeader` gains `buttons`, `subtitle` and `filters`:** up to two buttons at the right end (a glass capsule on iPhone, tonal round buttons on Android; more are left out and named in development), a line under the title, and a row of filters (glass segments on iPhone, filter chips on Android).
+- **Sheets:** `onClose` puts Close in place of Back, and `confirm` adds the accent confirm button: a check on iPhone, the word on Android.
+- The theme may carry `soft`, the tonal fill on Android. Everything else comes from the theme Settings already takes.
+- Nothing changes for an app that does not use the new props.
+
 ## 13.0.0 (2026-11-22)
 
 **The plan row is called Subscription and shows nothing on its right.** The row read "Premium" with "Free" beside it, which looked like a contradiction. The kit now draws it the same way in every app:
