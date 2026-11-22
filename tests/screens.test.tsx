@@ -143,7 +143,7 @@ describe('AppSettings', () => {
     const h = mount(<AppSettings {...props()} plan={{ features: ['Shared household'], freeFeatures: ['Unlimited expenses'] }} />, false);
     expect(h.has('Coming Soon')).toBe(true);
     await press(h.byText('Premium'));
-    expect(h.has('Every current My App feature is free. Premium will be available soon.')).toBe(true);
+    expect(h.has('Premium for My App will be available soon.')).toBe(true);
     expect(h.has('Compare Free and Premium')).toBe(true);
     expect(h.has('Shared household')).toBe(true);
     expect(h.has('Unlimited expenses')).toBe(true);
@@ -159,12 +159,21 @@ describe('AppSettings', () => {
     expect(said).toEqual([
       'Repeat Alerts, Up to 5 Times. Free: Not included. Premium: Included.',
       'Workspaces. Free: Not included. Premium: Included.',
+      // 12.0.0: Data Export is Premium in every app, so the kit lists it when the app does not.
+      'Data Export, CSV File. Free: Not included. Premium: Included.',
       'Sync Across Devices. Free: Included. Premium: Included.',
     ]);
     expect(h.has('Up to 5 Times')).toBe(true);
     expect(h.has('FREE')).toBe(true);
     expect(h.has('PREMIUM')).toBe(true);
     expect(h.has('Your Plan')).toBe(false);
+  });
+
+  it('12.0.0: an app that names Data Export in its features keeps its own line, listed once', async () => {
+    const h = mount(<AppSettings {...props()} plan={{ features: [{ label: 'Data Export', detail: 'CSV or PDF' }], freeFeatures: ['Sync Across Devices'] }} />, false);
+    await press(h.byText('Premium'));
+    const said = h.root.root.findAll((n) => n.type === 'View' && typeof n.props.accessibilityLabel === 'string' && n.props.accessibilityLabel.includes('Free:')).map((n) => n.props.accessibilityLabel);
+    expect(said).toEqual(['Data Export, CSV or PDF. Free: Not included. Premium: Included.', 'Sync Across Devices. Free: Included. Premium: Included.']);
   });
 
   it("10.0.0: a plan on sale shows the app's page and then the same comparison; a subscriber's column reads Your Plan", async () => {
@@ -191,7 +200,7 @@ describe('AppSettings', () => {
   });
 
   it("6.0.0: Data Export is a row on Profile that opens the kit's menu, with the kit's line on top and the kit's name", async () => {
-    const h = mount(<AppSettings {...props()} dataExport={{ formats: [csv(), pdf({ locked: true })], onLocked: vi.fn(), label: 'Downloads', menu: { head: 'Own line' } } as never} />, false);
+    const h = mount(<AppSettings {...props()} plan={{ ...props().plan, subscribed: true }} dataExport={{ formats: [csv(), pdf()], onLocked: vi.fn(), label: 'Downloads', menu: { head: 'Own line' } } as never} />, false);
     await press(h.byText('Profile'));
     expect(h.has('Data Export')).toBe(true);
     expect(h.has('Downloads')).toBe(false);
@@ -200,9 +209,10 @@ describe('AppSettings', () => {
     expect(menu.props.items.map((i: { label: string }) => i.label)).toEqual(['CSV File', 'PDF Report']);
   });
 
-  it('11.0.0: Data Export carries the gold Premium tag for every account; locked, only the padlock, and a tap opens the plans', async () => {
+  it('12.0.0: Data Export is Premium in every app: locked unless the account pays, whatever the formats say; a tap calls onLocked', async () => {
     const onLocked = vi.fn();
-    const free = mount(<AppSettings {...props()} dataExport={{ formats: [csv({ locked: true }), pdf({ locked: true })], onLocked, value: 'Premium', badge: <Text>OWN PILL</Text> }} />, false);
+    // A format the app marks open is still locked for a free account: no app can make export free.
+    const free = mount(<AppSettings {...props()} dataExport={{ formats: [csv({ locked: false }), pdf()], onLocked, value: 'Premium', badge: <Text>OWN PILL</Text> }} />, false);
     await press(free.byText('Profile'));
     expect(free.has('PREMIUM')).toBe(true);
     expect(free.has('OWN PILL')).toBe(false);
@@ -210,11 +220,21 @@ describe('AppSettings', () => {
     await press(free.byLabel('Data Export, Premium, Available with Premium'));
     expect(onLocked).toHaveBeenCalledTimes(1);
 
-    const paid = mount(<AppSettings {...props()} dataExport={{ formats: [csv(), pdf()], onLocked }} />, false);
+    // A paying account gets the Choose menu, even if the app still marks a format locked.
+    const paid = mount(<AppSettings {...props()} plan={{ ...props().plan, subscribed: true }} dataExport={{ formats: [csv({ locked: true }), pdf()], onLocked }} />, false);
     await press(paid.byText('Profile'));
     expect(paid.has('PREMIUM')).toBe(true);
     expect(paid.has('Choose')).toBe(true);
-    expect(exportMenuOf(paid).props.items.map((i: { label: string }) => i.label)).toEqual(['CSV File', 'PDF Report']);
+    const items = exportMenuOf(paid).props.items as { label: string; icon: string }[];
+    expect(items.map((i) => i.label)).toEqual(['CSV File', 'PDF Report']);
+    expect(items.map((i) => i.icon)).toEqual(['share', 'share']);
+  });
+
+  it('12.0.0: with no onLocked, a tap on the locked Data Export row opens the kit plan page (Coming Soon when nothing is on sale)', async () => {
+    const h = mount(<AppSettings {...props()} plan={{ features: ['Shared household'], freeFeatures: ['Unlimited expenses'] }} dataExport={{ formats: [csv()] }} />, false);
+    await press(h.byText('Profile'));
+    await press(h.byLabel('Data Export, Premium, Available with Premium'));
+    expect(h.has('Premium for My App will be available soon.')).toBe(true);
   });
 
   it('draws the approved About: the logo under the title, every row, Rate and Share from the App Store number', async () => {
@@ -252,16 +272,17 @@ describe('AppSettings', () => {
     expect(h.texts().some((t) => t.includes('React'))).toBe(false);
   });
 
-  it('8.0.0: Appearance is the kit\'s row in a Display card at the end of Preferences', async () => {
+  it('12.0.0: Appearance is the kit\'s row in a Display card at the end of Preferences, in every app', async () => {
     const onChange = vi.fn();
     const h = mount(<AppSettings {...props()} appearance={{ value: 'dark', onChange }} />, false);
     await press(h.byText('Preferences'));
     const texts = h.texts();
     expect(texts.indexOf('Display')).toBeGreaterThan(texts.indexOf('Currency'));
     expect(h.has('Appearance')).toBe(true);
-    const none = mount(<AppSettings {...props()} />, false);
-    await press(none.byText('Preferences'));
-    expect(none.has('Appearance')).toBe(false);
+    // Every app passes it (required); the helper's props carry it too.
+    const standard = mount(<AppSettings {...props()} />, false);
+    await press(standard.byText('Preferences'));
+    expect(standard.has('Appearance')).toBe(true);
   });
 
   it("8.0.0: Security is the kit's row in Preferences, opening the app's lock page", async () => {

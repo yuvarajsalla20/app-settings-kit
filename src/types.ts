@@ -24,7 +24,10 @@ export interface ExportFormat {
   icon: IconName;
   /** Only for a standalone DataExportPage (its own tile color). In AppSettings the kit colors Data Export itself (theme.tints.data) and ignores this. */
   tint?: string;
-  /** True while the person's plan does not include this format: a tap calls `onLocked` (open the plans) instead of making the file. Each format has its own lock. */
+  /**
+   * For a standalone DataExportPage only: true while the person's plan does not include this format. 12.0.0: in AppSettings
+   * Data Export is Premium in every app and the kit locks every format unless `plan.subscribed`, so this is not used there.
+   */
   locked?: boolean;
   /** The line under the label while locked. Default: `detail`. */
   lockedDetail?: string;
@@ -49,7 +52,7 @@ export interface ExportRowProps {
 
 export interface DataExportPageProps {
   formats: readonly ExportFormat[];
-  /** A tap on a locked format: usually opens the plans. */
+  /** A tap on a locked format: usually opens the plans. 12.0.0, in AppSettings: leave out to open the kit's plan page. */
   onLocked?: () => void;
   /** Quiet failures, for crash reporting. Called with "data-export" and the error. */
   onError?: (where: string, error: unknown) => void;
@@ -79,8 +82,9 @@ export interface PageRow {
 }
 
 /**
- * The Data Export page: its row, and the formats it offers. 11.0.0: the row always carries the gold Premium tag; while every
- * format is `locked` it shows the gold padlock and a tap calls `onLocked`. `value` and `badge` are not used.
+ * The Data Export page: its row, and the formats it offers. 11.0.0: the row always carries the gold Premium tag. 12.0.0: Data
+ * Export is Premium in every app: while the account does not pay for Premium (`plan.subscribed`) every format is locked, the
+ * row shows the gold padlock and a tap calls `onLocked`, or opens the plan page when there is none. `value` and `badge` are not used.
  */
 export type DataExportConfig = PageRow &
   DataExportPageProps & {

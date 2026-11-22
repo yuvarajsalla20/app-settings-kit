@@ -2,6 +2,18 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 12.0.0 (2026-11-22)
+
+**Data Export is Premium in every app, and Appearance is in every app.** 11.0.0 drew the Premium tag, but each app still decided which formats were locked, so an app could leave export free beside a Premium tag. The kit now decides:
+
+- **Breaking: the lock follows the plan.** Every format is locked unless `plan.subscribed` is true. `formats[].locked` is no longer used in `AppSettings` (named in development). An app that sold export to paying accounts only needs no change beyond passing `plan.subscribed`.
+- **A tap on the lock opens the plan page by default.** `dataExport.onLocked` is optional: without it the kit opens its own plan page (the Coming Soon page when nothing is on sale), through app-account-kit 7.35.0 `lockedOpens`. A new app needs no plans screen of its own.
+- **The comparison lists Data Export under Premium.** When the app's `plan.features` does not name it, the kit adds "Data Export" with the formats. A free list that names it is called out in development.
+- **The Coming Soon line** now reads "Premium for <App> will be available soon." The old line said every feature was free, which is no longer true.
+- **Breaking: Appearance is in every app.** `appearance={{ value, onChange }}` is required, so every app offers System, Light and Dark in the Display card at the end of Preferences, free. Leaving it out is named in development.
+- **Security is the one switch.** `security` stays optional: it is the only part of Settings an app turns on or off, and it is free wherever it is on.
+- Needs app-account-kit 7.35.0 or later.
+
 ## 11.0.0 (2026-11-22)
 
 **The Premium tag on Data Export.** Members saw no sign that Data Export belongs to Premium, and free accounts saw a pill that each app passed its own way. The kit now draws it, the same in every app:
