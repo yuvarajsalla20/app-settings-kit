@@ -28,7 +28,7 @@ export interface PageHeaderProps {
   backLabel?: string;
   /** A short word right after the title, such as the month. */
   titleRight?: string;
-  /** 13.1.0: one calm line under the title, e.g., "24 Reminders This Month". */
+  /** 13.1.0: one calm line under the title, e.g., "24 Reminders This Month". 13.3.0: on a sheet too, e.g., the choice so far. */
   subtitle?: string;
   /** 13.1.0: up to two buttons at the right end. iPhone: one glass capsule. Android: tonal round buttons. */
   buttons?: readonly HeaderButtonSpec[];
@@ -71,7 +71,10 @@ export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike
     titleBox: { flexShrink: 1, flexGrow: 1 },
     titles: { flexShrink: 1, flexDirection: 'row', alignItems: 'baseline', gap: 8 },
     title: { flexShrink: 1, color: theme.text, fontSize: 20, fontWeight: '700', letterSpacing: -0.2 },
-    sheetTitle: { flex: 1, color: theme.text, fontSize: ios ? 17 : 22, fontWeight: ios ? '700' : '600', textAlign: ios ? 'center' : 'left' },
+    sheetTitles: { flex: 1, minWidth: 0 },
+    // 13.3.0: on a sheet the line under the title is the choice so far, in the accent color.
+    sheetSubtitle: { marginTop: 2, color: theme.accent, fontSize: 13, fontWeight: '700', textAlign: ios ? 'center' : 'left' },
+    sheetTitle: { color: theme.text, fontSize: ios ? 17 : 22, fontWeight: ios ? '700' : '600', textAlign: ios ? 'center' : 'left' },
     titleRight: { color: theme.muted, fontSize: 14, fontWeight: '500' },
     subtitle: { color: theme.muted, fontSize: 14, fontWeight: '500', marginTop: 2 },
     right: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -154,9 +157,16 @@ export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike
             <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} hitSlop={8} style={({ pressed }) => [styles.close, pressed && styles.pressed]}>
               <Feather name="x" size={22} color={theme.text} />
             </Pressable>
-            <Text style={styles.sheetTitle} numberOfLines={1} accessibilityRole="header">
-              {title}
-            </Text>
+            <View style={styles.sheetTitles}>
+              <Text style={styles.sheetTitle} numberOfLines={1} accessibilityRole="header">
+                {title}
+              </Text>
+              {subtitle ? (
+                <Text style={styles.sheetSubtitle} numberOfLines={1}>
+                  {subtitle}
+                </Text>
+              ) : null}
+            </View>
             {confirm ? <Confirm {...confirm} /> : ios ? <View style={styles.spacer} /> : null}
           </View>
           {filters ? <Filters {...filters} /> : null}
