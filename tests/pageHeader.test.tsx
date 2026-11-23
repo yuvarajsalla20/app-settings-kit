@@ -109,4 +109,13 @@ describe('13.1.0 shared headers', () => {
     const icon = clear.findAll((n) => n.props.name === 'trash-2')[0];
     expect(icon.props.color).toBe('#B42318');
   });
+
+  it('13.3.0: a sheet shows the choice so far under its title', () => {
+    const PageHeader = makePageHeader(THEME);
+    let root!: ReturnType<typeof create>;
+    act(() => {
+      root = create(<PageHeader title="Date and Time" subtitle="Today, 7:30 PM" onClose={vi.fn()} confirm={{ label: 'Done', onPress: vi.fn() }} />);
+    });
+    expect(texts(root)).toEqual(['Date and Time', 'Today, 7:30 PM']);
+  });
 });

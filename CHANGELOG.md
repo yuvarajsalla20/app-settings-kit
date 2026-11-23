@@ -2,6 +2,14 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 13.3.0 (2026-11-23)
+
+**Every sheet uses the kit header.** A picker sheet (a date, a place, a category) now uses the same sheet header as Add Reminder:
+
+- **`subtitle` on a sheet:** a line under the title, e.g., the choice so far, in the accent color; centred on iPhone and on the left on Android.
+- A sheet whose choices close it on a tap leaves out `confirm`: Close and the title only.
+- Nothing changes for an app that does not use them.
+
 ## 13.2.0 (2026-11-23)
 
 **Header buttons for Delete and for menus.** The shared headers now cover every screen of HringNring and Moonpenny:
