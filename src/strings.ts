@@ -30,8 +30,11 @@ export interface SettingsStrings {
   yourPlan: string;
   /** 17.0.0: the free plan's name on the Your Plan card. */
   freePlan: string;
-  /** 17.0.0: the line on the Your Plan card for a free account. */
-  freePlanLine: (freeLabel: string) => string;
+  /** 20.0.0: the Your Plan card's title for a free account: "Free Plan". */
+  freePlanTitle: (freeLabel: string) => string;
+  /** 20.0.0: the Your Plan card's colored line and quieter line for a free account. */
+  yourCurrentPlan: string;
+  freeIncluded: string;
   /** 10.0.0: the heading over the Free and Premium comparison on the plan page. */
   compareTitle: (planName: string) => string;
   /** 10.0.0: the comparison's first column. */
@@ -110,7 +113,9 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   comingSoonLine: (appName, planName) => `${planName} for ${appName} will be available soon.`,
   yourPlan: 'Your Plan',
   freePlan: 'Free',
-  freePlanLine: (f) => `Your account is on the ${f} plan, which includes every free feature.`,
+  freePlanTitle: (f) => `${f} Plan`,
+  yourCurrentPlan: 'Your Current Plan',
+  freeIncluded: 'Every free feature is included.',
   compareTitle: (planName) => `Compare Free and ${planName}`,
   compareFeature: 'Feature',
   compareFree: 'Free',

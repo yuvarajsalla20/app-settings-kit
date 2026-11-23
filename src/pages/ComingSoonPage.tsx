@@ -1,3 +1,4 @@
+import Feather from '@expo/vector-icons/Feather';
 import { SettingRow, SettingsGroup, type AccountTheme } from 'app-account-kit';
 import type { ComponentType } from 'react';
 import { Text as PlainText, View, type TextProps } from 'react-native';
@@ -14,28 +15,34 @@ export interface ComingSoonPageProps {
   theme: AccountTheme;
   /** The app's Text (its font). */
   Text?: ComponentType<TextProps>;
-  strings: Pick<SettingsStrings, 'comingSoon' | 'comingSoonLine' | 'yourPlan' | 'freePlan' | 'freePlanLine'>;
+  strings: Pick<SettingsStrings, 'comingSoon' | 'comingSoonLine' | 'yourPlan' | 'freePlan' | 'freePlanTitle' | 'yourCurrentPlan' | 'freeIncluded'>;
 }
 
+/** A soft wash of a hex color (e.g., the accent at 10%), for the card's fill and border. Other color forms are used as given. */
+const wash = (color: string, alpha: string) => (/^#[0-9a-f]{6}$/i.test(color) ? `${color}${alpha}` : color);
+
 /**
- * 17.0.0: the Your Plan card, first on the plan page, the same as app-subscriptions-kit 8.0.0 draws for a plan on sale. While
- * nothing is on sale every account is on the free plan, so the card says so in one line.
+ * 17.0.0: the Your Plan card, first on the plan page, the same as app-subscriptions-kit draws for a plan on sale. While nothing
+ * is on sale every account is on the free plan. 20.0.0: the Get Premium pattern of app-subscriptions-kit 11.0.0 (a round mark,
+ * a bold title, a colored line and a quieter line), washed and outlined in the calm accent color.
  */
 export function FreePlanCard({ theme: t, Text = PlainText, strings }: Pick<ComingSoonPageProps, 'theme' | 'Text' | 'strings'>) {
+  const title = strings.freePlanTitle(strings.freePlan);
   return (
     <View
       accessible
-      accessibilityLabel={`${strings.yourPlan}. ${strings.freePlan}. ${strings.freePlanLine(strings.freePlan)}`}
-      style={{ borderRadius: t.radius + 8, backgroundColor: t.surface, borderWidth: 1, borderColor: t.border, padding: 18, gap: 10 }}
+      accessibilityLabel={`${strings.yourPlan}. ${title}. ${strings.yourCurrentPlan}. ${strings.freeIncluded}`}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: t.radius + 8, backgroundColor: t.surface, borderWidth: 1.5, borderColor: wash(t.accent, '8C'), overflow: 'hidden' }}
     >
-      <Text style={{ color: t.muted, fontSize: 12, fontWeight: '800', letterSpacing: 1.4, textTransform: 'uppercase' }}>{strings.yourPlan}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <View style={{ width: 44, height: 44, borderRadius: 14, borderWidth: 1, borderColor: t.border, alignItems: 'center', justifyContent: 'center' }}>
-          <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: t.muted }} />
-        </View>
-        <Text style={{ flex: 1, color: t.text, fontSize: 22, fontWeight: '800' }}>{strings.freePlan}</Text>
+      <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: wash(t.accent, '1A') }} />
+      <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: t.surface, alignItems: 'center', justifyContent: 'center' }}>
+        <Feather name="shield" size={22} color={t.accent} />
       </View>
-      <Text style={{ color: t.muted, fontSize: 14, lineHeight: 20 }}>{strings.freePlanLine(strings.freePlan)}</Text>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={{ color: t.text, fontSize: 18, fontWeight: '800' }}>{title}</Text>
+        <Text style={{ color: t.accent, fontSize: 14, fontWeight: '700' }}>{strings.yourCurrentPlan}</Text>
+        <Text style={{ color: t.muted, fontSize: 13 }}>{strings.freeIncluded}</Text>
+      </View>
     </View>
   );
 }

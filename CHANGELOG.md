@@ -2,6 +2,14 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 20.0.0 (2026-11-23)
+
+**The Your Plan card follows the Get Premium pattern.** On the Coming Soon page the card now matches app-subscriptions-kit 11.0.0: a round shield mark, "Free Plan", "Your Current Plan" in the accent color, and "Every free feature is included.", on a card washed and outlined in the accent.
+
+- New strings `freePlanTitle`, `yourCurrentPlan` and `freeIncluded`. `freePlanLine` is removed.
+
+Upgrading: nothing to change in apps. The card looks different, so this is a major version.
+
 ## 19.0.1 (2026-11-23)
 
 **Fix: support email now sends.** The email function stopped on its first message with "The default Firebase app does not exist", so no email was sent. firebase-functions creates its own named Firebase app to read the new document, and the function took that app as proof that the default app existed. It now looks for the default app by name and creates it when missing (`needsDefaultApp`). Nothing changes in the app: move the pins in `functions/package.json` and the app's `package.json` to 19.0.1 and run `npm run deploy:functions`. No new app build is needed.
