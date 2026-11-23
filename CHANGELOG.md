@@ -8,6 +8,7 @@ Release notes for app-settings-kit, newest first. Each version is tagged in git 
 
 - **`tone: 'danger'`** on a header button draws its icon in the theme's `danger` color, for Delete and Clear All.
 - **`anchorRef`** on a header button hands its view to a pull-down menu (app-account-kit `useAnchor().ref`), so a menu such as Clear All opens from the button.
+- **`email`** on the Home header: without a nickname, the letter in place of the photo is the email's first letter, the same letter as the avatar in Settings.
 - Nothing changes for an app that does not use them.
 
 ## 13.1.0 (2026-11-22)

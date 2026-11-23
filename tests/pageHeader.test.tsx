@@ -84,6 +84,7 @@ describe('13.1.0 shared headers', () => {
     expect(homeGreeting(' Yuva ', 'Sample App')).toBe('Hi Yuva');
     expect(homeGreeting('', 'Sample App')).toBe('Sample App');
     expect(homeInitial(null, 'Sample App')).toBe('S');
+    expect(homeInitial('', 'Sample App', 'yuva@example.com')).toBe('Y');
     const HomeHeader = makeHomeHeader(THEME);
     const open = vi.fn();
     let root!: ReturnType<typeof create>;
