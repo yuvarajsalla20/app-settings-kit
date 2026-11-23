@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 14.0.1** (tag `v14.0.1`). Needs app-account-kit **7.37.0** or later.
+**Current version: 15.0.0** (tag `v15.0.0`). Needs app-account-kit **8.1.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -30,18 +30,18 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 ```jsonc
 // package.json
 "dependencies": {
-  "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.31.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v14.0.1>"
+  "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v8.1.0>",
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v15.0.0>"
 },
 "kitVersions": {
-  "app-account-kit": "v7.31.0",
-  "app-settings-kit": "v14.0.1"
+  "app-account-kit": "v8.1.0",
+  "app-settings-kit": "v15.0.0"
 }
 ```
 
 Pin the full commit SHA of a release tag so every build gets exactly the code you tested, and write the tag in `kitVersions`. Find a SHA with `git ls-remote https://github.com/yuvarajsalla20/app-settings-kit refs/tags/v9.1.0`.
 
-**Peer dependencies:** `app-account-kit` ≥ 7.30.0, `react` ≥ 18, `react-native` ≥ 0.74, `@expo/vector-icons` ≥ 14, and (8.0.0) `expo-application`, `expo-constants`, `expo-image-picker`, `expo-image-manipulator`.
+**Peer dependencies:** `app-account-kit` ≥ 8.1.0, `firebase` ≥ 11 (15.0.0, for `app-settings-kit/support-firestore`), `react` ≥ 18, `react-native` ≥ 0.74, `@expo/vector-icons` ≥ 14, and (8.0.0) `expo-application`, `expo-constants`, `expo-image-picker`, `expo-image-manipulator`.
 
 ## Entry points
 
@@ -49,6 +49,8 @@ Pin the full commit SHA of a release tag so every build gets exactly the code yo
 |---|---|
 | `app-settings-kit` | `AppSettings`, `DataExportPage`, the Back button and swipe-back, the helpers, and `useSettingsNav` (re-exported from app-account-kit) |
 | `app-settings-kit/logic` | Pure helpers only, no React Native, for tests in plain Node |
+| `app-settings-kit/support-firestore` | 15.0.0: `firestoreSupport(db, auth)`, how Contact Support sends on Firebase |
+| `app-settings-kit/support.rules` | 15.0.0: the Firestore rules block every app copies into its `firestore.rules` |
 | `app-settings-kit/build-stamp` | `buildStamp()`, plain Node, for `app.config.js` |
 | `app-settings-kit/package.json` | The kit's `version`, for About > Kits |
 
@@ -57,8 +59,8 @@ Pin the full commit SHA of a release tag so every build gets exactly the code yo
 - **Main list:** About, Account, Preferences, the plan page, then any parent page of the app's own.
 - **Log Out and Erase Account (6.0.0: required, always on Profile):** Log Out is its own row and opens a small menu; Erase Account under it opens the delete steps (what you lose, type DELETE, password; the steps say the data is deleted forever, as Apple requires). `actions.onSignOut` and `actions.onDeleteAccount` are required. `exitMenu` takes only the optional `{ unlock, losses }`.
 - **Features live inside a parent, never on the list.** Data Export is about the person's data, so it is a row called **Data Export** on Profile in every app, opening a pull-down menu headed "Make a file and share it".
-- **About:** the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support**, **Privacy Policy**; **Kits**, **Version**. Kits and Version fill themselves (8.0.0: from `appPackage` and the app itself). A missing part hides its row, and the kit warns in development.
-- **Wording:** approved Title Case words by default ("Rate MyApp", "Contact Support", "Privacy Policy", "Log Out", "Erase Account" (4.0.0), "We're Here to Help", "Write to Us"). 4.0.0: **enforced**. These words, the card headings and the page names are the same in every app; an app's own version through `strings` is not used (development shows a warning). `strings` is only for the app's own sentences, such as `deleteWarning`.
+- **About:** the app's picture and name, then **Features**, **Rate &lt;App&gt;**, **Share &lt;App&gt;**; **Contact Support** (15.0.0: an in-app form, see below), **Privacy Policy**; **Kits**, **Version**. Kits and Version fill themselves (8.0.0: from `appPackage` and the app itself). A missing part hides its row, and the kit warns in development.
+- **Wording:** approved Title Case words by default ("Rate MyApp", "Contact Support", "Privacy Policy", "Log Out", "Erase Account" (4.0.0), "Slide to Send" (15.0.0)). 4.0.0: **enforced**. These words, the card headings and the page names are the same in every app; an app's own version through `strings` is not used (development shows a warning). `strings` is only for the app's own sentences, such as `deleteWarning`.
 - **Back:** a round 44 pt Back button in `theme.accent` with a `theme.ink` arrow, and swipe from the left edge to go back, on every page.
 
 Every part is required (5.0.0 and 6.0.0): a missing one is a type error, not a hidden row. Only Change password shows for email sign-in alone (Apple and Google have no password).
@@ -69,6 +71,7 @@ Words in CAPITALS are each app's own values. Everything else is the kit.
 
 ```tsx
 import { AppSettings } from 'app-settings-kit';
+import { firestoreSupport } from 'app-settings-kit/support-firestore';
 
 <AppSettings
   theme={APP_THEME}                        // app-account-kit's AccountTheme (the kit has no colors)
@@ -101,6 +104,7 @@ import { AppSettings } from 'app-settings-kit';
     onLocked: OPEN_PLANS,                  // optional: leave out to open the kit's plan page
   }}                                       // 12.0.0: Premium in every app, locked unless plan.subscribed
   plan={{ id: 'premium', subscribed: PAYS_NOW, content: PLAN_PAGE }}   // 13.0.0: the Subscription row, nothing on its right
+  support={firestoreSupport(DB, AUTH)}     // required (15.0.0): how Contact Support sends; the page is the kit's
   extraPages={APP_EXTRA_PAGES}             // optional
 />
 ```
@@ -125,11 +129,30 @@ These app-account-kit `SettingsScreen` props pass through: `theme`, `strings` (t
 | `preferences` | `ReactNode` | The app's own settings rows |
 | `dataExport` | `DataExportConfig` | The Data Export page (see below) |
 | `plan` | `PlanConfig` | The plan page: `{ features, freeFeatures, content?, subscribed?, id? }`. 13.0.0: its row and page are called **Subscription** in every app, with nothing on the row's right (`value` and `badge` are not used); the plan itself is called **Premium** (the kit's word, 7.0.0). 10.0.0: `features` and `freeFeatures` are required; every plan page ends with the kit's Free and Premium comparison. Leave out `content` while nothing is on sale and the kit draws its Coming Soon page (see below) |
+| `support` | `SupportTransport` | Required (15.0.0): how About › Contact Support sends a message. On Firebase, `firestoreSupport(db, auth)`. The page, its words, topics and limits are the kit's |
 | `extraPages` | `ExtraPage[]` | Optional: the app's own pages. `under: 'preferences'` or `'account'` puts one inside that parent; left out, it follows the four parents on the list |
 
 6.0.0 removed `order`, `dataExportIn`, `plainHeaders`, `pickers`, `settingsStrings`, `data`, `about.version`, and the `label`, `icon` and `menu` of `plan` and `dataExport`. They are the kit's now.
 
 Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, Premium (7.0.0), the headings (Account, Your Data, Sign In on the Profile page; the app's name, Help, Info), Log Out and Erase Account.
+
+## Contact Support inside the app (15.0.0)
+
+About › Contact Support is a page of its own in every app. A person never leaves the app and never needs a mail app: they write their message and Slide to Send, and the support inbox (`about.supportEmail`) receives an email with their address as Reply-To, so a reply from the inbox reaches them directly.
+
+- **The page, top to bottom:** one line on what happens; **Replies Go To** (the account's name and email, which cannot be changed here); **Topic** (Question, Report a Problem, Billing and Subscription, Suggestion) in the pull-down menu; **Message** (up to 2,000 characters); **Add Screenshot** (optional, one image, reduced on the phone to at most 1280 px and about 0.5 MB); **Details Included** (the app and version, build, phone, system and plan, shown on one line); then **Slide to Send**.
+- **Slide to Send:** a round knob with the send mark on a pill track. Sliding it to the end sends; letting go early returns it, so a stray tap never sends. VoiceOver and TalkBack hear one button, "Slide to Send", and a double-tap sends. It stays off until there is a message.
+- **Message Sent:** a check mark, "Thank you, &lt;name&gt;. Your message is with the &lt;App&gt; team, and we will reply to &lt;email&gt;.", a reference such as **RR-7K2Q9F**, the topic, screenshot and time, and **Done**, which returns to About.
+- **Limits:** five messages per account each hour, enforced by the Firestore rules. When the hour is full, the page says when the next message is possible.
+- **The email:** subject "&lt;App&gt; Support: &lt;Topic&gt;, &lt;Reference&gt;"; the message, then From, Topic, Reference, App, Device, Plan and Account ID; the screenshot attached.
+- **Without an email address** (rare), the page asks the person to write to the inbox instead.
+- **The Page rule:** this page has one job, sending one message to support. It shows no setting, plan or price.
+
+### Setup, once for each app on Firebase
+
+1. **App:** pass `support={firestoreSupport(db, auth)}` (from `app-settings-kit/support-firestore`) to `AppSettings`.
+2. **Rules:** copy `support.rules` into the app's `firestore.rules`, inside `match /databases/{database}/documents`, and replace `SUPPORT_INBOX` with the app's support inbox. Deploy the rules. A person can send only to that inbox, only with their own email as Reply-To, at most five each hour, and cannot read a sent message. `rules-test/` checks every rule in the Firebase emulator (`npm install`, then `npm test`; needs Java).
+3. **Email:** the Firebase project needs the Blaze plan. Install the official **Trigger Email from Firestore** extension (`firebase/firestore-send-email`) with the collection **supportMail**, an SMTP connection for the support inbox (e.g., Gmail with an app password: `smtps://NAME%40gmail.com@smtp.gmail.com:465`, where `%40` stands for the @ of the address, the password kept as the extension's secret), and the inbox as the default From address.
 
 ## Data Export is Premium in every app (12.0.0)
 
@@ -319,6 +342,7 @@ This rule is the standard for every shared kit and every app built on them, incl
 | **Plans** | Choosing and buying a plan: the comparison, prices, Subscribe, Redeem a Code. | Account or app settings |
 | **Data Export** | Writes and shares your data as a file. The only way the full data leaves the app. | Anything else |
 | **About** | The app, help and legal: Features, Rate, Share, Contact Support, help pages, Privacy, Version, Kits. | Settings, account actions |
+| **Contact Support** | Sends one message to the app's support inbox: topic, message, optional screenshot, the details added for support, Slide to Send, then Message Sent. | Settings, plans, prices |
 | **Sign In** | Signing in or creating an account. | Settings, plans |
 | **Welcome** | Greets you once after signing in, then goes Home. | Settings, plans |
 | **App Lock** (PIN, Face ID) | Unlocks the app. | Anything else |

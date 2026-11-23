@@ -1,0 +1,17 @@
+{
+  "name": "app-settings-kit-rules-test",
+  "private": true,
+  "type": "module",
+  "description": "Checks support.rules in the Firebase emulator. Needs Java.",
+  "scripts": {
+    "build": "esbuild ../src/support-firestore.ts --bundle --format=esm --platform=node --external:firebase/* --outfile=sender.mjs",
+    "rules": "node make-rules.mjs",
+    "test": "npm run build && npm run rules && firebase emulators:exec --only firestore --project demo-support \"node support.rules.test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.0",
+    "esbuild": "^0.25.0",
+    "firebase": "^11.10.0",
+    "firebase-tools": "^14.0.0"
+  }
+}

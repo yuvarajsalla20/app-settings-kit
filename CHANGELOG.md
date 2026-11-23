@@ -2,6 +2,22 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 15.0.0 (2026-11-23)
+
+**Contact Support inside the app.** About › Contact Support no longer opens the Mail app, which failed or confused anyone without Mail set up. It is now a page of the kit, the same in every app: Replies Go To (the account's email), a Topic (Question, Report a Problem, Billing and Subscription, Suggestion), the message, an optional screenshot reduced on the phone, the details added for support (app, version, build, phone, system, plan), then **Slide to Send**. After sending, Message Sent shows the reference, e.g., RR-7K2Q9F, and Done returns to About. Needs app-account-kit 8.1.0.
+
+- **Slide to Send** (`SlideToSend`): slide the knob to the end to send; letting go early returns it. VoiceOver and TalkBack hear one button, and a double-tap sends. With reduced motion the knob returns without a spring.
+- **Sending on Firebase** (`app-settings-kit/support-firestore`): `firestoreSupport(db, auth)` writes the message to `supportMail`, which the Trigger Email extension sends to the inbox with the person's email as Reply-To, and counts the hour's messages in `supportLimits/{uid}` in the same write.
+- **The rules** (`support.rules`): only the app's inbox as recipient, only the person's own email as Reply-To, at most five messages an hour, no reading of sent messages, no attachment that points to a file or link. `rules-test/` checks them in the Firebase emulator (23 checks).
+- **Breaking:** `support` is a required prop. See "Upgrading from 14.x".
+
+### Upgrading from 14.x
+
+1. Move app-account-kit to 8.1.0 and app-settings-kit to 15.0.0.
+2. Pass `support={firestoreSupport(db, auth)}` to `AppSettings`.
+3. Copy `support.rules` into `firestore.rules`, set the inbox, and deploy the rules.
+4. In the Firebase console, on the Blaze plan, install Trigger Email from Firestore with the collection `supportMail` and the support inbox's SMTP connection.
+
 ## 14.0.1 (2026-11-23)
 
 - `plan.features` and `plan.freeFeatures` are optional in the types, as 14.0.0 intended: an app with a plan on sale no longer passes them, because the comparison is on the Plans screen. Coming Soon still needs both, and a missing list is named in development.

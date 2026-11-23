@@ -1,0 +1,47 @@
+    // app-settings-kit 15.0.0: Contact Support. Copy this block inside `match /databases/{database}/documents { ... }`
+    // and set SUPPORT_INBOX to the app's about.supportEmail. A person can only send a message to that one inbox, with
+    // their own email as Reply-To, at most five each hour (counted in supportLimits/{uid} in the same write). Nobody can
+    // read, change or delete a sent message from the app, and the hourly count cannot be reset; the Trigger Email extension
+    // sends each message.
+    function supportInbox() { return 'SUPPORT_INBOX'; }
+    match /supportLimits/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['start', 'count', 'last', 'lastId'])
+        && request.resource.data.start == request.time && request.resource.data.count == 1
+        && request.resource.data.last == request.time && request.resource.data.lastId is string;
+      allow update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['start', 'count', 'last', 'lastId'])
+        && request.resource.data.last == request.time && request.resource.data.lastId is string
+        && (
+          (request.time < resource.data.start + duration.value(1, 'h')
+            && request.resource.data.start == resource.data.start
+            && request.resource.data.count == resource.data.count + 1
+            && request.resource.data.count <= 5)
+          || (request.time >= resource.data.start + duration.value(1, 'h')
+            && request.resource.data.start == request.time
+            && request.resource.data.count == 1)
+        );
+    }
+    match /supportMail/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['to', 'replyTo', 'message', 'uid', 'createdAt'])
+        && request.resource.data.to == supportInbox()
+        && request.resource.data.uid == request.auth.uid
+        && request.auth.token.email is string
+        && request.resource.data.replyTo.lower() == request.auth.token.email.lower()
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.message.keys().hasOnly(['subject', 'text', 'html', 'attachments'])
+        && request.resource.data.message.subject is string && request.resource.data.message.subject.size() <= 200
+        && request.resource.data.message.text is string && request.resource.data.message.text.size() <= 4000
+        && request.resource.data.message.html is string && request.resource.data.message.html.size() <= 20000
+        && (!('attachments' in request.resource.data.message)
+          || (request.resource.data.message.attachments is list
+            && request.resource.data.message.attachments.size() == 1
+            && request.resource.data.message.attachments[0].keys().hasOnly(['filename', 'content', 'encoding', 'contentType'])
+            && request.resource.data.message.attachments[0].encoding == 'base64'
+            && request.resource.data.message.attachments[0].content is string
+            && request.resource.data.message.attachments[0].content.size() <= 700000))
+        && getAfter(/databases/$(database)/documents/supportLimits/$(request.auth.uid)).data.lastId == id
+        && getAfter(/databases/$(database)/documents/supportLimits/$(request.auth.uid)).data.last == request.time;
+    }
