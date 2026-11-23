@@ -83,6 +83,9 @@ export interface SupportStrings {
   noEmail: (inbox: string) => string;
   free: string;
   characters: (used: string, max: string) => string;
+  /** 16.0.0: the line under Slide to Send, and its link, for anyone who prefers the Mail app. */
+  mailInstead: string;
+  mailLink: string;
 }
 
 export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
@@ -142,5 +145,7 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
     noEmail: (inbox) => `Your account has no email address for our reply. Please write to ${inbox}.`,
     free: 'Free',
     characters: (used, max) => `${used} / ${max}`,
+    mailInstead: 'You can also write from your own mail app.',
+    mailLink: 'Email Support',
   },
 };

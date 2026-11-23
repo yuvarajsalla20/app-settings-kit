@@ -122,7 +122,7 @@ export interface SupportSender {
   email: string;
 }
 
-/** The email the support inbox receives, in the shape the Firebase "Trigger Email from Firestore" extension sends. */
+/** The email the support inbox receives, as the kit's email function (`app-settings-kit/support-function`) reads it. */
 export interface SupportMail {
   /** The support inbox: always the app's `about.supportEmail`. The rules allow no other address. */
   to: string;
@@ -186,4 +186,12 @@ export interface SupportTransport {
   send: (mail: SupportMail, id: string) => Promise<void>;
   /** The signed-in account's id, added to the email so support can find the account. */
   accountId?: () => string | undefined;
+  /**
+   * 16.0.0: whether the owner has turned the in-app form on for this app. Off, About › Contact Support opens the Mail app,
+   * as before. `firestoreSupport` reads `supportForm: true` in the Firestore document `config/app`. A transport without it is on.
+   */
+  formOn?: () => Promise<boolean>;
 }
+
+/** 16.0.0: the owner's switch in `config/app`. Only a literal `supportForm: true` turns the form on; anything else is Mail. */
+export const supportFormSwitch = (data: unknown): boolean => !!data && typeof data === 'object' && (data as { supportForm?: unknown }).supportForm === true;

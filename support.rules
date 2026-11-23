@@ -1,8 +1,8 @@
     // app-settings-kit 15.0.0: Contact Support. Copy this block inside `match /databases/{database}/documents { ... }`
     // and set SUPPORT_INBOX to the app's about.supportEmail. A person can only send a message to that one inbox, with
     // their own email as Reply-To, at most five each hour (counted in supportLimits/{uid} in the same write). Nobody can
-    // read, change or delete a sent message from the app, and the hourly count cannot be reset; the Trigger Email extension
-    // sends each message.
+    // read, change or delete a sent message from the app, and the hourly count cannot be reset; the kit's support email
+    // function (app-settings-kit/support-function, 16.0.0) sends each message.
     function supportInbox() { return 'SUPPORT_INBOX'; }
     match /supportLimits/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;

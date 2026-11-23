@@ -4,3 +4,4 @@
 - Keep the README current: the "Current version" line, the install pin example and the changelog change in the same pull request that raises the version.
 - Apps never override kit words or layout: change the kit default instead (a major version when the change is visible).
 - Every page has one job: follow the "Page rule" in this README. A kit page accepts only what serves its job, and the kit names anything else in a development warning. A new page job goes into the README table in the same pull request.
+- Raising this kit's version also updates its row in app-starter-template's `KITS.md` (the one list of every kit), in a pull request there opened with this one. The starter's `npm run check:kits-list` fails until it does.

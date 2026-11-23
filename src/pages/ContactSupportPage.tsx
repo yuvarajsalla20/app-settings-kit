@@ -1,7 +1,7 @@
 import Feather from '@expo/vector-icons/Feather';
 import { Button, PickerRow, SettingRow, SettingsGroup, useSettingsNav, type AccountTheme } from 'app-account-kit';
 import { useEffect, useRef, useState, type ComponentType } from 'react';
-import { AccessibilityInfo, TextInput as RNTextInput, View } from 'react-native';
+import { AccessibilityInfo, Linking, TextInput as RNTextInput, View } from 'react-native';
 import { SUPPORT_LIMITS, SUPPORT_TOPICS, SupportLimitError, buildSupportMail, cleanSupportMessage, screenshotMegabytes, supportDetailsLine, supportReference, type SupportDetails, type SupportScreenshot, type SupportTopic, type SupportTransport } from '../logic/support';
 import type { SupportStrings } from '../strings';
 import { SlideToSend } from '../parts/SlideToSend';
@@ -23,6 +23,8 @@ export interface ContactSupportPageProps {
   onError?: (where: string, error: unknown) => void;
   Text: TextComponent;
   TextInput?: ComponentType<Record<string, unknown>>;
+  /** 16.0.0: a mailto: address for the inbox, for the Email Support link under Slide to Send. */
+  mailUrl?: string;
   /** For tests: the time now, in milliseconds. */
   now?: () => number;
 }
@@ -36,7 +38,7 @@ const thousands = (n: number) => n.toLocaleString('en-US');
  * and the details added for support, then Slide to Send. After sending, the page shows Message Sent with a reference.
  */
 export function ContactSupportPage(props: ContactSupportPageProps) {
-  const { theme, strings: w, appName, inbox, sender, details, transport, pickScreenshot, onError, Text, now = Date.now } = props;
+  const { theme, strings: w, appName, inbox, sender, details, transport, pickScreenshot, onError, Text, mailUrl, now = Date.now } = props;
   const Input = (props.TextInput ?? RNTextInput) as ComponentType<Record<string, unknown>>;
   const nav = useSettingsNav();
   const [topic, setTopic] = useState<SupportTopic>('question');
@@ -59,7 +61,27 @@ export function ContactSupportPage(props: ContactSupportPageProps) {
   }, [sent, w.sentTitle]);
 
   const muted = { color: theme.muted, fontSize: 15, lineHeight: 21 };
-  if (!sender.email) return <Text style={muted}>{w.noEmail(inbox)}</Text>;
+  // 16.0.0: anyone who prefers their own mail app can still write from it, with the same details the Mail way adds.
+  const openMail = () => {
+    if (!mailUrl) return;
+    Linking.openURL(mailUrl).catch((e: unknown) => {
+      onError?.('support-mail', e);
+      if (live.current) setProblem(w.noEmail(inbox));
+    });
+  };
+  const mailLine = mailUrl ? (
+    <View style={{ alignItems: 'center', gap: 8, paddingTop: 4 }}>
+      <Text style={{ color: theme.muted, fontSize: 14, lineHeight: 20, textAlign: 'center' }}>{w.mailInstead}</Text>
+      <Button variant="quiet" small icon="mail" label={w.mailLink} onPress={openMail} />
+    </View>
+  ) : null;
+  if (!sender.email)
+    return (
+      <View style={{ gap: 12 }}>
+        <Text style={muted}>{w.noEmail(inbox)}</Text>
+        {mailLine}
+      </View>
+    );
   const email = sender.email;
 
   if (sent) {
@@ -170,6 +192,7 @@ export function ContactSupportPage(props: ContactSupportPageProps) {
         </View>
       ) : null}
       <SlideToSend theme={theme} label={busy ? w.sending : w.slide} hint={w.slideHint} disabled={!text || blocked} busy={busy} onSend={send} Text={Text as never} />
+      {mailLine}
     </View>
   );
 }
