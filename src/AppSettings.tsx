@@ -1,6 +1,6 @@
 import { PickerRow, SettingsGroup, SettingsScreen, themeContrast, MIN_PASSWORD, type AboutProps, type AccountStrings, type ActionsProps, type Choice, type ExitMenuProps } from 'app-account-kit';
 import { cameraSupported as defaultCameraSupported, pickProfilePhoto } from 'app-account-kit/photo';
-import { Platform, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 import { assemblePages } from './assemble';
@@ -17,6 +17,9 @@ import { PlanCompare, featureParts } from './pages/PlanCompare';
 import { createOneAtATime } from './logic/oneAtATime';
 import { DEFAULT_SETTINGS_STRINGS, type SettingsStrings } from './strings';
 import type { DataExportConfig, ExtraPage, PlanConfig, PlanFeature } from './types';
+import { ContactSupportPage } from './pages/ContactSupportPage';
+import { pickScreenshot } from './parts/pickScreenshot';
+import { supportDevice, type SupportTransport } from './logic/support';
 
 /** 12.0.0: a plan feature line that names Data Export. */
 const EXPORT_WORD = /data export/i;
@@ -26,7 +29,7 @@ type AccountScreenProps = ComponentProps<typeof SettingsScreen>;
 /**
  * 5.0.0: what an app gives the About page. Everything the approved page shows is required.
  */
-export type AboutConfig = Omit<AboutProps, 'version' | 'logo' | 'showHeader' | 'featuresUrl' | 'rate' | 'share' | 'kits'> & {
+export type AboutConfig = Omit<AboutProps, 'version' | 'logo' | 'showHeader' | 'featuresUrl' | 'rate' | 'share' | 'kits' | 'supportPage'> & {
   /**
    * The app's one master logo (its glossy app icon), shown under the About title at 104 pt. Pass the same file the app uses
    * everywhere, at least 312 px square (3x) so it stays sharp; 1024 px is best. Smaller images are flagged in development.
@@ -106,6 +109,12 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
    * camera check are app-account-kit's `pickProfilePhoto` and `cameraSupported` unless given.
    */
   photo: Omit<NonNullable<AccountScreenProps['photo']>, 'pick' | 'cameraSupported'> & Partial<Pick<NonNullable<AccountScreenProps['photo']>, 'pick' | 'cameraSupported'>>;
+  /**
+   * 15.0.0: how About › Contact Support sends a message. Required: every app has the in-app Contact Support page, drawn by
+   * the kit. Apps on Firebase pass `firestoreSupport(db, auth)` from `app-settings-kit/support-firestore`; the message goes to
+   * `about.supportEmail` with the person's email as Reply-To. The page, its words, topics and limits are the kit's.
+   */
+  support: SupportTransport;
   /** More pages of the app's own (Connect as Family, say). Add `under: 'preferences'` to make one a row on Preferences, or `under: 'account'` for Account. */
   extraPages?: readonly ExtraPage[];
 };
@@ -129,7 +138,7 @@ const LOCKED_PROPS = ['order', 'dataExportIn', 'plainHeaders', 'pickers', 'setti
  * Everything app-account-kit takes (theme, strings, components, profile, about, actions...) passes straight through.
  */
 export function AppSettings(props: AppSettingsProps) {
-  const { preferences, dataExport, plan, extraPages, strings, about: aboutIn, build: ownBuild, appPackage, kitSources, appearance, security, photo: photoIn, password: passwordIn, components: componentsIn, exitMenu: exitExtras, profile: profileIn, ...restIn } = props;
+  const { support, preferences, dataExport, plan, extraPages, strings, about: aboutIn, build: ownBuild, appPackage, kitSources, appearance, security, photo: photoIn, password: passwordIn, components: componentsIn, exitMenu: exitExtras, profile: profileIn, ...restIn } = props;
   // 6.0.0: the order, the place of Data Export, the headers, the pickers and the centered photo are the kit's. Anything an app
   // still passes for them is dropped here and named in development.
   const rest = { ...restIn } as typeof restIn & Record<string, unknown>;
@@ -140,8 +149,9 @@ export function AppSettings(props: AppSettingsProps) {
   // Version and Kits filled in from the build and package.json, unless the app passed its own.
   // 5.0.0: the approved About in every app: the title "About" with the logo under it, then every row. Nothing here can be left out.
   const about = useMemo<AboutProps>(() => {
-    const { appStoreId, playPackage: ownPlayPackage, shareMessage, ...restAbout } = aboutIn as AboutConfig & { version?: unknown };
+    const { appStoreId, playPackage: ownPlayPackage, shareMessage, ...restAbout } = aboutIn as AboutConfig & { version?: unknown; supportPage?: ReactNode };
     delete (restAbout as { version?: unknown }).version;
+    delete (restAbout as { supportPage?: unknown }).supportPage;
     // 8.0.0: Version from the app itself and Kits from its package.json, the same in every app.
     const build = expoBuild();
     const version = { number: build.version, ...versionLines(build) };
@@ -304,13 +314,36 @@ export function AppSettings(props: AppSettingsProps) {
   // account does not pay for Premium (12.0.0) the row shows only the gold padlock, and a tap opens the plan page (or the app's
   // `onLocked`); once it does, the Choose menu. The app's own value and badge are not used, so every app reads the same.
   const exportLocked = !exportOpen;
+  // 15.0.0: About › Contact Support is the kit's in-app form in every app. The details it adds come from the app and the phone.
+  const build = expoBuild();
+  const constants = (Platform as { constants?: { Model?: string } }).constants;
+  const phone = supportDevice(Platform.OS, Platform.Version, constants?.Model, (Platform as { isPad?: boolean }).isPad);
+  const supportPage = support ? (
+    <ContactSupportPage
+      theme={rest.theme}
+      strings={words.support}
+      appName={appName}
+      inbox={about.supportEmail}
+      sender={{ name: profileIn?.name || undefined, email: profileIn?.email || undefined }}
+      details={{ appName, version: build.version, ...(build.buildNumber ? { build: build.buildNumber } : {}), ...phone, plan: plan.subscribed ? words.plan : words.support.free }}
+      transport={support}
+      pickScreenshot={pickScreenshot}
+      onError={rest.onError as ((where: string, error: unknown) => void) | undefined}
+      Text={(componentsIn?.Text ?? Text) as never}
+      {...(componentsIn?.TextInput ? { TextInput: componentsIn.TextInput as never } : {})}
+    />
+  ) : undefined;
+  const noSupport = !support;
+  useEffect(() => {
+    if (noSupport && typeof __DEV__ !== 'undefined' && __DEV__) console.warn('app-settings-kit: support is required. Pass support={firestoreSupport(db, auth)} from app-settings-kit/support-firestore so Contact Support can send messages.');
+  }, [noSupport]);
   const pages = assemblePages({
     dataExport: { row: kitRow({ id: dataExport.id, tint: tints.data }), content: null, menu, premium: true, locked: exportLocked, ...(dataExport.onLocked ? { onLocked: dataExport.onLocked } : { lockedOpens: plan.id ?? DEFAULT_IDS.plan }) },
     plan: planSection,
     extraPages: allPages,
     strings: words,
   });
-  return <SettingsScreen {...(rest as unknown as AccountScreenProps)} profile={profile} plainHeaders={LOCKED_LOOK.plainHeaders} pickers={LOCKED_LOOK.pickers} exitMenu={exitMenu} about={about} components={components} strings={accountStrings} app={{ content: preferencesPage }} photo={photo} password={password} extraPages={pages.extraPages} hubOrder={pages.hubOrder} />;
+  return <SettingsScreen {...(rest as unknown as AccountScreenProps)} profile={profile} plainHeaders={LOCKED_LOOK.plainHeaders} pickers={LOCKED_LOOK.pickers} exitMenu={exitMenu} about={supportPage ? { ...about, supportPage } : about} components={components} strings={accountStrings} app={{ content: preferencesPage }} photo={photo} password={password} extraPages={pages.extraPages} hubOrder={pages.hubOrder} />;
 }
 
 /** 6.0.0: only the page id and the tile color (the app's palette) come from the app; the name and icon are the kit's. 13.0.0: neither row takes a value or pill. */

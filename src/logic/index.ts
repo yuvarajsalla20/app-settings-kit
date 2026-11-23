@@ -9,3 +9,5 @@ export { createOneAtATime } from './oneAtATime';
 export { LOGO_MIN_PIXELS, aboutProblems, logoPixels, missingAboutParts, titleCaseStrings } from './about';
 export type { AboutParts } from './about';
 export { SWIPE_BACK, finishesSwipe, isEdgeSwipe } from './swipe';
+export { SUPPORT_COLLECTIONS, SUPPORT_LIMITS, SUPPORT_TOPICS, SupportLimitError, buildSupportMail, cleanSupportMessage, nextSupportWindow, screenshotMegabytes, supportDetailsLine, supportDevice, supportReference } from './support';
+export type { SupportDetails, SupportDraft, SupportMail, SupportScreenshot, SupportSender, SupportTopic, SupportTransport, SupportWindow } from './support';

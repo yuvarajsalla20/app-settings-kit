@@ -47,6 +47,42 @@ export interface SettingsStrings {
    * Google Play subscriptions on Android, Apple ID settings everywhere else.
    */
   deleteWarning: (planName: string, subscribed: boolean, platform?: string) => string;
+  /** 15.0.0: the words of About › Contact Support, the in-app form. */
+  support: SupportStrings;
+}
+
+/** 15.0.0: every word of the Contact Support page and its confirmation. */
+export interface SupportStrings {
+  intro: (appName: string) => string;
+  repliesTo: string;
+  topic: string;
+  message: string;
+  placeholder: string;
+  addScreenshot: string;
+  optional: string;
+  removeScreenshot: string;
+  screenshotAdded: (megabytes: number) => string;
+  screenshotFailed: string;
+  details: string;
+  detailsNote: string;
+  slide: string;
+  slideHint: string;
+  sending: string;
+  sentTitle: string;
+  sentBody: (name: string | undefined, appName: string, email: string) => string;
+  reference: string;
+  screenshot: string;
+  attached: string;
+  none: string;
+  sentAt: string;
+  today: (time: string) => string;
+  quote: string;
+  done: string;
+  limit: (perHour: number, time: string) => string;
+  failed: string;
+  noEmail: (inbox: string) => string;
+  free: string;
+  characters: (used: string, max: string) => string;
 }
 
 export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
@@ -75,4 +111,36 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
       ? ` Your ${planName} subscription keeps billing until you cancel it in ${platform === 'android' ? 'Google Play subscriptions' : 'your Apple ID settings'}, so cancel it first.`
       : '') +
     ' Use Data Export first if you want a copy.',
+  support: {
+    intro: (appName) => `Write to the ${appName} team here. We will reply to the email address on your account.`,
+    repliesTo: 'Replies Go To',
+    topic: 'Topic',
+    message: 'Message',
+    placeholder: 'Describe how we can help, e.g., the screen you were on and what you expected to see.',
+    addScreenshot: 'Add Screenshot',
+    optional: 'Optional',
+    removeScreenshot: 'Remove Screenshot',
+    screenshotAdded: (megabytes) => `Screenshot added. Reduced to ${megabytes} MB before sending.`,
+    screenshotFailed: 'The screenshot could not be added. Please choose another image.',
+    details: 'Details Included',
+    detailsNote: 'These details help us answer accurately. Nothing else from your phone is shared.',
+    slide: 'Slide to Send',
+    slideHint: 'Double-tap to send the message.',
+    sending: 'Sending',
+    sentTitle: 'Message Sent',
+    sentBody: (name, appName, email) => `Thank you${name ? `, ${name}` : ''}. Your message is with the ${appName} team, and we will reply to ${email}.`,
+    reference: 'Reference',
+    screenshot: 'Screenshot',
+    attached: 'Attached',
+    none: 'None',
+    sentAt: 'Sent',
+    today: (time) => `Today at ${time}`,
+    quote: 'Please quote the reference if you write to us again about this message.',
+    done: 'Done',
+    limit: (perHour, time) => `You have sent ${perHour === 5 ? 'five' : perHour} messages in the last hour. You can send another at ${time}.`,
+    failed: 'Your message could not be sent. Please check your connection and try again.',
+    noEmail: (inbox) => `Your account has no email address for our reply. Please write to ${inbox}.`,
+    free: 'Free',
+    characters: (used, max) => `${used} / ${max}`,
+  },
 };

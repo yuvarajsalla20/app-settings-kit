@@ -20,5 +20,6 @@ export const fullProps = (over: Partial<AppSettingsProps> = {}): AppSettingsProp
   appearance: { value: 'system', onChange: () => {} },
   dataExport: { formats: [CSV] },
   plan: { id: 'vip', content: <Text>VIP page</Text>, features: ['Shared Ledger'], freeFeatures: ['Unlimited Expenses'] },
+  support: { newId: () => 'abc123xyz', send: async () => {} },
   ...over,
 });
