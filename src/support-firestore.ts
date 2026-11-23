@@ -14,13 +14,16 @@ interface SignedIn {
  *
  *   import { firestoreSupport } from 'app-settings-kit/support-firestore';
  *   <AppSettings support={firestoreSupport(db, auth)} ... />
+ *
+ * `db` and `auth` may be null in a build without Firebase settings: the page still opens and Send says it could not send.
  */
-export const firestoreSupport = (db: Firestore, auth: SignedIn): SupportTransport => ({
-  newId: () => doc(collection(db, SUPPORT_COLLECTIONS.mail)).id,
-  accountId: () => auth.currentUser?.uid,
+export const firestoreSupport = (db: Firestore | null, auth: SignedIn | null): SupportTransport => ({
+  // Without Firebase (a build with no config) the page still opens, and Send reports the problem in plain words.
+  newId: () => (db ? doc(collection(db, SUPPORT_COLLECTIONS.mail)).id : Math.random().toString(36).slice(2, 10)),
+  accountId: () => auth?.currentUser?.uid,
   send: async (mail: SupportMail, id: string) => {
-    const uid = auth.currentUser?.uid;
-    if (!uid) throw new Error('Contact Support needs a signed-in account.');
+    const uid = auth?.currentUser?.uid;
+    if (!db || !uid) throw new Error('Contact Support needs Firebase and a signed-in account.');
     const limitRef = doc(db, SUPPORT_COLLECTIONS.limits, uid);
     const seen = await getDoc(limitRef);
     const data = seen.exists() ? (seen.data() as { start?: Timestamp; count?: number }) : null;
