@@ -41,7 +41,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "~19.3.0",
     "@types/react-test-renderer": "^19.3.1",
-    "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#a09e6e94896b254e7422145a0a41b92ede2fb249",
+    "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#a3464f4483ff86ebf6c3312a3d9aaba317271f79",
     "expo-application": "~58.1.2",
     "expo-constants": "~58.0.15",
     "expo-image-manipulator": "~58.0.16",
