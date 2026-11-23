@@ -80,7 +80,7 @@ describe('13.1.0 shared headers', () => {
     expect(onSave).toHaveBeenCalled();
   });
 
-  it('greets with Hi and the nickname, else the app name, and opens Profile from the photo', () => {
+  it('greets with Hi and the nickname, else the app name, and opens Settings from the photo (14.0.0: always read as Settings)', () => {
     expect(homeGreeting(' Yuva ', 'Sample App')).toBe('Hi Yuva');
     expect(homeGreeting('', 'Sample App')).toBe('Sample App');
     expect(homeInitial(null, 'Sample App')).toBe('S');
@@ -92,8 +92,8 @@ describe('13.1.0 shared headers', () => {
       root = create(<HomeHeader name="Yuva" fallbackName="Sample App" onOpenProfile={open} button={{ icon: 'search', label: 'Search', onPress: vi.fn() }} />);
     });
     expect(texts(root)).toEqual(['Hi Yuva', 'Y']);
-    expect(root.root.findAll((n) => n.type === 'Pressable').map((n) => n.props.accessibilityLabel)).toEqual(['Search', 'Profile']);
-    press(root, 'Profile');
+    expect(root.root.findAll((n) => n.type === 'Pressable').map((n) => n.props.accessibilityLabel)).toEqual(['Search', 'Settings']);
+    press(root, 'Settings');
     expect(open).toHaveBeenCalled();
   });
 

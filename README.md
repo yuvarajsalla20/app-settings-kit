@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 13.3.0** (tag `v13.3.0`). Needs app-account-kit **7.35.0** or later.
+**Current version: 14.0.0** (tag `v14.0.0`). Needs app-account-kit **7.37.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v7.31.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v13.3.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v14.0.0>"
 },
 "kitVersions": {
   "app-account-kit": "v7.31.0",
-  "app-settings-kit": "v13.3.0"
+  "app-settings-kit": "v14.0.0"
 }
 ```
 
@@ -144,7 +144,7 @@ The gold is app-account-kit's `theme.premium`, by default `tints.rate`, the comp
 
 ## The plan page and the Free and Premium comparison (10.0.0)
 
-Every app shows its plan page, and every plan page ends with the same comparison table, so a person can always tell which features are Premium and which are free:
+Every app shows its plan page. While nothing is on sale, the page ends with the comparison table, so a person can always tell which features will be Premium and which are free. With a plan on sale (14.0.0), the comparison lives on the Plans screen, where a plan is chosen, and the Subscription page shows plan facts only (the Page rule):
 
 ```tsx
 plan={{
@@ -158,7 +158,7 @@ plan={{
 - **The comparison:** under the heading **Compare Free and Premium**, one table with a **Free** column and a **Premium** column under the award mark, tinted in the plan's color (the theme's `tints.rate`). What the plan adds comes first, with tiles in the plan's color and a dash under Free; what every account has follows, with quiet tiles (`tints.version`) and a tick in both columns. With `subscribed`, the Premium column reads **Your Plan**. Each entry is a line, or `{ label, detail?, icon? }` (a Feather icon name). The table, its words and its colors are the kit's; the app gives only the two lists.
 - **The row:** **Subscription**, with the award mark and nothing on its right, in every app and for every account (13.0.0). The page it opens is titled **Subscription**; which plan the account holds (Free, Premium, Coming Soon) is shown on the page, not on the row.
 - **Nothing on sale yet:** leave out `content`. The page opens with **Premium**, **Coming Soon** and "Premium for &lt;App&gt; will be available soon.", then the comparison. Nothing to buy.
-- **On sale:** pass `content` (app-subscriptions-kit's `PremiumPage`). The page shows it, then the comparison. Since app-subscriptions-kit 3.0.0, `PremiumPage` no longer repeats the feature list; subscribers see only the features that have their own controls, under **Premium Settings**.
+- **On sale:** pass `content` (app-subscriptions-kit's `PremiumPage`). The page shows only that: status, Included With Premium, Your Plan and Cancel. The comparison is on app-subscriptions-kit's Plans screen, so `features` and `freeFeatures` are not needed (14.0.0).
 
 ## Data Export
 
@@ -193,10 +193,13 @@ Give an `extraPages` entry `under: 'preferences'` to make it a row on Preference
   preferences={APP_OWN_ROWS}
   extraPages={[
     { id: 'family', label: 'Connect as Family', icon: 'users', content: FAMILY_PAGE, under: 'preferences' },
-    { id: 'widgets', label: 'Home Screen Widgets', icon: 'grid', content: WIDGETS_PAGE, under: 'preferences', group: 'Widgets' },
+    { id: 'effects', label: 'Background Effects', icon: 'wind', content: null, under: 'preferences', group: 'Personalize', toggle: EFFECTS },
+    { id: 'widgets', label: 'Home Screen Widgets', icon: 'grid', content: WIDGETS_HELP, under: 'about' }, // nothing to set: a help page in About
   ]}
 />
 ```
+
+A page on Preferences holds something to set: a switch, a choice or a page of settings. A page with nothing to set, such as how to add a widget, is help: give it `under: 'about'` (14.0.0) and it sits in About's Help card after Contact Support.
 
 The list stays About, Profile, Preferences, plan.
 
@@ -302,6 +305,26 @@ src/
   logic/              pure functions (app-settings-kit/logic): about, kits, version, order, oneAtATime, swipe
 tests/                logic, build stamp, no colors, and the real screens rendered with a small React Native stand-in
 ```
+
+## Page rule: every page has one job
+
+This rule is the standard for every shared kit and every app built on them, including each new app made from app-starter-template. Each page, menu and sheet does one job, written in one line below. A page shows only what serves that job. Another page may point to it with one row or link, but never repeats it or draws it. One fact is listed in one place: a feature list, a comparison or an export exists once, and every page that needs it reads that one source. The kits enforce it: a kit page accepts only what serves its job, and names anything else in a development warning.
+
+| Page | Its one job | Points to, never holds |
+|---|---|---|
+| **Settings** (the list) | Opens the four parents: About, Profile, Preferences, Subscription. | Any setting or action |
+| **Profile** | Who you are and your account: photo, nickname, email, password, Data Export, Log Out, Erase Account. | App settings, plan facts |
+| **Preferences** | Choices that change how the app behaves or looks, including Personalize, Security and Appearance. | Explanations, how-to steps, plan facts |
+| **Subscription** | Your plan and billing: status, Included With Premium, Change Plan, Restore, Cancel; Coming Soon while nothing is on sale. | Feature switches, the plan comparison once a plan is on sale |
+| **Plans** | Choosing and buying a plan: the comparison, prices, Subscribe, Redeem a Code. | Account or app settings |
+| **Data Export** | Writes and shares your data as a file. The only way the full data leaves the app. | Anything else |
+| **About** | The app, help and legal: Features, Rate, Share, Contact Support, help pages, Privacy, Version, Kits. | Settings, account actions |
+| **Sign In** | Signing in or creating an account. | Settings, plans |
+| **Welcome** | Greets you once after signing in, then goes Home. | Settings, plans |
+| **App Lock** (PIN, Face ID) | Unlocks the app. | Anything else |
+| **Menus and sheets** | One choice, or one confirmation, for the row that opened it. | A second task |
+
+Each app lists the job of each of its own screens in its CLAUDE.md, and a change that gives a page a second job moves that job to the page it belongs to.
 
 ## Writing rule: every word is professional
 

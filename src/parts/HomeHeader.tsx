@@ -14,11 +14,14 @@ export interface HomeHeaderProps {
   photo?: string | null;
   /** Opens Profile (or Settings). */
   onOpenProfile: () => void;
-  /** What VoiceOver says for the photo. Default "Profile". */
+  /** @deprecated 14.0.0: the photo opens Settings in every app, and VoiceOver and TalkBack say "Settings". The app's label is not used. */
   profileLabel?: string;
   /** One optional button beside the photo, e.g., Search. */
   button?: HeaderButtonSpec;
 }
+
+/** 14.0.0: what the Home photo is called for VoiceOver and TalkBack in every app. It opens Settings. */
+export const HOME_PHOTO_LABEL = 'Settings';
 
 type TextLike = ComponentType<TextProps>;
 
@@ -63,7 +66,8 @@ export function makeHomeHeader(theme: HeaderTheme, components: { Text?: TextLike
     pressed: { opacity: 0.8 },
   });
 
-  return function HomeHeader({ name, fallbackName, email, photo, onOpenProfile, profileLabel = 'Profile', button }: HomeHeaderProps) {
+  return function HomeHeader({ name, fallbackName, email, photo, onOpenProfile, profileLabel, button }: HomeHeaderProps) {
+    if (profileLabel !== undefined && profileLabel !== HOME_PHOTO_LABEL && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: HomeHeader profileLabel "${profileLabel}" is not used. The photo opens Settings in every app and is read as "${HOME_PHOTO_LABEL}".`);
     const greeting = homeGreeting(name, fallbackName);
     const buttons = limitButtons(button ? [button] : [], 'HomeHeader').slice(0, 1);
     return (
@@ -72,7 +76,7 @@ export function makeHomeHeader(theme: HeaderTheme, components: { Text?: TextLike
           {greeting}
         </Text>
         <HeaderButtons buttons={buttons} />
-        <Pressable onPress={onOpenProfile} accessibilityRole="button" accessibilityLabel={profileLabel} hitSlop={8} style={({ pressed }) => [styles.photo, pressed && styles.pressed]}>
+        <Pressable onPress={onOpenProfile} accessibilityRole="button" accessibilityLabel={HOME_PHOTO_LABEL} hitSlop={8} style={({ pressed }) => [styles.photo, pressed && styles.pressed]}>
           {photo ? <Image source={{ uri: photo }} style={styles.image} accessibilityIgnoresInvertColors /> : name || fallbackName ? <Text style={styles.initial}>{homeInitial(name, fallbackName, email)}</Text> : <Feather name="user" size={22} color={theme.ink} />}
         </Pressable>
       </View>

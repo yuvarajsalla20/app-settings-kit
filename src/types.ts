@@ -6,7 +6,8 @@ export type AccountExtraPage = NonNullable<SettingsScreenProps['extraPages']>[nu
 
 /**
  * A page the app adds (app-account-kit's `extraPages` entry). `under` places it:
- * left out, a parent on the list; `'account'`, a row on Account; `'preferences'` (or app-account-kit's `'app'`), a row on Preferences (since 2.2.0).
+ * left out, a parent on the list; `'account'`, a row on Account; `'preferences'` (or app-account-kit's `'app'`), a row on Preferences (since 2.2.0);
+ * `'about'` (14.0.0, app-account-kit 7.37.0), a help page in About's Help card. A page with nothing to set goes under About, not Preferences (the Page rule).
  * Back from a page inside a parent returns to that parent.
  */
 export type ExtraPage = Omit<AccountExtraPage, 'under'> & { under?: AccountExtraPage['under'] | 'preferences' };
