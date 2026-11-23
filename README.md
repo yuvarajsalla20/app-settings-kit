@@ -105,7 +105,7 @@ import { firestoreSupport } from 'app-settings-kit/support-firestore';
     onLocked: OPEN_PLANS,                  // optional: leave out to open the kit's plan page
   }}                                       // 12.0.0: Premium in every app, locked unless plan.subscribed
   plan={{ id: 'premium', subscribed: PAYS_NOW, content: PLAN_PAGE }}   // 13.0.0: the Subscription row, nothing on its right
-  support={firestoreSupport(DB, AUTH)}     // required (15.0.0): how Contact Support sends; the page is the kit's
+  support={firestoreSupport(DB, AUTH)}     // 16.0.0: the in-app form while supportForm is true in config/app; otherwise the Mail app
   extraPages={APP_EXTRA_PAGES}             // optional
 />
 ```
