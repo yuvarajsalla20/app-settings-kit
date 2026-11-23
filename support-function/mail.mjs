@@ -49,3 +49,10 @@ export const supportMailOptions = (doc, inbox, appName) => {
 
 /** Whether a document has already been handled, so a repeated event never sends the same message twice. */
 export const alreadyHandled = (doc) => !!doc?.delivery?.state;
+
+/**
+ * 19.0.1: whether the function must create the default Firebase app. firebase-functions makes its own named app
+ * (`__FIREBASE_FUNCTIONS_SDK__`) to read the triggering document, so "any app exists" is not enough: the check is for
+ * the default app by name.
+ */
+export const needsDefaultApp = (apps) => !apps.some((app) => app && app.name === '[DEFAULT]');

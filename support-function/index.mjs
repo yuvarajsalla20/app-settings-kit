@@ -24,9 +24,9 @@ import { logger } from 'firebase-functions';
 import { defineSecret, defineString } from 'firebase-functions/params';
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import nodemailer from 'nodemailer';
-import { alreadyHandled, supportMailOptions } from './mail.mjs';
+import { alreadyHandled, needsDefaultApp, supportMailOptions } from './mail.mjs';
 
-export { supportMailOptions, isPlainEmail, alreadyHandled, MAIL_LIMITS } from './mail.mjs';
+export { supportMailOptions, isPlainEmail, alreadyHandled, needsDefaultApp, MAIL_LIMITS } from './mail.mjs';
 
 const SMTP_USER = defineString('SUPPORT_SMTP_USER', { description: 'The support inbox address, e.g., hellosupportcare@gmail.com. Support email is sent from and to this address.' });
 const APP_NAME = defineString('SUPPORT_APP_NAME', { description: "The app's name, shown as the sender, e.g., RingRinga." });
@@ -40,7 +40,7 @@ export const createSupportMail = ({ region = 'us-central1' } = {}) =>
     if (!snap) return;
     const doc = snap.data();
     if (alreadyHandled(doc)) return;
-    if (!getApps().length) initializeApp();
+    if (needsDefaultApp(getApps())) initializeApp();
     const ref = getFirestore().doc(snap.ref.path);
     try {
       const options = supportMailOptions(doc, SMTP_USER.value(), APP_NAME.value());

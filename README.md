@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 19.0.0** (tag `v19.0.0`). Needs app-account-kit **10.0.0** or later.
+**Current version: 19.0.1** (tag `v19.0.1`). Needs app-account-kit **10.0.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v8.1.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v19.0.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v19.0.1>"
 },
 "kitVersions": {
   "app-account-kit": "v8.1.0",
-  "app-settings-kit": "v19.0.0"
+  "app-settings-kit": "v19.0.1"
 }
 ```
 
@@ -163,7 +163,7 @@ About › Contact Support is a page of its own in every app. A person never leav
    export { supportMail } from 'app-settings-kit/support-function';
    ```
 
-   `functions/.npmrc` holds `legacy-peer-deps=true`, so the function installs only what it uses, not the app's React Native packages. The first `firebase deploy --only functions` asks for **SUPPORT_SMTP_USER** (the inbox address), **SUPPORT_APP_NAME** (e.g., RingRinga) and the secret **SUPPORT_SMTP_PASSWORD** (the app password), and keeps them for later deploys. A database outside us-central1 (or nam5) uses `createSupportMail({ region })` instead. The Firebase Trigger Email extension is not needed; Firebase retires all extensions on 31 March 2027.
+   `functions/.npmrc` holds `legacy-peer-deps=true`, so the function installs only what it uses, not the app's React Native packages. The app's `package.json` installs those packages before each deploy: `"predeploy:functions": "npm --prefix functions install --no-package-lock --no-audit --no-fund"` beside `"deploy:functions": "firebase deploy --only functions"`. Before the first deploy, turn on the Secret Manager API for the project (Google Cloud console, APIs and Services, Secret Manager API, Enable); without it the deploy stops with a 403 error. The first `firebase deploy --only functions` asks for **SUPPORT_SMTP_USER** (the inbox address), **SUPPORT_APP_NAME** (e.g., RingRinga) and the secret **SUPPORT_SMTP_PASSWORD** (the app password), and keeps them for later deploys. A database outside us-central1 (or nam5) uses `createSupportMail({ region })` instead. The Firebase Trigger Email extension is not needed; Firebase retires all extensions on 31 March 2027.
 4. **Switch (16.0.0):** the rules must let the app read `config/app` (`match /config/app { allow read: if true; allow write: if false; }`). In the Firebase console, set `supportForm` (boolean) to `true` in that document and send one test message from the app.
 
 ## Plan mode: Plan · Free or Subscription (18.0.0)
