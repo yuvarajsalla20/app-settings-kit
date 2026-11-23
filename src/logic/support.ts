@@ -122,7 +122,7 @@ export interface SupportSender {
   email: string;
 }
 
-/** The email the support inbox receives, in the shape the Firebase "Trigger Email from Firestore" extension sends. */
+/** The email the support inbox receives, as the kit's email function (`app-settings-kit/support-function`) reads it. */
 export interface SupportMail {
   /** The support inbox: always the app's `about.supportEmail`. The rules allow no other address. */
   to: string;

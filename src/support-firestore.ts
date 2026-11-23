@@ -8,7 +8,7 @@ interface SignedIn {
 
 /**
  * 15.0.0: the kit's way to send Contact Support messages, for apps on Firebase. Each message is one document in
- * `supportMail`, which the Firebase "Trigger Email from Firestore" extension sends to the support inbox. In the same write,
+ * `supportMail`, which the kit's email function (`app-settings-kit/support-function`, 15.1.0) sends to the support inbox. In the same write,
  * `supportLimits/{uid}` counts the messages of the current hour. The Firestore rules in the kit's `support.rules` allow
  * only the app's own inbox as the recipient, the person's own email as Reply-To, and five messages an hour.
  *

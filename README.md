@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 15.0.0** (tag `v15.0.0`). Needs app-account-kit **8.1.0** or later.
+**Current version: 15.1.0** (tag `v15.1.0`). Needs app-account-kit **8.1.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v8.1.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v15.0.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v15.1.0>"
 },
 "kitVersions": {
   "app-account-kit": "v8.1.0",
-  "app-settings-kit": "v15.0.0"
+  "app-settings-kit": "v15.1.0"
 }
 ```
 
@@ -51,6 +51,7 @@ Pin the full commit SHA of a release tag so every build gets exactly the code yo
 | `app-settings-kit/logic` | Pure helpers only, no React Native, for tests in plain Node |
 | `app-settings-kit/support-firestore` | 15.0.0: `firestoreSupport(db, auth)`, how Contact Support sends on Firebase |
 | `app-settings-kit/support.rules` | 15.0.0: the Firestore rules block every app copies into its `firestore.rules` |
+| `app-settings-kit/support-function` | 15.1.0: `supportMail`, the Cloud Function that emails each Contact Support message to the inbox |
 | `app-settings-kit/build-stamp` | `buildStamp()`, plain Node, for `app.config.js` |
 | `app-settings-kit/package.json` | The kit's `version`, for About > Kits |
 
@@ -152,7 +153,14 @@ About › Contact Support is a page of its own in every app. A person never leav
 
 1. **App:** pass `support={firestoreSupport(db, auth)}` (from `app-settings-kit/support-firestore`) to `AppSettings`.
 2. **Rules:** copy `support.rules` into the app's `firestore.rules`, inside `match /databases/{database}/documents`, and replace `SUPPORT_INBOX` with the app's support inbox. Deploy the rules. A person can send only to that inbox, only with their own email as Reply-To, at most five each hour, and cannot read a sent message. `rules-test/` checks every rule in the Firebase emulator (`npm install`, then `npm test`; needs Java).
-3. **Email:** the Firebase project needs the Blaze plan. Install the official **Trigger Email from Firestore** extension (`firebase/firestore-send-email`) with the collection **supportMail**, an SMTP connection for the support inbox (e.g., Gmail with an app password: `smtps://NAME%40gmail.com@smtp.gmail.com:465`, where `%40` stands for the @ of the address, the password kept as the extension's secret), and the inbox as the default From address.
+3. **Email (15.1.0):** the Firebase project needs the Blaze plan. The kit's own Cloud Function, `app-settings-kit/support-function`, sends each message through the support inbox's mail account (e.g., Gmail with an app password) to that same inbox, with the person's email as Reply-To, and records the outcome on the document as `delivery`. It sends only to the inbox it signs in to, whatever a document contains. The app keeps a small `functions` folder:
+
+   ```js
+   // functions/index.js ("type": "module"; dependencies: app-settings-kit at the same pin as the app, firebase-admin, firebase-functions, nodemailer)
+   export { supportMail } from 'app-settings-kit/support-function';
+   ```
+
+   `functions/.npmrc` holds `legacy-peer-deps=true`, so the function installs only what it uses, not the app's React Native packages. The first `firebase deploy --only functions` asks for **SUPPORT_SMTP_USER** (the inbox address), **SUPPORT_APP_NAME** (e.g., RingRinga) and the secret **SUPPORT_SMTP_PASSWORD** (the app password), and keeps them for later deploys. A database outside us-central1 (or nam5) uses `createSupportMail({ region })` instead. The Firebase Trigger Email extension is not needed; Firebase retires all extensions on 31 March 2027.
 
 ## Data Export is Premium in every app (12.0.0)
 
