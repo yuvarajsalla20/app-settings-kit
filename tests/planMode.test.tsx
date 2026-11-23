@@ -2,7 +2,7 @@ import { Text } from 'react-native';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setPlanMode } from 'app-account-kit';
 import { AppSettings } from '../src/AppSettings';
-import { mount, press } from './helpers/render';
+import { mount, press, settle } from './helpers/render';
 import { fullProps as props } from './helpers/props';
 
 const NAMES = ['About', 'Profile', 'Preferences', 'Subscription', 'Plan'];
@@ -34,5 +34,19 @@ describe('plan mode (18.0.0)', () => {
     expect(h.texts().filter((t) => NAMES.includes(t))).toEqual(['About', 'Profile', 'Preferences', 'Subscription']);
     await press(h.byText('Subscription'));
     expect(h.has('The Subscription Page')).toBe(true);
+  });
+
+  it('18.1.0: an app without app-subscriptions-kit passes planMode; "subscription" brings the Subscription row back', async () => {
+    const h = mount(<AppSettings {...props()} planMode={async () => 'subscription'} plan={{ content: <Text>The Subscription Page</Text> }} />, false);
+    await settle();
+    expect(h.texts().filter((t) => NAMES.includes(t))).toEqual(['About', 'Profile', 'Preferences', 'Subscription']);
+    await press(h.byText('Subscription'));
+    expect(h.has('The Subscription Page')).toBe(true);
+  });
+
+  it('18.1.0: a source that fails keeps Plan · Free', async () => {
+    const h = mount(<AppSettings {...props()} planMode={async () => { throw new Error('offline'); }} plan={{}} />, false);
+    await settle();
+    expect(h.texts().filter((t) => NAMES.includes(t))).toEqual(['About', 'Profile', 'Preferences', 'Plan']);
   });
 });
