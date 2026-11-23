@@ -19,10 +19,10 @@ describe('plan mode (18.0.0)', () => {
     expect(h.has('The Subscription Page')).toBe(false);
   });
 
-  it('free: Data Export is open to everyone with no Premium tag, and Erase Account names no subscription', async () => {
+  it('free (19.0.0): Data Export is hidden, with no Premium tag, and Erase Account names no subscription', async () => {
     const h = mount(<AppSettings {...props()} plan={{ content: <Text>P</Text>, subscribed: true }} />, false);
     await press(h.byText('Profile'));
-    expect(h.has('Data Export')).toBe(true);
+    expect(h.has('Data Export')).toBe(false);
     expect(h.has('PREMIUM')).toBe(false);
     await press(h.byText('Erase Account'));
     expect(h.texts().some((t) => t.includes('Premium subscription keeps billing'))).toBe(false);

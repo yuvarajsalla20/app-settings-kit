@@ -266,8 +266,9 @@ export function AppSettings(props: AppSettingsProps) {
   // 12.0.0: Data Export is Premium in every app. Every format is locked unless the account pays for Premium (`plan.subscribed`);
   // a format's own `locked` is not used, so no app can make export free. A tap on the lock opens the plan page unless the
   // app passes its own `onLocked` (e.g., its plans screen).
-  // 18.0.0: open to everyone while the plan mode is 'free'.
-  const exportOpen = !selling || !!plan.subscribed;
+  // 19.0.0: while the plan mode is 'free', Data Export is hidden (app-account-kit 10.0.0 leaves out every Premium page), and
+  // nothing unlocks it.
+  const exportOpen = selling && !!plan.subscribed;
   const exportFormats = useMemo(() => dataExport.formats.map((f) => ({ ...f, locked: !exportOpen })), [dataExport.formats, exportOpen]);
   const ownLocks = dataExport.formats.some((f) => 'locked' in f);
   useEffect(() => {

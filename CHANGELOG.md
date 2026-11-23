@@ -2,6 +2,11 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 19.0.0 (2026-11-23)
+
+- **In free mode, Data Export is hidden.** While the plan mode is `'free'` (the default), every Premium feature is left out, and Data Export is one of them: no row on Profile, and nothing unlocks it. Until now it was open to everyone in free mode. In subscription mode nothing changes: the gold Premium tag, the padlock for free accounts and the Choose menu for Premium.
+- Needs app-account-kit 10.0.0 or later, which hides every Premium row, page and locked option in free mode.
+
 ## 18.1.0 (2026-11-23)
 
 - **The plan mode works in every app.** An app without app-subscriptions-kit passes `planMode={firestorePlanMode(db, auth)}` from the new `app-settings-kit/plan-mode-firestore` entry. `planMode: "subscription"` in Firestore `config/app` then shows the Subscription row and its page (Coming Soon while nothing is on sale), and `subscriptionTesters` limits that to the listed accounts. Missing, `"free"`, or a failed read: Plan · Free.
