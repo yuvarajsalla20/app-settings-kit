@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
  * still works; the full app-account-kit theme (what Settings already takes) fills them all.
  */
 export type HeaderTheme = Pick<AccountTheme, 'accent' | 'ink' | 'text' | 'muted'> &
-  Partial<Pick<AccountTheme, 'surface' | 'border' | 'line' | 'menu'>> & {
+  Partial<Pick<AccountTheme, 'surface' | 'border' | 'line' | 'menu' | 'danger'>> & {
     shadow?: string;
     /** Android: the soft fill of a tonal button and the selected filter chip. Default: the surface color. */
     soft?: string;

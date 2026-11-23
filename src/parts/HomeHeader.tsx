@@ -8,6 +8,8 @@ export interface HomeHeaderProps {
   /** The nickname from the account. The greeting is "Hi <nickname>"; without one it shows `fallbackName` (the app's name). */
   name?: string | null;
   fallbackName: string;
+  /** 13.2.0: the sign-in email. Without a nickname the letter is the email's, the same letter as the avatar in Settings. */
+  email?: string | null;
   /** The profile photo (the account's, else the sign-in provider's). Without one the kit draws the first letter. */
   photo?: string | null;
   /** Opens Profile (or Settings). */
@@ -26,8 +28,9 @@ export const homeGreeting = (name: string | null | undefined, fallbackName: stri
   return n ? `Hi ${n}` : fallbackName;
 };
 
-/** The letter shown when there is no photo: the first letter of the nickname, else of the app's name. */
-export const homeInitial = (name: string | null | undefined, fallbackName: string) => ((name ?? '').trim() || fallbackName).charAt(0).toUpperCase();
+/** The letter shown when there is no photo: the first letter of the nickname, else of the email (13.2.0), else of the app's name. */
+export const homeInitial = (name: string | null | undefined, fallbackName: string, email?: string | null) =>
+  Array.from((name ?? '').trim() || (email ?? '').trim() || fallbackName)[0]?.toUpperCase() ?? '';
 
 /**
  * 13.1.0: the Home header every app shows: "Hi <nickname>" on one line, an optional button and the profile photo on the right.
@@ -60,7 +63,7 @@ export function makeHomeHeader(theme: HeaderTheme, components: { Text?: TextLike
     pressed: { opacity: 0.8 },
   });
 
-  return function HomeHeader({ name, fallbackName, photo, onOpenProfile, profileLabel = 'Profile', button }: HomeHeaderProps) {
+  return function HomeHeader({ name, fallbackName, email, photo, onOpenProfile, profileLabel = 'Profile', button }: HomeHeaderProps) {
     const greeting = homeGreeting(name, fallbackName);
     const buttons = limitButtons(button ? [button] : [], 'HomeHeader').slice(0, 1);
     return (
@@ -70,7 +73,7 @@ export function makeHomeHeader(theme: HeaderTheme, components: { Text?: TextLike
         </Text>
         <HeaderButtons buttons={buttons} />
         <Pressable onPress={onOpenProfile} accessibilityRole="button" accessibilityLabel={profileLabel} hitSlop={8} style={({ pressed }) => [styles.photo, pressed && styles.pressed]}>
-          {photo ? <Image source={{ uri: photo }} style={styles.image} accessibilityIgnoresInvertColors /> : name || fallbackName ? <Text style={styles.initial}>{homeInitial(name, fallbackName)}</Text> : <Feather name="user" size={22} color={theme.ink} />}
+          {photo ? <Image source={{ uri: photo }} style={styles.image} accessibilityIgnoresInvertColors /> : name || fallbackName ? <Text style={styles.initial}>{homeInitial(name, fallbackName, email)}</Text> : <Feather name="user" size={22} color={theme.ink} />}
         </Pressable>
       </View>
     );

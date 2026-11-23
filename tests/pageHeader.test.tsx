@@ -84,6 +84,7 @@ describe('13.1.0 shared headers', () => {
     expect(homeGreeting(' Yuva ', 'Sample App')).toBe('Hi Yuva');
     expect(homeGreeting('', 'Sample App')).toBe('Sample App');
     expect(homeInitial(null, 'Sample App')).toBe('S');
+    expect(homeInitial('', 'Sample App', 'yuva@example.com')).toBe('Y');
     const HomeHeader = makeHomeHeader(THEME);
     const open = vi.fn();
     let root!: ReturnType<typeof create>;
@@ -94,5 +95,18 @@ describe('13.1.0 shared headers', () => {
     expect(root.root.findAll((n) => n.type === 'Pressable').map((n) => n.props.accessibilityLabel)).toEqual(['Search', 'Profile']);
     press(root, 'Profile');
     expect(open).toHaveBeenCalled();
+  });
+
+  it('13.2.0: a danger button uses the danger color and hands its view to a menu', () => {
+    const PageHeader = makePageHeader({ ...THEME, danger: '#B42318' });
+    const anchorRef = { current: null };
+    let root!: ReturnType<typeof create>;
+    act(() => {
+      root = create(<PageHeader title="Completed" onBack={vi.fn()} buttons={[{ icon: 'trash-2', label: 'Clear All', tone: 'danger', anchorRef, onPress: vi.fn() }]} />);
+    });
+    const clear = root.root.find((n) => n.type === 'Pressable' && n.props.accessibilityLabel === 'Clear All');
+    expect(clear.props.collapsable).toBe(false);
+    const icon = clear.findAll((n) => n.props.name === 'trash-2')[0];
+    expect(icon.props.color).toBe('#B42318');
   });
 });
