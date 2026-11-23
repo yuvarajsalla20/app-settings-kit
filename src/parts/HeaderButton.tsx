@@ -1,4 +1,5 @@
 import Feather from '@expo/vector-icons/Feather';
+import type { ElementRef, Ref } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { headerFills, isIos, type HeaderTheme } from './headerLook';
 
@@ -8,6 +9,10 @@ export interface HeaderButtonSpec {
   /** Title Case, e.g., "Add Category". */
   label: string;
   onPress: () => void;
+  /** 13.2.0: "danger" draws the icon in the theme's danger color, for Delete and Clear All. */
+  tone?: 'danger';
+  /** 13.2.0: the button's view, for a pull-down menu that opens from it (app-account-kit `useAnchor().ref`). */
+  anchorRef?: Ref<ElementRef<typeof View>>;
 }
 
 const SIZE_IOS = 44;
@@ -19,6 +24,7 @@ const SIZE_ANDROID = 48;
  */
 export function makeHeaderButtons(theme: HeaderTheme) {
   const fill = headerFills(theme);
+  const ink = (b: HeaderButtonSpec, plain: string) => (b.tone === 'danger' ? theme.danger ?? plain : plain);
   const styles = StyleSheet.create({
     capsule: {
       flexDirection: 'row',
@@ -46,8 +52,8 @@ export function makeHeaderButtons(theme: HeaderTheme) {
       return (
         <View style={styles.capsule}>
           {buttons.map((b) => (
-            <Pressable key={b.label} onPress={b.onPress} accessibilityRole="button" accessibilityLabel={b.label} hitSlop={4} style={({ pressed }) => [styles.inCapsule, pressed && styles.pressed]}>
-              <Feather name={b.icon} size={22} color={theme.text} />
+            <Pressable key={b.label} ref={b.anchorRef} collapsable={false} onPress={b.onPress} accessibilityRole="button" accessibilityLabel={b.label} hitSlop={4} style={({ pressed }) => [styles.inCapsule, pressed && styles.pressed]}>
+              <Feather name={b.icon} size={22} color={ink(b, theme.text)} />
             </Pressable>
           ))}
         </View>
@@ -56,8 +62,8 @@ export function makeHeaderButtons(theme: HeaderTheme) {
     return (
       <View style={styles.tonalRow}>
         {buttons.map((b) => (
-          <Pressable key={b.label} onPress={b.onPress} accessibilityRole="button" accessibilityLabel={b.label} android_ripple={{ color: theme.accent + '33', borderless: false }} style={styles.tonal}>
-            <Feather name={b.icon} size={24} color={theme.accent} />
+          <Pressable key={b.label} ref={b.anchorRef} collapsable={false} onPress={b.onPress} accessibilityRole="button" accessibilityLabel={b.label} android_ripple={{ color: theme.accent + '33', borderless: false }} style={styles.tonal}>
+            <Feather name={b.icon} size={24} color={ink(b, theme.accent)} />
           </Pressable>
         ))}
       </View>

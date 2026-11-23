@@ -95,4 +95,17 @@ describe('13.1.0 shared headers', () => {
     press(root, 'Profile');
     expect(open).toHaveBeenCalled();
   });
+
+  it('13.2.0: a danger button uses the danger color and hands its view to a menu', () => {
+    const PageHeader = makePageHeader({ ...THEME, danger: '#B42318' });
+    const anchorRef = { current: null };
+    let root!: ReturnType<typeof create>;
+    act(() => {
+      root = create(<PageHeader title="Completed" onBack={vi.fn()} buttons={[{ icon: 'trash-2', label: 'Clear All', tone: 'danger', anchorRef, onPress: vi.fn() }]} />);
+    });
+    const clear = root.root.find((n) => n.type === 'Pressable' && n.props.accessibilityLabel === 'Clear All');
+    expect(clear.props.collapsable).toBe(false);
+    const icon = clear.findAll((n) => n.props.name === 'trash-2')[0];
+    expect(icon.props.color).toBe('#B42318');
+  });
 });

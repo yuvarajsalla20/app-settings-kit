@@ -2,6 +2,14 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 13.2.0 (2026-11-23)
+
+**Header buttons for Delete and for menus.** The shared headers now cover every screen of HringNring and Moonpenny:
+
+- **`tone: 'danger'`** on a header button draws its icon in the theme's `danger` color, for Delete and Clear All.
+- **`anchorRef`** on a header button hands its view to a pull-down menu (app-account-kit `useAnchor().ref`), so a menu such as Clear All opens from the button.
+- Nothing changes for an app that does not use them.
+
 ## 13.1.0 (2026-11-22)
 
 **One Home header and one Page header for every app.** A new app no longer draws its own headers:
