@@ -24,6 +24,12 @@ export interface SettingsStrings {
   comingSoon: string;
   /** 7.0.0: the line under the plan's name on its Coming Soon page. */
   comingSoonLine: (appName: string, planName: string) => string;
+  /** 17.0.0: the label at the top of the Your Plan card, the first card on the plan page. */
+  yourPlan: string;
+  /** 17.0.0: the free plan's name on the Your Plan card. */
+  freePlan: string;
+  /** 17.0.0: the line on the Your Plan card for a free account. */
+  freePlanLine: (freeLabel: string) => string;
   /** 10.0.0: the heading over the Free and Premium comparison on the plan page. */
   compareTitle: (planName: string) => string;
   /** 10.0.0: the comparison's first column. */
@@ -99,6 +105,9 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   exportPick: 'Choose',
   comingSoon: 'Coming Soon',
   comingSoonLine: (appName, planName) => `${planName} for ${appName} will be available soon.`,
+  yourPlan: 'Your Plan',
+  freePlan: 'Free',
+  freePlanLine: (f) => `Your account is on the ${f} plan, which includes every free feature.`,
   compareTitle: (planName) => `Compare Free and ${planName}`,
   compareFeature: 'Feature',
   compareFree: 'Free',

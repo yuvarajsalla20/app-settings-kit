@@ -2,7 +2,7 @@ export { APPEARANCE_CHOICES, AppSettings, appStorePage, playStorePage } from './
 export type { AboutConfig, AppearanceChoice, AppSettingsProps } from './AppSettings';
 export { expoBuild } from './expoBuild';
 export { DataExportPage } from './pages/DataExportPage';
-export { ComingSoonPage, type ComingSoonPageProps } from './pages/ComingSoonPage';
+export { ComingSoonPage, FreePlanCard, type ComingSoonPageProps } from './pages/ComingSoonPage';
 export { PlanCompare, featureParts, type PlanCompareProps } from './pages/PlanCompare';
 export { ContactSupportPage, type ContactSupportPageProps } from './pages/ContactSupportPage';
 export { SLIDE_SEND_AT, SlideToSend, slideSends, type SlideToSendProps } from './parts/SlideToSend';

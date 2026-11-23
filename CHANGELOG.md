@@ -2,6 +2,16 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 17.0.0 (2026-11-23)
+
+**The plan page names the plan the account holds.** The Coming Soon page listed what Premium will add but never said which plan the person was on.
+
+- **The Your Plan card comes first** on the Coming Soon page, in every app: "Your Plan", "Free", and "Your account is on the Free plan, which includes every free feature." It matches the card app-subscriptions-kit 8.0.0 draws on a plan page that is on sale, so every app reads the same.
+- New strings: `yourPlan`, `freePlan` and `freePlanLine`. New export `FreePlanCard`.
+- `ComingSoonPage` takes the app's `theme` and, optionally, its `Text`. AppSettings passes both.
+
+Upgrading: nothing to change in apps. The page looks different, so this is a major version.
+
 ## 16.0.0 (2026-11-23)
 
 **Mail or the in-app form, chosen by the owner in Firebase.** Each app decides in its Firestore document `config/app`, without a new build:

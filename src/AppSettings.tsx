@@ -281,7 +281,7 @@ export function AppSettings(props: AppSettingsProps) {
         row: kitRow({ id: plan.id, tint: planTint }),
         content: (
           <View style={{ gap: 16 }}>
-            <ComingSoonPage appName={appName} planName={words.plan} tint={planTint} strings={words} />
+            <ComingSoonPage appName={appName} planName={words.plan} tint={planTint} theme={rest.theme} Text={componentsIn?.Text as never} strings={words} />
             {compare}
           </View>
         ),
