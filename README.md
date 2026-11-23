@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 17.0.0** (tag `v17.0.0`). Needs app-account-kit **8.1.0** or later.
+**Current version: 18.0.0** (tag `v18.0.0`). Needs app-account-kit **9.0.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v8.1.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v17.0.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v18.0.0>"
 },
 "kitVersions": {
   "app-account-kit": "v8.1.0",
-  "app-settings-kit": "v17.0.0"
+  "app-settings-kit": "v18.0.0"
 }
 ```
 
@@ -166,9 +166,18 @@ About › Contact Support is a page of its own in every app. A person never leav
    `functions/.npmrc` holds `legacy-peer-deps=true`, so the function installs only what it uses, not the app's React Native packages. The first `firebase deploy --only functions` asks for **SUPPORT_SMTP_USER** (the inbox address), **SUPPORT_APP_NAME** (e.g., RingRinga) and the secret **SUPPORT_SMTP_PASSWORD** (the app password), and keeps them for later deploys. A database outside us-central1 (or nam5) uses `createSupportMail({ region })` instead. The Firebase Trigger Email extension is not needed; Firebase retires all extensions on 31 March 2027.
 4. **Switch (16.0.0):** the rules must let the app read `config/app` (`match /config/app { allow read: if true; allow write: if false; }`). In the Firebase console, set `supportForm` (boolean) to `true` in that document and send one test message from the app.
 
+## Plan mode: Plan · Free or Subscription (18.0.0)
+
+Which plan row Settings shows follows the plan mode, which the owner sets with `planMode` in the Firestore document `config/app` (app-subscriptions-kit 9.0.0 reads it; app-account-kit 9.0.0 shares it):
+
+- **`"free"`, or missing (the default).** The row reads **Plan** with **Free** on its right. It has no arrow and opens nothing, so nothing in the app is for sale. Data Export is open to everyone with no Premium tag, and Erase Account names no subscription. The Subscription page, Coming Soon and the comparison are not reachable.
+- **`"subscription"`.** The row reads **Subscription** and opens the plan page as described below, with Data Export Premium.
+
+Nothing changes in the app's code: `plan` is passed as before, and the kit decides which row to draw.
+
 ## Data Export is Premium in every app (12.0.0)
 
-Data Export is a Premium feature in every app, and the kit enforces it. An app cannot make it free, and a new app needs nothing more than its formats:
+While a plan is on sale (plan mode `"subscription"`, 18.0.0), Data Export is a Premium feature in every app, and the kit enforces it. In free mode it is open to everyone. An app cannot make it free, and a new app needs nothing more than its formats:
 
 - **The lock follows the plan.** Every format is locked unless `plan.subscribed` is true (the account pays for Premium). A format's own `locked` is not used and is named in development.
 - **The row.** A small gold tag, the award mark and the word "PREMIUM", sits right after the name for every account (11.0.0). While locked, the row shows only the gold padlock; once the account pays, it opens the Choose menu.
@@ -347,7 +356,7 @@ This rule is the standard for every shared kit and every app built on them, incl
 
 | Page | Its one job | Points to, never holds |
 |---|---|---|
-| **Settings** (the list) | Opens the four parents: About, Profile, Preferences, Subscription. | Any setting or action |
+| **Settings** (the list) | Opens the four parents: About, Profile, Preferences, Subscription. In free mode (18.0.0) the last row only states Plan · Free and opens nothing. | Any setting or action |
 | **Profile** | Who you are and your account: photo, nickname, email, password, Data Export, Log Out, Erase Account. | App settings, plan facts |
 | **Preferences** | Choices that change how the app behaves or looks, including Personalize, Security and Appearance. | Explanations, how-to steps, plan facts |
 | **Subscription** | Your plan and billing: status, Included With Premium, Change Plan, Restore, Cancel; Coming Soon while nothing is on sale. | Feature switches, the plan comparison once a plan is on sale |

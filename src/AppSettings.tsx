@@ -1,4 +1,4 @@
-import { PickerRow, SettingsGroup, SettingsScreen, supportMailUrl, themeContrast, MIN_PASSWORD, type AboutProps, type AccountStrings, type ActionsProps, type Choice, type ExitMenuProps } from 'app-account-kit';
+import { PickerRow, SettingsGroup, SettingsScreen, supportMailUrl, themeContrast, usePlanMode, MIN_PASSWORD, type AboutProps, type AccountStrings, type ActionsProps, type Choice, type ExitMenuProps } from 'app-account-kit';
 import { cameraSupported as defaultCameraSupported, pickProfilePhoto } from 'app-account-kit/photo';
 import { Platform, Text, View } from 'react-native';
 import type { ComponentProps, ReactNode } from 'react';
@@ -182,6 +182,10 @@ export function AppSettings(props: AppSettingsProps) {
   // 4.0.0: the kit's words are enforced, so every app reads the same. 7.0.0: the plan's name too: "Premium" in every app.
   const words: SettingsStrings = DEFAULT_SETTINGS_STRINGS;
   const appName = about.appName;
+  // 18.0.0: with nothing on sale (plan mode 'free', the default; app-subscriptions-kit sets it from config/app) the plan row
+  // reads Plan · Free with no page, every feature is open, and nobody holds a subscription to cancel.
+  const selling = usePlanMode() === 'subscription';
+  const subscribed = selling && !!plan.subscribed;
   const locked = useMemo(
     () => ({
       ...titleCaseStrings(appName),
@@ -191,9 +195,9 @@ export function AppSettings(props: AppSettingsProps) {
       app: words.preferences,
       account: words.account,
       // 8.0.0: the Erase Account warning is the kit's too.
-      deleteWarning: words.deleteWarning(words.plan, !!plan.subscribed, Platform.OS),
+      deleteWarning: words.deleteWarning(words.plan, subscribed, Platform.OS),
     }),
-    [appName, words, plan.subscribed],
+    [appName, words, subscribed],
   );
   // The app's own sentences (deleteWarning, describeError text...) still come from `strings`; the kit's words always win.
   const accountStrings = useMemo<Partial<AccountStrings>>(() => ({ ...strings, ...locked }), [strings, locked]);
@@ -244,7 +248,8 @@ export function AppSettings(props: AppSettingsProps) {
   // 12.0.0: Data Export is Premium in every app. Every format is locked unless the account pays for Premium (`plan.subscribed`);
   // a format's own `locked` is not used, so no app can make export free. A tap on the lock opens the plan page unless the
   // app passes its own `onLocked` (e.g., its plans screen).
-  const exportOpen = !!plan.subscribed;
+  // 18.0.0: open to everyone while the plan mode is 'free'.
+  const exportOpen = !selling || !!plan.subscribed;
   const exportFormats = useMemo(() => dataExport.formats.map((f) => ({ ...f, locked: !exportOpen })), [dataExport.formats, exportOpen]);
   const ownLocks = dataExport.formats.some((f) => 'locked' in f);
   useEffect(() => {
@@ -276,7 +281,14 @@ export function AppSettings(props: AppSettingsProps) {
     <PlanCompare theme={rest.theme} gold={planTint} planName={words.plan} features={premiumFeatures} freeFeatures={plan.freeFeatures ?? []}
       subscribed={!!plan.subscribed} Text={componentsIn?.Text as never} strings={words} />
   );
-  const planSection = comingSoon
+  const planSection = !selling
+    ? {
+        // 18.0.0: Plan · Free, a row that only states the plan: no arrow, no page.
+        row: kitRow({ id: plan.id, tint: planTint }),
+        content: null,
+        info: true,
+      }
+    : comingSoon
     ? {
         row: kitRow({ id: plan.id, tint: planTint }),
         content: (
@@ -331,7 +343,7 @@ export function AppSettings(props: AppSettingsProps) {
       appName={appName}
       inbox={about.supportEmail}
       sender={{ name: profileIn?.name || undefined, email: profileIn?.email || undefined }}
-      details={{ appName, version: build.version, ...(build.buildNumber ? { build: build.buildNumber } : {}), ...phone, plan: plan.subscribed ? words.plan : words.support.free }}
+      details={{ appName, version: build.version, ...(build.buildNumber ? { build: build.buildNumber } : {}), ...phone, plan: subscribed ? words.plan : words.support.free }}
       transport={support}
       mailUrl={mailUrl}
       pickScreenshot={pickScreenshot}
@@ -343,6 +355,7 @@ export function AppSettings(props: AppSettingsProps) {
   const pages = assemblePages({
     dataExport: { row: kitRow({ id: dataExport.id, tint: tints.data }), content: null, menu, premium: true, locked: exportLocked, ...(dataExport.onLocked ? { onLocked: dataExport.onLocked } : { lockedOpens: plan.id ?? DEFAULT_IDS.plan }) },
     plan: planSection,
+    planFree: !selling,
     extraPages: allPages,
     strings: words,
   });
