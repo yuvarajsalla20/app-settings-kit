@@ -113,12 +113,13 @@ export interface PlanConfig extends PageRow {
    */
   content?: ReactNode;
   /**
-   * What the plan adds, one entry each (a line, or `{ label, detail, icon }`). 10.0.0: required, and shown on every plan
-   * page, on sale or Coming Soon, in the kit's Free and Premium comparison table.
+   * What the plan adds, one entry each (a line, or `{ label, detail, icon }`), for the kit's Free and Premium comparison.
+   * 14.0.1: needed only while nothing is on sale (no `content`), where Coming Soon shows the comparison; with a plan on sale
+   * the comparison is on the Plans screen (the Page rule), and these lists are not used. Missing on Coming Soon is named in development.
    */
-  features: readonly PlanFeature[];
+  features?: readonly PlanFeature[];
   /** 8.0.0: the person pays for the plan now. Erase Account then also says to cancel the subscription first, and the comparison marks the plan as "Your Plan" (10.0.0). */
   subscribed?: boolean;
-  /** What every account has for free, one entry each. 10.0.0: required, and shown in the same comparison table. */
-  freeFeatures: readonly PlanFeature[];
+  /** What every account has for free, one entry each, for the same comparison. 14.0.1: needed only on Coming Soon, like `features`. */
+  freeFeatures?: readonly PlanFeature[];
 }

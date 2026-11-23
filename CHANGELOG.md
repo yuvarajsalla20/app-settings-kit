@@ -2,6 +2,10 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 14.0.1 (2026-11-23)
+
+- `plan.features` and `plan.freeFeatures` are optional in the types, as 14.0.0 intended: an app with a plan on sale no longer passes them, because the comparison is on the Plans screen. Coming Soon still needs both, and a missing list is named in development.
+
 ## 14.0.0 (2026-11-23)
 
 **The Page rule: every page has one job.** The README states the rule and the job of every kit page, and the kit enforces it.
