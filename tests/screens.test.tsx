@@ -176,14 +176,14 @@ describe('AppSettings', () => {
     expect(h.root.root.findAll((n) => n.props.accessibilityLabel === 'Premium, Your Plan')).toHaveLength(0);
   });
 
-  it('17.0.0: the Coming Soon page opens with the Your Plan card, which names the free plan', async () => {
+  it('20.0.0: the Coming Soon page opens with the Your Plan card, in the Get Premium pattern', async () => {
     const h = mount(<AppSettings {...props()} plan={{ features: ['Workspaces'] }} />, false);
     await press(h.byText('Subscription'));
-    expect(h.has('Your Plan')).toBe(true);
-    expect(h.has('Free')).toBe(true);
-    expect(h.has('Your account is on the Free plan, which includes every free feature.')).toBe(true);
+    expect(h.has('Free Plan')).toBe(true);
+    expect(h.has('Your Current Plan')).toBe(true);
+    expect(h.has('Every free feature is included.')).toBe(true);
     expect(h.has('Coming Soon')).toBe(true);
-    expect(h.root.root.findAll((n) => n.props.accessibilityLabel === 'Your Plan. Free. Your account is on the Free plan, which includes every free feature.').length).toBeGreaterThan(0);
+    expect(h.root.root.findAll((n) => n.props.accessibilityLabel === 'Your Plan. Free Plan. Your Current Plan. Every free feature is included.').length).toBeGreaterThan(0);
   });
 
   it('12.0.0: an app that names Data Export in its features keeps its own line, listed once', async () => {
