@@ -10,7 +10,7 @@ export type { BackButtonProps } from './parts/BackButton';
 export { EdgeSwipeBack } from './parts/EdgeSwipeBack';
 export { makePageHeader } from './parts/PageHeader';
 export type { HeaderConfirm, HeaderFilters, PageHeaderProps } from './parts/PageHeader';
-export { homeGreeting, homeInitial, makeHomeHeader } from './parts/HomeHeader';
+export { HOME_PHOTO_LABEL, homeGreeting, homeInitial, makeHomeHeader } from './parts/HomeHeader';
 export type { HomeHeaderProps } from './parts/HomeHeader';
 export type { HeaderButtonSpec } from './parts/HeaderButton';
 export { MAX_HEADER_BUTTONS } from './parts/headerLook';

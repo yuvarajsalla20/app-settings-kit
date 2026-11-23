@@ -2,6 +2,17 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 14.0.0 (2026-11-23)
+
+**The Page rule: every page has one job.** The README states the rule and the job of every kit page, and the kit enforces it.
+
+- **The comparison lives on Plans.** With a plan on sale (`plan.content`), the Subscription page shows only the app's plan page; the Free and Premium comparison is on the Plans screen, where a plan is chosen. A subscriber no longer sees the same features twice. While nothing is on sale, Coming Soon keeps the comparison. `plan.features` and `plan.freeFeatures` are needed only then.
+- **Help pages live in About.** An extra page with `under: 'about'` is a row in About's Help card (app-account-kit 7.37.0). A page with nothing to set belongs there, not in Preferences.
+- **The Home photo is read as "Settings" in every app.** `HomeHeader`'s `profileLabel` is deprecated and not used; it is named in a development warning. New `HOME_PHOTO_LABEL`.
+- Needs app-account-kit 7.37.0 or later.
+
+Upgrading: move help pages from `under: 'preferences'` to `under: 'about'`, drop `profileLabel`, and drop `plan.features`/`plan.freeFeatures` when a plan is on sale.
+
 ## 13.3.0 (2026-11-23)
 
 **Every sheet uses the kit header.** A picker sheet (a date, a place, a category) now uses the same sheet header as Add Reminder:

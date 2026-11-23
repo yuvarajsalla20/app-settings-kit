@@ -209,9 +209,10 @@ export function AppSettings(props: AppSettingsProps) {
     if (contrast && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: hard to read in this look: ${contrast}.`);
   }, [contrast]);
   // 10.0.0: the comparison needs both lists; an empty one is said in development (the types already require them).
-  const missingLists = [!plan.features?.length && 'plan.features', !plan.freeFeatures?.length && 'plan.freeFeatures'].filter(Boolean).join(' and ');
+  // 14.0.0 Page rule: the comparison shows only while nothing is on sale (Coming Soon); with a plan on sale it lives on the Plans screen.
+  const missingLists = plan.content === undefined || plan.content === null ? [!plan.features?.length && 'plan.features', !plan.freeFeatures?.length && 'plan.freeFeatures'].filter(Boolean).join(' and ') : '';
   useEffect(() => {
-    if (missingLists && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: ${missingLists} is empty. Every plan page shows the Free and Premium comparison, so list what the plan adds and what is free.`);
+    if (missingLists && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: ${missingLists} is empty. The Coming Soon page shows the Free and Premium comparison, so list what the plan adds and what is free.`);
   }, [missingLists]);
   // The menu has no page to draw on, so renderProblem cannot show there: say so in development instead of dropping it quietly.
   const lostProblem = !!(dataExport.renderProblem && !dataExport.onProblem);
@@ -274,12 +275,8 @@ export function AppSettings(props: AppSettingsProps) {
       }
     : {
         row: kitRow({ id: plan.id, tint: planTint }),
-        content: (
-          <View style={{ gap: 16 }}>
-            {plan.content}
-            {compare}
-          </View>
-        ),
+        // 14.0.0 Page rule: with a plan on sale the Subscription page holds plan facts only; the comparison is on the Plans screen.
+        content: plan.content,
       };
   // 8.0.0: Security, when the app has one, is the kit's row in Preferences.
   const allPages: readonly ExtraPage[] = security

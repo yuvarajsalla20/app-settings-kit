@@ -177,13 +177,14 @@ describe('AppSettings', () => {
     expect(said).toEqual(['Data Export, CSV or PDF. Free: Not included. Premium: Included.', 'Sync Across Devices. Free: Included. Premium: Included.']);
   });
 
-  it("10.0.0: a plan on sale shows the app's page and then the same comparison; a subscriber's column reads Your Plan", async () => {
-    const h = mount(<AppSettings {...props()} plan={{ content: <Text>Own plans</Text>, subscribed: true, features: ['Workspaces'], freeFeatures: ['Sync Across Devices'] }} />, false);
-    await press(h.byText('Subscription'));
-    const texts = h.texts();
-    expect(texts.indexOf('Own plans')).toBeGreaterThan(-1);
-    expect(texts.indexOf('Compare Free and Premium')).toBeGreaterThan(texts.indexOf('Own plans'));
-    expect(h.has('Your Plan')).toBe(true);
+  it("14.0.0 Page rule: a plan on sale shows only the app's plan page; the comparison lives on the Plans screen", async () => {
+    for (const subscribed of [true, false]) {
+      const h = mount(<AppSettings {...props()} plan={{ content: <Text>Own plans</Text>, subscribed, features: ['Workspaces'], freeFeatures: ['Sync Across Devices'] }} />, false);
+      await press(h.byText('Subscription'));
+      expect(h.has('Own plans')).toBe(true);
+      expect(h.has('Compare Free and Premium')).toBe(false);
+      expect(h.has('Workspaces')).toBe(false);
+    }
   });
 
   it('7.0.0: the plan is called Premium in every app; an app\'s own name (VIP, Plus) is not used', () => {
