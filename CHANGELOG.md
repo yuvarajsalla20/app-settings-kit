@@ -2,6 +2,12 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 19.0.1 (2026-11-23)
+
+**Fix: support email now sends.** The email function stopped on its first message with "The default Firebase app does not exist", so no email was sent. firebase-functions creates its own named Firebase app to read the new document, and the function took that app as proof that the default app existed. It now looks for the default app by name and creates it when missing (`needsDefaultApp`). Nothing changes in the app: move the pins in `functions/package.json` and the app's `package.json` to 19.0.1 and run `npm run deploy:functions`. No new app build is needed.
+
+**Setup:** the app's `predeploy:functions` script installs the function's packages before each deploy, and the first deploy needs the Secret Manager API turned on (README, "Setup, once for each app on Firebase", step 3).
+
 ## 19.0.0 (2026-11-23)
 
 - **In free mode, Data Export is hidden.** While the plan mode is `'free'` (the default), every Premium feature is left out, and Data Export is one of them: no row on Profile, and nothing unlocks it. Until now it was open to everyone in free mode. In subscription mode nothing changes: the gold Premium tag, the padlock for free accounts and the Choose menu for Premium.

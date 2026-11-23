@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error The sender is plain JavaScript for Cloud Functions; its pure part is tested here.
-import { alreadyHandled, isPlainEmail, supportMailOptions } from '../support-function/mail.mjs';
+import { alreadyHandled, isPlainEmail, needsDefaultApp, supportMailOptions } from '../support-function/mail.mjs';
 import { buildSupportMail } from '../src/logic/support';
 
 const INBOX = 'help@example.com';
@@ -81,5 +81,16 @@ describe('support email sender', () => {
     expect(alreadyHandled(mail({ delivery: { state: 'SUCCESS' } }))).toBe(true);
     expect(isPlainEmail('a@b.co')).toBe(true);
     expect(isPlainEmail('Dana <a@b.co>')).toBe(false);
+  });
+});
+
+describe('default Firebase app', () => {
+  it('creates the default app when only the firebase-functions app exists', () => {
+    expect(needsDefaultApp([])).toBe(true);
+    expect(needsDefaultApp([{ name: '__FIREBASE_FUNCTIONS_SDK__' }])).toBe(true);
+  });
+
+  it('keeps an existing default app', () => {
+    expect(needsDefaultApp([{ name: '__FIREBASE_FUNCTIONS_SDK__' }, { name: '[DEFAULT]' }])).toBe(false);
   });
 });
