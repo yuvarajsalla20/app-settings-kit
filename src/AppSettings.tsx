@@ -1,4 +1,4 @@
-import { PickerRow, SettingsGroup, SettingsScreen, themeContrast, MIN_PASSWORD, type AboutProps, type AccountStrings, type ActionsProps, type Choice, type ExitMenuProps } from 'app-account-kit';
+import { PickerRow, SettingsGroup, SettingsScreen, supportMailUrl, themeContrast, MIN_PASSWORD, type AboutProps, type AccountStrings, type ActionsProps, type Choice, type ExitMenuProps } from 'app-account-kit';
 import { cameraSupported as defaultCameraSupported, pickProfilePhoto } from 'app-account-kit/photo';
 import { Platform, Text, View } from 'react-native';
 import type { ComponentProps, ReactNode } from 'react';
@@ -20,6 +20,7 @@ import type { DataExportConfig, ExtraPage, PlanConfig, PlanFeature } from './typ
 import { ContactSupportPage } from './pages/ContactSupportPage';
 import { pickScreenshot } from './parts/pickScreenshot';
 import { supportDevice, type SupportTransport } from './logic/support';
+import { useSupportForm } from './logic/useSupportForm';
 
 /** 12.0.0: a plan feature line that names Data Export. */
 const EXPORT_WORD = /data export/i;
@@ -110,11 +111,13 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
    */
   photo: Omit<NonNullable<AccountScreenProps['photo']>, 'pick' | 'cameraSupported'> & Partial<Pick<NonNullable<AccountScreenProps['photo']>, 'pick' | 'cameraSupported'>>;
   /**
-   * 15.0.0: how About › Contact Support sends a message. Required: every app has the in-app Contact Support page, drawn by
-   * the kit. Apps on Firebase pass `firestoreSupport(db, auth)` from `app-settings-kit/support-firestore`; the message goes to
-   * `about.supportEmail` with the person's email as Reply-To. The page, its words, topics and limits are the kit's.
+   * 15.0.0: how About › Contact Support sends a message from the kit's in-app form. Apps on Firebase pass
+   * `firestoreSupport(db, auth)` from `app-settings-kit/support-firestore`; the message goes to `about.supportEmail` with the
+   * person's email as Reply-To. The page, its words, topics and limits are the kit's.
+   * 16.0.0: optional. The form shows only while the owner's switch is on (`supportForm: true` in Firestore `config/app` for
+   * `firestoreSupport`); otherwise, and without `support`, Contact Support opens the Mail app as before.
    */
-  support: SupportTransport;
+  support?: SupportTransport;
   /** More pages of the app's own (Connect as Family, say). Add `under: 'preferences'` to make one a row on Preferences, or `under: 'account'` for Account. */
   extraPages?: readonly ExtraPage[];
 };
@@ -314,11 +317,14 @@ export function AppSettings(props: AppSettingsProps) {
   // account does not pay for Premium (12.0.0) the row shows only the gold padlock, and a tap opens the plan page (or the app's
   // `onLocked`); once it does, the Choose menu. The app's own value and badge are not used, so every app reads the same.
   const exportLocked = !exportOpen;
-  // 15.0.0: About › Contact Support is the kit's in-app form in every app. The details it adds come from the app and the phone.
+  // 15.0.0: About › Contact Support is the kit's in-app form, with the details it adds from the app and the phone.
+  // 16.0.0: only while the owner's switch is on; otherwise it opens the Mail app, as before. The form also offers Mail.
   const build = expoBuild();
   const constants = (Platform as { constants?: { Model?: string } }).constants;
   const phone = supportDevice(Platform.OS, Platform.Version, constants?.Model, (Platform as { isPad?: boolean }).isPad);
-  const supportPage = support ? (
+  const formOn = useSupportForm(support);
+  const mailUrl = supportMailUrl({ email: about.supportEmail, appName, versionNumber: build.version, device: `${Platform.OS} ${Platform.Version}` });
+  const supportPage = support && formOn ? (
     <ContactSupportPage
       theme={rest.theme}
       strings={words.support}
@@ -327,16 +333,13 @@ export function AppSettings(props: AppSettingsProps) {
       sender={{ name: profileIn?.name || undefined, email: profileIn?.email || undefined }}
       details={{ appName, version: build.version, ...(build.buildNumber ? { build: build.buildNumber } : {}), ...phone, plan: plan.subscribed ? words.plan : words.support.free }}
       transport={support}
+      mailUrl={mailUrl}
       pickScreenshot={pickScreenshot}
       onError={rest.onError as ((where: string, error: unknown) => void) | undefined}
       Text={(componentsIn?.Text ?? Text) as never}
       {...(componentsIn?.TextInput ? { TextInput: componentsIn.TextInput as never } : {})}
     />
   ) : undefined;
-  const noSupport = !support;
-  useEffect(() => {
-    if (noSupport && typeof __DEV__ !== 'undefined' && __DEV__) console.warn('app-settings-kit: support is required. Pass support={firestoreSupport(db, auth)} from app-settings-kit/support-firestore so Contact Support can send messages.');
-  }, [noSupport]);
   const pages = assemblePages({
     dataExport: { row: kitRow({ id: dataExport.id, tint: tints.data }), content: null, menu, premium: true, locked: exportLocked, ...(dataExport.onLocked ? { onLocked: dataExport.onLocked } : { lockedOpens: plan.id ?? DEFAULT_IDS.plan }) },
     plan: planSection,

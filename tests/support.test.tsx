@@ -1,7 +1,7 @@
-import { Text, TextInput } from 'react-native';
+import { Linking, Text, TextInput } from 'react-native';
 import { describe, expect, it, vi } from 'vitest';
 import { AppSettings } from '../src/AppSettings';
-import { SUPPORT_LIMITS, SupportLimitError, buildSupportMail, nextSupportWindow, screenshotMegabytes, supportDetailsLine, supportDevice, supportReference, type SupportTransport } from '../src/logic/support';
+import { SUPPORT_LIMITS, SupportLimitError, buildSupportMail, nextSupportWindow, screenshotMegabytes, supportDetailsLine, supportDevice, supportFormSwitch, supportReference, type SupportTransport } from '../src/logic/support';
 import { ContactSupportPage } from '../src/pages/ContactSupportPage';
 import { slideSends } from '../src/parts/SlideToSend';
 import { DEFAULT_SETTINGS_STRINGS as W } from '../src/strings';
@@ -141,5 +141,56 @@ describe('15.0.0 AppSettings', () => {
     await press(h.byLabel('Contact Support'));
     expect(h.has(S.intro('My App'))).toBe(true);
     expect(h.has(S.slide)).toBe(true);
+  });
+});
+
+describe('16.0.0 Mail or the in-app form', () => {
+  it('turns the form on only for a literal supportForm: true in config/app', () => {
+    expect(supportFormSwitch({ supportForm: true })).toBe(true);
+    for (const v of [undefined, null, {}, { supportForm: 'true' }, { supportForm: 1 }, { supportForm: false }]) expect(supportFormSwitch(v)).toBe(false);
+  });
+
+  it('opens the Mail page while the owner has not turned the form on', async () => {
+    const h = mount(<AppSettings {...fullProps({ support: { ...transport(), formOn: async () => false } })} />);
+    await settle();
+    await press(h.byLabel('About'));
+    await press(h.byLabel('Contact Support'));
+    expect(h.has(S.slide)).toBe(false);
+    expect(h.texts()).toContain('Write to Us');
+  });
+
+  it('opens the Mail page in an app without a support transport', async () => {
+    const props = fullProps();
+    delete (props as { support?: unknown }).support;
+    const h = mount(<AppSettings {...props} />);
+    await settle();
+    await press(h.byLabel('About'));
+    await press(h.byLabel('Contact Support'));
+    expect(h.has(S.slide)).toBe(false);
+    expect(h.texts()).toContain('Write to Us');
+  });
+
+  it('opens the form once the switch is on, with Email Support under Slide to Send', async () => {
+    const h = mount(<AppSettings {...fullProps({ support: { ...transport(), formOn: async () => true } })} />);
+    await settle();
+    await press(h.byLabel('About'));
+    await press(h.byLabel('Contact Support'));
+    expect(h.has(S.slide)).toBe(true);
+    expect(h.has(S.mailInstead)).toBe(true);
+    expect(h.has(S.mailLink)).toBe(true);
+  });
+
+  it('Email Support opens the Mail app addressed to the inbox', async () => {
+    const open = vi.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const h = page({ mailUrl: 'mailto:help@x.com?subject=s' });
+    await press(h.byLabel(S.mailLink));
+    expect(open).toHaveBeenCalledWith('mailto:help@x.com?subject=s');
+    open.mockRestore();
+  });
+
+  it('offers Email Support to a person without an email address on the account', () => {
+    const h = page({ sender: { name: 'Alex' }, mailUrl: 'mailto:help@x.com' });
+    expect(h.has(S.noEmail('help@x.com'))).toBe(true);
+    expect(h.has(S.mailLink)).toBe(true);
   });
 });

@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 15.1.0** (tag `v15.1.0`). Needs app-account-kit **8.1.0** or later.
+**Current version: 16.0.0** (tag `v16.0.0`). Needs app-account-kit **8.1.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v8.1.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v15.1.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v16.0.0>"
 },
 "kitVersions": {
   "app-account-kit": "v8.1.0",
-  "app-settings-kit": "v15.1.0"
+  "app-settings-kit": "v16.0.0"
 }
 ```
 
@@ -51,7 +51,7 @@ Pin the full commit SHA of a release tag so every build gets exactly the code yo
 | `app-settings-kit/logic` | Pure helpers only, no React Native, for tests in plain Node |
 | `app-settings-kit/support-firestore` | 15.0.0: `firestoreSupport(db, auth)`, how Contact Support sends on Firebase |
 | `app-settings-kit/support.rules` | 15.0.0: the Firestore rules block every app copies into its `firestore.rules` |
-| `app-settings-kit/support-function` | 15.1.0: `supportMail`, the Cloud Function that emails each Contact Support message to the inbox |
+| `app-settings-kit/support-function` | 16.0.0: `supportMail`, the Cloud Function that emails each Contact Support message to the inbox |
 | `app-settings-kit/build-stamp` | `buildStamp()`, plain Node, for `app.config.js` |
 | `app-settings-kit/package.json` | The kit's `version`, for About > Kits |
 
@@ -130,7 +130,7 @@ These app-account-kit `SettingsScreen` props pass through: `theme`, `strings` (t
 | `preferences` | `ReactNode` | The app's own settings rows |
 | `dataExport` | `DataExportConfig` | The Data Export page (see below) |
 | `plan` | `PlanConfig` | The plan page: `{ features, freeFeatures, content?, subscribed?, id? }`. 13.0.0: its row and page are called **Subscription** in every app, with nothing on the row's right (`value` and `badge` are not used); the plan itself is called **Premium** (the kit's word, 7.0.0). 10.0.0: `features` and `freeFeatures` are required; every plan page ends with the kit's Free and Premium comparison. Leave out `content` while nothing is on sale and the kit draws its Coming Soon page (see below) |
-| `support` | `SupportTransport` | Required (15.0.0): how About › Contact Support sends a message. On Firebase, `firestoreSupport(db, auth)`. The page, its words, topics and limits are the kit's |
+| `support` | `SupportTransport` | Optional (16.0.0; required in 15.x): how About › Contact Support sends from the in-app form. On Firebase, `firestoreSupport(db, auth)`; the form shows only while `supportForm: true` is set in `config/app`, otherwise the Mail app. The page, its words, topics and limits are the kit's |
 | `extraPages` | `ExtraPage[]` | Optional: the app's own pages. `under: 'preferences'` or `'account'` puts one inside that parent; left out, it follows the four parents on the list |
 
 6.0.0 removed `order`, `dataExportIn`, `plainHeaders`, `pickers`, `settingsStrings`, `data`, `about.version`, and the `label`, `icon` and `menu` of `plan` and `dataExport`. They are the kit's now.
@@ -141,7 +141,10 @@ Since 4.0.0 the kit's words always win: Profile, Preferences, Data Export, Premi
 
 About › Contact Support is a page of its own in every app. A person never leaves the app and never needs a mail app: they write their message and Slide to Send, and the support inbox (`about.supportEmail`) receives an email with their address as Reply-To, so a reply from the inbox reaches them directly.
 
+**Mail or the form, chosen by the owner (16.0.0).** The form shows only while `supportForm: true` is set in the app's Firestore document `config/app`. Otherwise, and in an app that passes no `support`, Contact Support opens the Mail app with the app, version and phone filled in, as before. The switch is read once per launch and is Mail if it cannot be read, so an app never shows a form that cannot deliver. Turn it on once the email function is deployed (step 3); turn it off to return everyone to Mail at once. The form ends with **Email Support** ("You can also write from your own mail app."), which opens the Mail app for anyone who prefers it.
+
 - **The page, top to bottom:** one line on what happens; **Replies Go To** (the account's name and email, which cannot be changed here); **Topic** (Question, Report a Problem, Billing and Subscription, Suggestion) in the pull-down menu; **Message** (up to 2,000 characters); **Add Screenshot** (optional, one image, reduced on the phone to at most 1280 px and about 0.5 MB); **Details Included** (the app and version, build, phone, system and plan, shown on one line); then **Slide to Send**.
+- **Email Support (16.0.0):** under Slide to Send, a quiet button that opens the Mail app addressed to the inbox, with the same details.
 - **Slide to Send:** a round knob with the send mark on a pill track. Sliding it to the end sends; letting go early returns it, so a stray tap never sends. VoiceOver and TalkBack hear one button, "Slide to Send", and a double-tap sends. It stays off until there is a message.
 - **Message Sent:** a check mark, "Thank you, &lt;name&gt;. Your message is with the &lt;App&gt; team, and we will reply to &lt;email&gt;.", a reference such as **RR-7K2Q9F**, the topic, screenshot and time, and **Done**, which returns to About.
 - **Limits:** five messages per account each hour, enforced by the Firestore rules. When the hour is full, the page says when the next message is possible.
@@ -153,7 +156,7 @@ About › Contact Support is a page of its own in every app. A person never leav
 
 1. **App:** pass `support={firestoreSupport(db, auth)}` (from `app-settings-kit/support-firestore`) to `AppSettings`.
 2. **Rules:** copy `support.rules` into the app's `firestore.rules`, inside `match /databases/{database}/documents`, and replace `SUPPORT_INBOX` with the app's support inbox. Deploy the rules. A person can send only to that inbox, only with their own email as Reply-To, at most five each hour, and cannot read a sent message. `rules-test/` checks every rule in the Firebase emulator (`npm install`, then `npm test`; needs Java).
-3. **Email (15.1.0):** the Firebase project needs the Blaze plan. The kit's own Cloud Function, `app-settings-kit/support-function`, sends each message through the support inbox's mail account (e.g., Gmail with an app password) to that same inbox, with the person's email as Reply-To, and records the outcome on the document as `delivery`. It sends only to the inbox it signs in to, whatever a document contains. The app keeps a small `functions` folder:
+3. **Email (16.0.0):** the Firebase project needs the Blaze plan. The kit's own Cloud Function, `app-settings-kit/support-function`, sends each message through the support inbox's mail account (e.g., Gmail with an app password) to that same inbox, with the person's email as Reply-To, and records the outcome on the document as `delivery`. It sends only to the inbox it signs in to, whatever a document contains. The app keeps a small `functions` folder:
 
    ```js
    // functions/index.js ("type": "module"; dependencies: app-settings-kit at the same pin as the app, firebase-admin, firebase-functions, nodemailer)
@@ -161,6 +164,7 @@ About › Contact Support is a page of its own in every app. A person never leav
    ```
 
    `functions/.npmrc` holds `legacy-peer-deps=true`, so the function installs only what it uses, not the app's React Native packages. The first `firebase deploy --only functions` asks for **SUPPORT_SMTP_USER** (the inbox address), **SUPPORT_APP_NAME** (e.g., RingRinga) and the secret **SUPPORT_SMTP_PASSWORD** (the app password), and keeps them for later deploys. A database outside us-central1 (or nam5) uses `createSupportMail({ region })` instead. The Firebase Trigger Email extension is not needed; Firebase retires all extensions on 31 March 2027.
+4. **Switch (16.0.0):** the rules must let the app read `config/app` (`match /config/app { allow read: if true; allow write: if false; }`). In the Firebase console, set `supportForm` (boolean) to `true` in that document and send one test message from the app.
 
 ## Data Export is Premium in every app (12.0.0)
 

@@ -1,5 +1,5 @@
 /**
- * 15.1.0: The plain part of the support email sender, kept apart from Firebase so it can be tested. It turns one
+ * 16.0.0: The plain part of the support email sender, kept apart from Firebase so it can be tested. It turns one
  * `supportMail` document, written by `firestoreSupport`, into the message Nodemailer sends.
  */
 

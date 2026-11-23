@@ -1,5 +1,5 @@
 /**
- * 15.1.0: The support email sender, a Firebase Cloud Function each app deploys once. It replaces the Trigger Email
+ * 16.0.0: The support email sender, a Firebase Cloud Function each app deploys once. It replaces the Trigger Email
  * extension, which Firebase retires on 31 March 2027.
  *
  * When `firestoreSupport` writes a message to `supportMail/{id}`, this function sends it through the support inbox's own

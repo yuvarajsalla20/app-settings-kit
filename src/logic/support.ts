@@ -186,4 +186,12 @@ export interface SupportTransport {
   send: (mail: SupportMail, id: string) => Promise<void>;
   /** The signed-in account's id, added to the email so support can find the account. */
   accountId?: () => string | undefined;
+  /**
+   * 16.0.0: whether the owner has turned the in-app form on for this app. Off, About › Contact Support opens the Mail app,
+   * as before. `firestoreSupport` reads `supportForm: true` in the Firestore document `config/app`. A transport without it is on.
+   */
+  formOn?: () => Promise<boolean>;
 }
+
+/** 16.0.0: the owner's switch in `config/app`. Only a literal `supportForm: true` turns the form on; anything else is Mail. */
+export const supportFormSwitch = (data: unknown): boolean => !!data && typeof data === 'object' && (data as { supportForm?: unknown }).supportForm === true;

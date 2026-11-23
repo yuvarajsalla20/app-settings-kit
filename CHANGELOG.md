@@ -2,22 +2,32 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
-## 15.1.0 (2026-11-23)
+## 16.0.0 (2026-11-23)
 
-**The kit sends support email itself.** Firebase retires extensions on 31 March 2027, so Contact Support no longer relies on the Trigger Email extension. `app-settings-kit/support-function` exports `supportMail`, a Cloud Function that emails each `supportMail` document to the support inbox through the inbox's own mail account (e.g., Gmail with an app password), with the person's email as Reply-To. It sends only to the inbox it signs in to, accepts one JPEG screenshot and nothing else, keeps the subject on one line, never sends a document twice and records `delivery` on the document. The page, the rules and `firestoreSupport` are unchanged.
+**Mail or the in-app form, chosen by the owner in Firebase.** Each app decides in its Firestore document `config/app`, without a new build:
 
-### Upgrading from 15.0.x
+- **Off (the default):** `supportForm` missing or anything but `true`. About › Contact Support opens the Mail app, as before 15.0.0. It needs no Blaze plan and no setup, so a new app works from its first day. An app that passes no `support` is always on Mail.
+- **On:** `supportForm: true`. The in-app form, now with **Email Support** under Slide to Send ("You can also write from your own mail app."), which opens the Mail app addressed to the inbox. A person without an email on the account sees it too.
+- The switch is read once per launch (`firestoreSupport`), and Mail if it cannot be read. Turning it off returns everyone to Mail at once.
 
-1. Move app-settings-kit to 15.1.0.
-2. Add the app's `functions` folder (see "Contact Support inside the app", Setup, step 3) and `"functions": { "source": "functions" }` in `firebase.json`.
-3. Run `firebase deploy --only functions` once and enter the inbox address, the app's name and the app password when asked. If the Trigger Email extension was installed, uninstall it, or each message is sent twice.
+**The kit sends support email itself.** Firebase retires extensions on 31 March 2027, so Contact Support no longer relies on the Trigger Email extension. `app-settings-kit/support-function` exports `supportMail`, a Cloud Function that emails each `supportMail` document to the support inbox through the inbox's own mail account (e.g., Gmail with an app password), with the person's email as Reply-To. It sends only to the inbox it signs in to, accepts one JPEG screenshot and nothing else, keeps the subject on one line, never sends a document twice and records `delivery` on the document. The rules and the form are unchanged.
+
+- **Breaking (visible):** Contact Support is the Mail page again until the owner turns the form on. `support` is optional.
+
+### Upgrading from 15.x
+
+1. Move app-settings-kit to 16.0.0. Keep `support={firestoreSupport(db, auth)}`.
+2. Make sure the rules let the app read `config/app` (`match /config/app { allow read: if true; allow write: if false; }`).
+3. Add the app's `functions` folder (see "Contact Support inside the app", Setup, step 3) and `"functions": { "source": "functions" }` in `firebase.json`.
+4. On the Blaze plan, run `firebase deploy --only functions` once and enter the inbox address, the app's name and the app password when asked. If the Trigger Email extension was installed, uninstall it, or each message is sent twice.
+5. Set `supportForm: true` in `config/app` and send one test message.
 
 ## 15.0.0 (2026-11-23)
 
 **Contact Support inside the app.** About › Contact Support no longer opens the Mail app, which failed or confused anyone without Mail set up. It is now a page of the kit, the same in every app: Replies Go To (the account's email), a Topic (Question, Report a Problem, Billing and Subscription, Suggestion), the message, an optional screenshot reduced on the phone, the details added for support (app, version, build, phone, system, plan), then **Slide to Send**. After sending, Message Sent shows the reference, e.g., RR-7K2Q9F, and Done returns to About. Needs app-account-kit 8.1.0.
 
 - **Slide to Send** (`SlideToSend`): slide the knob to the end to send; letting go early returns it. VoiceOver and TalkBack hear one button, and a double-tap sends. With reduced motion the knob returns without a spring.
-- **Sending on Firebase** (`app-settings-kit/support-firestore`): `firestoreSupport(db, auth)` writes the message to `supportMail`, which the support email function sends to the inbox (15.1.0; the Trigger Email extension in 15.0.0) with the person's email as Reply-To, and counts the hour's messages in `supportLimits/{uid}` in the same write.
+- **Sending on Firebase** (`app-settings-kit/support-firestore`): `firestoreSupport(db, auth)` writes the message to `supportMail`, which the support email function sends to the inbox (16.0.0; the Trigger Email extension in 15.0.0) with the person's email as Reply-To, and counts the hour's messages in `supportLimits/{uid}` in the same write.
 - **The rules** (`support.rules`): only the app's inbox as recipient, only the person's own email as Reply-To, at most five messages an hour, no reading of sent messages, no attachment that points to a file or link. `rules-test/` checks them in the Firebase emulator (23 checks).
 - **Breaking:** `support` is a required prop. See "Upgrading from 14.x".
 
@@ -26,7 +36,7 @@ Release notes for app-settings-kit, newest first. Each version is tagged in git 
 1. Move app-account-kit to 8.1.0 and app-settings-kit to 15.0.0.
 2. Pass `support={firestoreSupport(db, auth)}` to `AppSettings`.
 3. Copy `support.rules` into `firestore.rules`, set the inbox, and deploy the rules.
-4. On the Blaze plan, deploy the support email function (15.1.0, see its upgrade guide).
+4. On the Blaze plan, deploy the support email function (16.0.0, see its upgrade guide).
 
 ## 14.0.1 (2026-11-23)
 
