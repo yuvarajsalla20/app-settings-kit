@@ -1,4 +1,4 @@
-import { PickerRow, SettingsGroup, SettingsScreen, supportMailUrl, themeContrast, usePlanMode, MIN_PASSWORD, type AboutProps, type AccountStrings, type ActionsProps, type Choice, type ExitMenuProps } from 'app-account-kit';
+import { PickerRow, SettingsGroup, SettingsScreen, supportMailUrl, themeContrast, usePlanMode, setPlanMode, MIN_PASSWORD, type PlanMode, type AboutProps, type AccountStrings, type ActionsProps, type Choice, type ExitMenuProps } from 'app-account-kit';
 import { cameraSupported as defaultCameraSupported, pickProfilePhoto } from 'app-account-kit/photo';
 import { Platform, Text, View } from 'react-native';
 import type { ComponentProps, ReactNode } from 'react';
@@ -118,6 +118,13 @@ export type AppSettingsProps = Omit<AccountScreenProps, 'app' | 'extraPages' | '
    * `firestoreSupport`); otherwise, and without `support`, Contact Support opens the Mail app as before.
    */
   support?: SupportTransport;
+  /**
+   * 18.1.0: for an app without app-subscriptions-kit, where the plan mode comes from. Pass `firestorePlanMode(db, auth)` from
+   * `app-settings-kit/plan-mode-firestore`, so the owner's `planMode` (and `subscriptionTesters`) in Firestore `config/app`
+   * chooses Plan · Free or the Subscription row. Leave out in an app with app-subscriptions-kit, whose `SubscriptionProvider`
+   * sets it; without either, the app is free.
+   */
+  planMode?: () => Promise<PlanMode>;
   /** More pages of the app's own (Connect as Family, say). Add `under: 'preferences'` to make one a row on Preferences, or `under: 'account'` for Account. */
   extraPages?: readonly ExtraPage[];
 };
@@ -141,7 +148,7 @@ const LOCKED_PROPS = ['order', 'dataExportIn', 'plainHeaders', 'pickers', 'setti
  * Everything app-account-kit takes (theme, strings, components, profile, about, actions...) passes straight through.
  */
 export function AppSettings(props: AppSettingsProps) {
-  const { support, preferences, dataExport, plan, extraPages, strings, about: aboutIn, build: ownBuild, appPackage, kitSources, appearance, security, photo: photoIn, password: passwordIn, components: componentsIn, exitMenu: exitExtras, profile: profileIn, ...restIn } = props;
+  const { support, planMode: planModeSource, preferences, dataExport, plan, extraPages, strings, about: aboutIn, build: ownBuild, appPackage, kitSources, appearance, security, photo: photoIn, password: passwordIn, components: componentsIn, exitMenu: exitExtras, profile: profileIn, ...restIn } = props;
   // 6.0.0: the order, the place of Data Export, the headers, the pickers and the centered photo are the kit's. Anything an app
   // still passes for them is dropped here and named in development.
   const rest = { ...restIn } as typeof restIn & Record<string, unknown>;
@@ -184,6 +191,17 @@ export function AppSettings(props: AppSettingsProps) {
   const appName = about.appName;
   // 18.0.0: with nothing on sale (plan mode 'free', the default; app-subscriptions-kit sets it from config/app) the plan row
   // reads Plan · Free with no page, every feature is open, and nobody holds a subscription to cancel.
+  // 18.1.0: an app without app-subscriptions-kit reads the owner's switch here; the answer is shared with every kit.
+  useEffect(() => {
+    if (!planModeSource) return;
+    let live = true;
+    planModeSource()
+      .then((m) => live && setPlanMode(m))
+      .catch(() => live && setPlanMode('free'));
+    return () => {
+      live = false;
+    };
+  }, [planModeSource]);
   const selling = usePlanMode() === 'subscription';
   const subscribed = selling && !!plan.subscribed;
   const locked = useMemo(

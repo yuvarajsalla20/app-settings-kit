@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 18.0.0** (tag `v18.0.0`). Needs app-account-kit **9.0.0** or later.
+**Current version: 18.1.0** (tag `v18.1.0`). Needs app-account-kit **9.1.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v8.1.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v18.0.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v18.1.0>"
 },
 "kitVersions": {
   "app-account-kit": "v8.1.0",
-  "app-settings-kit": "v18.0.0"
+  "app-settings-kit": "v18.1.0"
 }
 ```
 
@@ -174,6 +174,16 @@ Which plan row Settings shows follows the plan mode, which the owner sets with `
 - **`"subscription"`.** The row reads **Subscription** and opens the plan page as described below, with Data Export Premium.
 
 Nothing changes in the app's code: `plan` is passed as before, and the kit decides which row to draw.
+
+Every app follows the same switch. An app with app-subscriptions-kit gets it from `SubscriptionProvider`. An app without it (18.1.0) passes one line, and `planMode: "subscription"` then shows the Subscription row with the Coming Soon page:
+
+```tsx
+import { firestorePlanMode } from 'app-settings-kit/plan-mode-firestore';
+
+const PLAN_MODE = firestorePlanMode(db, auth); // reads config/app once per launch
+
+<AppSettings planMode={PLAN_MODE} ... />
+```
 
 ## Data Export is Premium in every app (12.0.0)
 
