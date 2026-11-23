@@ -1,5 +1,6 @@
 import { Pressable, Text } from 'react-native';
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { setPlanMode } from 'app-account-kit';
 import { AppSettings } from '../src/AppSettings';
 import { DataExportPage, exportMenu } from '../src/pages/DataExportPage';
 import { DEFAULT_SETTINGS_STRINGS as W } from '../src/strings';
@@ -9,6 +10,10 @@ import { fullProps as props } from './helpers/props';
 
 const csv = (over: Partial<ExportFormat> = {}): ExportFormat => ({ id: 'csv', label: 'CSV File', icon: 'file-text', tint: 'mint', onExport: vi.fn().mockResolvedValue(undefined), ...over });
 const pdf = (over: Partial<ExportFormat> = {}): ExportFormat => ({ id: 'pdf', label: 'PDF Report', icon: 'file', tint: 'gold', onExport: vi.fn().mockResolvedValue(undefined), ...over });
+
+// 18.0.0: these cover the setup with a plan on sale; free mode (the default) has its own tests in planMode.test.tsx.
+beforeAll(() => setPlanMode('subscription'));
+afterAll(() => setPlanMode('free'));
 
 describe('Data Export page', () => {
   it('makes the file for an open format and opens the plans for a locked one (a lock per format)', async () => {

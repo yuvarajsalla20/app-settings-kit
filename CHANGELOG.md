@@ -2,6 +2,18 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 18.0.0 (2026-11-23)
+
+**Plan · Free while nothing is on sale.** The plan row follows the plan mode that the owner sets with `planMode` in the Firestore document `config/app` (app-subscriptions-kit 9.0.0, shared through app-account-kit 9.0.0).
+
+- **Free mode, the default.** The row reads "Plan" with "Free" on its right. It has no arrow, a tap does nothing, and screen readers hear "Plan, Free". The Subscription page, Coming Soon and the comparison are not reachable.
+- **Data Export is open to everyone in free mode,** with no Premium tag or padlock, and the Erase Account warning names no subscription.
+- **Subscription mode** (`planMode: "subscription"`) is unchanged: the Subscription row and page, and Data Export as a Premium feature.
+- New string `planRow` ("Plan").
+- Needs app-account-kit 9.0.0 or later.
+
+Upgrading: nothing to change in apps. With no `planMode` in `config/app`, Settings shows Plan · Free, so this is a major version.
+
 ## 17.0.0 (2026-11-23)
 
 **The plan page names the plan the account holds.** The Coming Soon page listed what Premium will add but never said which plan the person was on.

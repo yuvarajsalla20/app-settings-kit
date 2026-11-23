@@ -14,6 +14,8 @@ export interface SettingsStrings {
   plan: string;
   /** 13.0.0: the plan row and its page title, "Subscription" in every app. The row shows nothing on its right. */
   subscription: string;
+  /** 18.0.0: the plan row while nothing is on sale (plan mode 'free'), with `freePlan` on its right and no page: Plan · Free. */
+  planRow: string;
   /** Shown when a file could not be made. */
   exportFailed: string;
   /** 6.0.0: the line at the top of the Data Export menu. */
@@ -100,6 +102,7 @@ export const DEFAULT_SETTINGS_STRINGS: SettingsStrings = {
   dataExport: 'Data Export',
   plan: 'Premium',
   subscription: 'Subscription',
+  planRow: 'Plan',
   exportFailed: 'Could not create the file. Please try again.',
   exportHead: 'Choose a Format to Export',
   exportPick: 'Choose',
