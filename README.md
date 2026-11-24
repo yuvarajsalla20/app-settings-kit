@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 20.0.0** (tag `v20.0.0`). Needs app-account-kit **10.0.0** or later.
+**Current version: 21.0.0** (tag `v21.0.0`). Needs app-account-kit **10.0.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v8.1.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v20.0.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v21.0.0>"
 },
 "kitVersions": {
   "app-account-kit": "v8.1.0",
-  "app-settings-kit": "v20.0.0"
+  "app-settings-kit": "v21.0.0"
 }
 ```
 
@@ -286,7 +286,7 @@ export const PageHeader = makePageHeader(ACCOUNT_THEME, { Text });
   filters={{ options: ['All', 'This Week', 'This Month'], selected, onSelect: setSelected }}
 />
 
-// A sheet: Close in place of Back, and the confirm button (a check on iPhone, the word on Android).
+// A sheet (21.0.0): the title on the left, and the red ✕ and the ✓ side by side at the right end, on every platform. The label is what screen readers hear.
 <PageHeader title="Add Reminder" onClose={close} confirm={{ label: 'Save', onPress: save }} />
 
 // 13.3.0: a picker sheet, with the choice so far under the title. Leave out `confirm` when a tap on a choice closes the sheet.
@@ -297,12 +297,31 @@ export const PageHeader = makePageHeader(ACCOUNT_THEME, { Text });
 | --- | --- | --- |
 | Buttons (at most two; more are left out) | One glass circle, or two sharing one glass capsule | Material 3 tonal round buttons |
 | Filters | Glass segments, the selected one in the accent color | Filter chips, the selected one tonal with a check |
-| Sheet | Close in a glass circle, the title in the middle, an accent check | Close, the title on the left, an accent Save button |
+| Sheet (21.0.0) | The title on the left; a red ✕ in a glass circle and a ✓ in an accent circle, side by side at the right end | The same |
 
 13.2.0: a button with `tone: 'danger'` draws its icon in the theme's `danger` color (Delete, Clear All). A button that opens a pull-down menu passes `anchorRef: anchor.ref` (app-account-kit `useAnchor`), so the menu opens from it.
 | Home photo | A glass ring and a soft shadow | Flat |
 
 The glass and tonal fills come from the theme: `menu` (else `surface`) for glass, `border` for its edge, and an optional `soft` for the tonal fill (else `surface`). The Back button and the title keep the Settings pages' sizes, so every screen matches Settings exactly.
+
+**One way to save or cancel (21.0.0):** every app saves and cancels the same way, on every platform, with icons only:
+
+- Viewing something: a ✎ pencil to edit it and a red bin to delete it (header `buttons`, the bin with `tone: 'danger'`).
+- Editing or adding: a red ✕ to cancel and a ✓ to save, side by side with the ✓ last. No "Save" or "Cancel" words are drawn.
+
+A full page that edits uses the sheet header above. An edit inside a page (e.g., renaming one entry of a list) uses `makeConfirmPair`, the same ✕ and ✓, so there is never a second style for the same action:
+
+```tsx
+import { makeConfirmPair } from 'app-settings-kit/parts';
+
+export const ConfirmPair = makeConfirmPair(ACCOUNT_THEME);
+
+<ConfirmPair onCancel={stopEditing} onConfirm={saveName} confirmDisabled={!name.trim()} />
+// To confirm a delete: the same ✕, and a red bin in place of the ✓.
+<ConfirmPair onCancel={stopEditing} onConfirm={removeEntry} kind="delete" />
+```
+
+`ConfirmPair.CancelButton` and `ConfirmPair.ConfirmButton` are the two buttons alone. The ✕ and the bin use the theme's `danger` color; the ✓ uses `accent` and `ink`.
 
 **The same Back on your own screens:**
 

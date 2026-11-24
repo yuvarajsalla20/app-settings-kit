@@ -12,6 +12,8 @@ export { BACK_BUTTON, makeBackButton } from './parts/BackButton';
 export type { BackButtonProps } from './parts/BackButton';
 export { EdgeSwipeBack } from './parts/EdgeSwipeBack';
 export { makePageHeader } from './parts/PageHeader';
+export { CONFIRM_SIZE, makeConfirmPair } from './parts/ConfirmPair';
+export type { ConfirmPairProps } from './parts/ConfirmPair';
 export type { HeaderConfirm, HeaderFilters, PageHeaderProps } from './parts/PageHeader';
 export { HOME_PHOTO_LABEL, homeGreeting, homeInitial, makeHomeHeader } from './parts/HomeHeader';
 export type { HomeHeaderProps } from './parts/HomeHeader';

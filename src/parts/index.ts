@@ -6,6 +6,8 @@ export { BACK_BUTTON, makeBackButton } from './BackButton';
 export type { BackButtonProps } from './BackButton';
 export { EdgeSwipeBack } from './EdgeSwipeBack';
 export { makePageHeader } from './PageHeader';
+export { CONFIRM_SIZE, makeConfirmPair } from './ConfirmPair';
+export type { ConfirmPairProps } from './ConfirmPair';
 export type { HeaderConfirm, HeaderFilters, PageHeaderProps } from './PageHeader';
 export { HOME_PHOTO_LABEL, homeGreeting, homeInitial, makeHomeHeader } from './HomeHeader';
 export type { HomeHeaderProps } from './HomeHeader';
