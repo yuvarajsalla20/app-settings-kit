@@ -26,7 +26,7 @@ const wash = (color: string, alpha: string) => (/^#[0-9a-f]{6}$/i.test(color) ? 
  * is on sale every account is on the free plan. 20.0.0: the Get Premium pattern of app-subscriptions-kit 11.0.0 (a round mark,
  * a bold title, a colored line and a quieter line), washed and outlined in the calm accent color.
  */
-export function FreePlanCard({ theme: t, Text = PlainText, strings }: Pick<ComingSoonPageProps, 'theme' | 'Text' | 'strings'>) {
+export function FreePlanCard({ theme: t, Text = PlainText, strings }: Pick<ComingSoonPageProps, 'theme' | 'Text'> & { strings: Pick<SettingsStrings, 'yourPlan' | 'freePlan' | 'freePlanTitle' | 'yourCurrentPlan' | 'freeIncluded'> }) {
   const title = strings.freePlanTitle(strings.freePlan);
   return (
     <View

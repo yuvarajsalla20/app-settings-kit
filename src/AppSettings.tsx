@@ -13,6 +13,7 @@ import { makeBackButton } from './parts/BackButton';
 import { EdgeSwipeBack } from './parts/EdgeSwipeBack';
 import { exportMenu } from './pages/DataExportPage';
 import { ComingSoonPage } from './pages/ComingSoonPage';
+import { FreePlanPage } from './pages/FreePlanPage';
 import { PlanCompare, featureParts } from './pages/PlanCompare';
 import { createOneAtATime } from './logic/oneAtATime';
 import { DEFAULT_SETTINGS_STRINGS, type SettingsStrings } from './strings';
@@ -245,9 +246,10 @@ export function AppSettings(props: AppSettingsProps) {
   }, [contrast]);
   // 10.0.0: the comparison needs both lists; an empty one is said in development (the types already require them).
   // 14.0.0 Page rule: the comparison shows only while nothing is on sale (Coming Soon); with a plan on sale it lives on the Plans screen.
-  const missingLists = plan.content === undefined || plan.content === null ? [!plan.features?.length && 'plan.features', !plan.freeFeatures?.length && 'plan.freeFeatures'].filter(Boolean).join(' and ') : '';
+  // 22.0.0: in free mode the Subscription page lists the free features, so `plan.freeFeatures` is needed there too.
+  const missingLists = !selling ? (plan.freeFeatures?.length ? '' : 'plan.freeFeatures') : plan.content === undefined || plan.content === null ? [!plan.features?.length && 'plan.features', !plan.freeFeatures?.length && 'plan.freeFeatures'].filter(Boolean).join(' and ') : '';
   useEffect(() => {
-    if (missingLists && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: ${missingLists} is empty. The Coming Soon page shows the Free and Premium comparison, so list what the plan adds and what is free.`);
+    if (missingLists && typeof __DEV__ !== 'undefined' && __DEV__) console.warn(`app-settings-kit: ${missingLists} is empty. The Subscription page lists what is free (and, on Coming Soon, what the plan adds), so pass both lists.`);
   }, [missingLists]);
   // The menu has no page to draw on, so renderProblem cannot show there: say so in development instead of dropping it quietly.
   const lostProblem = !!(dataExport.renderProblem && !dataExport.onProblem);
@@ -302,10 +304,9 @@ export function AppSettings(props: AppSettingsProps) {
   );
   const planSection = !selling
     ? {
-        // 18.0.0: Plan · Free, a row that only states the plan: no arrow, no page.
+        // 22.0.0: free mode opens the Subscription page too: the Free plan card and every free feature, with nothing for sale.
         row: kitRow({ id: plan.id, tint: planTint }),
-        content: null,
-        info: true,
+        content: <FreePlanPage theme={rest.theme} freeFeatures={plan.freeFeatures ?? []} Text={componentsIn?.Text as never} strings={words} />,
       }
     : comingSoon
     ? {
@@ -374,7 +375,6 @@ export function AppSettings(props: AppSettingsProps) {
   const pages = assemblePages({
     dataExport: { row: kitRow({ id: dataExport.id, tint: tints.data }), content: null, menu, premium: true, locked: exportLocked, ...(dataExport.onLocked ? { onLocked: dataExport.onLocked } : { lockedOpens: plan.id ?? DEFAULT_IDS.plan }) },
     plan: planSection,
-    planFree: !selling,
     extraPages: allPages,
     strings: words,
   });

@@ -2,6 +2,15 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 22.0.0 (2026-11-24)
+
+**In free mode, the Subscription row opens the Free plan page.** While the plan mode is `'free'` (the default), the row reads **Subscription** with an arrow, as in subscription mode, instead of Plan · Free with no page. The page shows the Your Plan card (Free Plan, Your Current Plan) and one list, **Included With Your Plan**, with each entry of `plan.freeFeatures` and a check mark, so a person can see everything the free plan includes. Nothing on the page names Premium, a price or a purchase.
+
+- New `FreePlanPage` and the string `includedWithYourPlan`. The string `planRow` is removed.
+- Subscription mode is unchanged.
+
+Upgrading: pass `plan.freeFeatures` (a line, or `{ label, detail?, icon? }`, for each free feature) even when the app passes its own `plan.content`; a missing list is named in development. The row and the page look different, so this is a major version.
+
 ## 21.0.0 (2026-11-24)
 
 **One way to save or cancel, in every app and on every platform.** Editing or adding shows a red ✕ to cancel and a ✓ to save, side by side with the ✓ last, icons only. Viewing shows a ✎ pencil to edit and a red bin to delete.

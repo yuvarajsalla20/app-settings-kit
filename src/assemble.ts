@@ -15,15 +15,11 @@ interface Section {
   onLocked?: () => void;
   /** 12.0.0: with no `onLocked`, a tap on the lock opens this Settings page (the plan page), app-account-kit 7.35.0. */
   lockedOpens?: string;
-  /** 18.0.0: the row only states its value, with no page (app-account-kit 9.0.0 `info`). */
-  info?: boolean;
 }
 
 interface Input {
   dataExport?: Section;
   plan?: Section;
-  /** 18.0.0: nothing is on sale (plan mode 'free'): the plan row reads Plan · Free and opens nothing. */
-  planFree?: boolean;
   /** The app's other pages (Connect as Family, say). */
   extraPages?: readonly ExtraPage[];
   order?: readonly string[];
@@ -64,11 +60,11 @@ const premiumParts = ({ premium, locked, onLocked, lockedOpens }: Section) => ({
  * The list is About, Account, Preferences, plan; pages not named in `order` follow. Data Export is a row inside Account,
  * or inside Preferences with `dataExportIn: 'preferences'`. App pages with `under: 'preferences'` become app-account-kit's `under: 'app'`.
  */
-export function assemblePages({ dataExport, plan, planFree = false, extraPages = [], order = DEFAULT_ORDER, dataExportIn = 'account', strings }: Input): { extraPages: AccountExtraPage[]; hubOrder: string[] } {
+export function assemblePages({ dataExport, plan, extraPages = [], order = DEFAULT_ORDER, dataExportIn = 'account', strings }: Input): { extraPages: AccountExtraPage[]; hubOrder: string[] } {
   const ids = { export: dataExport?.row?.id ?? DEFAULT_IDS.export, plan: plan?.row?.id ?? DEFAULT_IDS.plan };
   const pages: AccountExtraPage[] = [];
-  if (plan && planFree) pages.push({ ...page(plan.row, { id: ids.plan, label: strings.planRow, icon: 'award' }, null), value: strings.freePlan, info: true });
-  else if (plan) pages.push(page(plan.row, { id: ids.plan, label: strings.subscription, icon: 'award' }, plan.content));
+  // 22.0.0: the row reads Subscription and opens its page in both plan modes; in free mode the page is the kit's Free plan page.
+  if (plan) pages.push(page(plan.row, { id: ids.plan, label: strings.subscription, icon: 'award' }, plan.content));
   // Data Export is a feature, not a parent: a row straight on Account (or Preferences) with its Premium/VIP pill, and Back returns there.
   if (dataExport) pages.push({ ...page(dataExport.row, { id: ids.export, label: strings.dataExport, icon: 'download' }, dataExport.content), under: parentFor(dataExportIn), ...(dataExport.menu ? { menu: dataExport.menu } : {}), ...premiumParts(dataExport) });
   return { extraPages: [...pages, ...extraPages.map(toAccount)], hubOrder: hubOrder(order, ids) };
