@@ -3,6 +3,7 @@ import { create } from 'react-test-renderer';
 import { act } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { makePageHeader } from '../src/parts/PageHeader';
+import { makeConfirmPair } from '../src/parts/ConfirmPair';
 import { homeGreeting, homeInitial, makeHomeHeader } from '../src/parts/HomeHeader';
 import { THEME } from './helpers/theme';
 
@@ -78,6 +79,39 @@ describe('13.1.0 shared headers', () => {
     press(root, 'Save');
     expect(onClose).toHaveBeenCalled();
     expect(onSave).toHaveBeenCalled();
+  });
+
+  it('21.0.0: the sheet is a red ✕ and a ✓, icons only, on every platform', () => {
+    const PageHeader = makePageHeader(THEME);
+    let root!: ReturnType<typeof create>;
+    act(() => {
+      root = create(<PageHeader title="Add Reminder" onClose={vi.fn()} confirm={{ label: 'Save', onPress: vi.fn() }} />);
+    });
+    const icons = root.root.findAll((n) => typeof n.props.name === 'string' && typeof n.type !== 'string').map((n) => [n.props.name, n.props.color]);
+    expect(icons).toContainEqual(['x', 'd']);
+    expect(icons).toContainEqual(['check', 'i']);
+    expect(texts(root)).toEqual(['Add Reminder']);
+  });
+
+  it('21.0.0: ConfirmPair is the same ✕ and ✓ for edits inside a page, and a red bin for a delete', () => {
+    const ConfirmPair = makeConfirmPair(THEME);
+    const cancel = vi.fn();
+    const save = vi.fn();
+    let root!: ReturnType<typeof create>;
+    act(() => {
+      root = create(<ConfirmPair onCancel={cancel} onConfirm={save} />);
+    });
+    expect(root.root.findAll((n) => n.type === 'Pressable').map((n) => n.props.accessibilityLabel)).toEqual(['Cancel', 'Save']);
+    press(root, 'Cancel');
+    press(root, 'Save');
+    expect(cancel).toHaveBeenCalled();
+    expect(save).toHaveBeenCalled();
+    act(() => {
+      root.update(<ConfirmPair onCancel={cancel} onConfirm={save} kind="delete" confirmDisabled />);
+    });
+    const del = root.root.find((n) => n.type === 'Pressable' && n.props.accessibilityLabel === 'Delete');
+    expect(del.props.disabled).toBe(true);
+    expect(del.findAll((n) => n.props.name === 'trash-2').length).toBeGreaterThan(0);
   });
 
   it('greets with Hi and the nickname, else the app name, and opens Settings from the photo (14.0.0: always read as Settings)', () => {

@@ -2,6 +2,7 @@ import Feather from '@expo/vector-icons/Feather';
 import type { ComponentType, ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text as PlainText, View, type TextProps } from 'react-native';
 import { makeBackButton } from './BackButton';
+import { makeConfirmPair } from './ConfirmPair';
 import { makeHeaderButtons, type HeaderButtonSpec } from './HeaderButton';
 import { headerFills, isIos, limitButtons, type HeaderTheme } from './headerLook';
 
@@ -12,9 +13,9 @@ export interface HeaderFilters {
   onSelect: (option: string) => void;
 }
 
-/** 13.1.0: the confirm button of a sheet: a check on iPhone, the label on Android. */
+/** 13.1.0: the confirm button of a sheet. 21.0.0: a ✓ on every platform; the label is what screen readers hear. */
 export interface HeaderConfirm {
-  /** Title Case, e.g., "Save". */
+  /** Title Case, e.g., "Save". Read by screen readers, not drawn (21.0.0). */
   label: string;
   onPress: () => void;
   disabled?: boolean;
@@ -60,6 +61,7 @@ type TextLike = ComponentType<TextProps>;
 export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike } = {}) {
   const BackButton = makeBackButton(theme);
   const HeaderButtons = makeHeaderButtons(theme);
+  const { CancelButton, ConfirmButton } = makeConfirmPair(theme);
   const Text: TextLike = components.Text ?? PlainText;
   const fill = headerFills(theme);
   const ios = isIos();
@@ -78,15 +80,7 @@ export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike
     titleRight: { color: theme.muted, fontSize: 14, fontWeight: '500' },
     subtitle: { color: theme.muted, fontSize: 14, fontWeight: '500', marginTop: 2 },
     right: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 8 },
-    // iPhone: a glass circle for Close; Android: a plain 48 dp icon button.
-    close: ios
-      ? { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: fill.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: fill.glassEdge }
-      : { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
-    confirmIos: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.accent, shadowColor: theme.accent, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
-    confirmAndroid: { height: 40, paddingHorizontal: 22, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.accent },
-    confirmWord: { color: theme.ink, fontSize: 15, fontWeight: '700' },
     spacer: { width: 44 },
-    disabled: { opacity: 0.4 },
     pressed: { opacity: 0.75 },
     segments: { flexDirection: 'row', padding: 4, gap: 2, borderRadius: 22, backgroundColor: fill.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: fill.glassEdge },
     segment: { flex: 1, minHeight: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
@@ -132,31 +126,13 @@ export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike
     );
   }
 
-  function Confirm({ label, onPress, disabled }: HeaderConfirm) {
-    return (
-      <Pressable
-        onPress={onPress}
-        disabled={disabled}
-        accessibilityRole="button"
-        accessibilityLabel={label}
-        accessibilityState={{ disabled: !!disabled }}
-        hitSlop={8}
-        style={({ pressed }) => [ios ? styles.confirmIos : styles.confirmAndroid, disabled && styles.disabled, pressed && styles.pressed]}
-      >
-        {ios ? <Feather name="check" size={22} color={theme.ink} /> : <Text style={styles.confirmWord}>{label}</Text>}
-      </Pressable>
-    );
-  }
-
   return function PageHeader({ title, onBack, backLabel, titleRight, subtitle, buttons, filters, onClose, closeLabel = 'Close', confirm, right }: PageHeaderProps) {
     const shown = limitButtons(buttons, 'PageHeader');
     if (onClose) {
       return (
         <View style={styles.wrap}>
           <View style={styles.row}>
-            <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} hitSlop={8} style={({ pressed }) => [styles.close, pressed && styles.pressed]}>
-              <Feather name="x" size={22} color={theme.text} />
-            </Pressable>
+            <CancelButton onPress={onClose} label={closeLabel} />
             <View style={styles.sheetTitles}>
               <Text style={styles.sheetTitle} numberOfLines={1} accessibilityRole="header">
                 {title}
@@ -167,7 +143,7 @@ export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike
                 </Text>
               ) : null}
             </View>
-            {confirm ? <Confirm {...confirm} /> : ios ? <View style={styles.spacer} /> : null}
+            {confirm ? <ConfirmButton onPress={confirm.onPress} label={confirm.label} disabled={confirm.disabled} /> : ios ? <View style={styles.spacer} /> : null}
           </View>
           {filters ? <Filters {...filters} /> : null}
         </View>
