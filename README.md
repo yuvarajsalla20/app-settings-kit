@@ -286,7 +286,7 @@ export const PageHeader = makePageHeader(ACCOUNT_THEME, { Text });
   filters={{ options: ['All', 'This Week', 'This Month'], selected, onSelect: setSelected }}
 />
 
-// A sheet: a red ✕ in place of Back, and a ✓ at the right end, on every platform (21.0.0). The label is what screen readers hear.
+// A sheet (21.0.0): the title on the left, and the red ✕ and the ✓ side by side at the right end, on every platform. The label is what screen readers hear.
 <PageHeader title="Add Reminder" onClose={close} confirm={{ label: 'Save', onPress: save }} />
 
 // 13.3.0: a picker sheet, with the choice so far under the title. Leave out `confirm` when a tap on a choice closes the sheet.
@@ -297,7 +297,7 @@ export const PageHeader = makePageHeader(ACCOUNT_THEME, { Text });
 | --- | --- | --- |
 | Buttons (at most two; more are left out) | One glass circle, or two sharing one glass capsule | Material 3 tonal round buttons |
 | Filters | Glass segments, the selected one in the accent color | Filter chips, the selected one tonal with a check |
-| Sheet (21.0.0) | A red ✕ in a glass circle, the title in the middle, a ✓ in an accent circle | A red ✕, the title on the left, a ✓ in an accent circle |
+| Sheet (21.0.0) | The title on the left; a red ✕ in a glass circle and a ✓ in an accent circle, side by side at the right end | The same |
 
 13.2.0: a button with `tone: 'danger'` draws its icon in the theme's `danger` color (Delete, Clear All). A button that opens a pull-down menu passes `anchorRef: anchor.ref` (app-account-kit `useAnchor`), so the menu opens from it.
 | Home photo | A glass ring and a soft shadow | Flat |
@@ -307,7 +307,7 @@ The glass and tonal fills come from the theme: `menu` (else `surface`) for glass
 **One way to save or cancel (21.0.0):** every app saves and cancels the same way, on every platform, with icons only:
 
 - Viewing something: a ✎ pencil to edit it and a red bin to delete it (header `buttons`, the bin with `tone: 'danger'`).
-- Editing or adding: a red ✕ on the left to cancel and a ✓ on the right to save. No "Save" or "Cancel" words are drawn.
+- Editing or adding: a red ✕ to cancel and a ✓ to save, side by side with the ✓ last. No "Save" or "Cancel" words are drawn.
 
 A full page that edits uses the sheet header above. An edit inside a page (e.g., renaming one entry of a list) uses `makeConfirmPair`, the same ✕ and ✓, so there is never a second style for the same action:
 

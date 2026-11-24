@@ -20,7 +20,7 @@ export interface ConfirmPairProps {
 }
 
 /**
- * 21.0.0: the one way to save or cancel, in every app and on every platform: a red ✕ on the left and a ✓ on the right,
+ * 21.0.0: the one way to save or cancel, in every app and on every platform: a red ✕ and a ✓ side by side, the ✓ last,
  * icons only. The sheet header uses it, and an app uses it for any edit inside a page (e.g., renaming a list entry), so
  * there is never a second style for the same action.
  *

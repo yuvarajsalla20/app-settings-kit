@@ -36,8 +36,8 @@ export interface PageHeaderProps {
   /** 13.1.0: a row of filters under the title: glass segments on iPhone, Material filter chips on Android. */
   filters?: HeaderFilters;
   /**
-   * 13.1.0: a sheet's header. Close takes the place of Back, the title sits in the middle on iPhone and on the left on Android,
-   * and `confirm` (when given) is the accent button at the right end.
+   * 13.1.0: a sheet's header. 21.0.0: the title on the left, and the red ✕ and the ✓ (`confirm`, when given) side by side at
+   * the right end, on every platform.
    */
   onClose?: () => void;
   /** What VoiceOver says for Close. Default "Close". */
@@ -61,7 +61,7 @@ type TextLike = ComponentType<TextProps>;
 export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike } = {}) {
   const BackButton = makeBackButton(theme);
   const HeaderButtons = makeHeaderButtons(theme);
-  const { CancelButton, ConfirmButton } = makeConfirmPair(theme);
+  const ConfirmPair = makeConfirmPair(theme);
   const Text: TextLike = components.Text ?? PlainText;
   const fill = headerFills(theme);
   const ios = isIos();
@@ -75,12 +75,12 @@ export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike
     title: { flexShrink: 1, color: theme.text, fontSize: 20, fontWeight: '700', letterSpacing: -0.2 },
     sheetTitles: { flex: 1, minWidth: 0 },
     // 13.3.0: on a sheet the line under the title is the choice so far, in the accent color.
-    sheetSubtitle: { marginTop: 2, color: theme.accent, fontSize: 13, fontWeight: '700', textAlign: ios ? 'center' : 'left' },
-    sheetTitle: { color: theme.text, fontSize: ios ? 17 : 22, fontWeight: ios ? '700' : '600', textAlign: ios ? 'center' : 'left' },
+    sheetSubtitle: { marginTop: 2, color: theme.accent, fontSize: 13, fontWeight: '700' },
+    // 21.0.0: the title on the left, the same size as every page's, so the ✕ and ✓ sit together at the right end.
+    sheetTitle: { color: theme.text, fontSize: 20, fontWeight: '700', letterSpacing: -0.2 },
     titleRight: { color: theme.muted, fontSize: 14, fontWeight: '500' },
     subtitle: { color: theme.muted, fontSize: 14, fontWeight: '500', marginTop: 2 },
     right: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 8 },
-    spacer: { width: 44 },
     pressed: { opacity: 0.75 },
     segments: { flexDirection: 'row', padding: 4, gap: 2, borderRadius: 22, backgroundColor: fill.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: fill.glassEdge },
     segment: { flex: 1, minHeight: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
@@ -132,7 +132,6 @@ export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike
       return (
         <View style={styles.wrap}>
           <View style={styles.row}>
-            <CancelButton onPress={onClose} label={closeLabel} />
             <View style={styles.sheetTitles}>
               <Text style={styles.sheetTitle} numberOfLines={1} accessibilityRole="header">
                 {title}
@@ -143,7 +142,7 @@ export function makePageHeader(theme: HeaderTheme, components: { Text?: TextLike
                 </Text>
               ) : null}
             </View>
-            {confirm ? <ConfirmButton onPress={confirm.onPress} label={confirm.label} disabled={confirm.disabled} /> : ios ? <View style={styles.spacer} /> : null}
+            <ConfirmPair onCancel={onClose} cancelLabel={closeLabel} {...(confirm ? { onConfirm: confirm.onPress, confirmLabel: confirm.label, confirmDisabled: confirm.disabled } : {})} />
           </View>
           {filters ? <Filters {...filters} /> : null}
         </View>

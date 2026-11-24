@@ -4,9 +4,9 @@ Release notes for app-settings-kit, newest first. Each version is tagged in git 
 
 ## 21.0.0 (2026-11-24)
 
-**One way to save or cancel, in every app and on every platform.** Editing or adding shows a red ✕ on the left to cancel and a ✓ on the right to save, icons only. Viewing shows a ✎ pencil to edit and a red bin to delete.
+**One way to save or cancel, in every app and on every platform.** Editing or adding shows a red ✕ to cancel and a ✓ to save, side by side with the ✓ last, icons only. Viewing shows a ✎ pencil to edit and a red bin to delete.
 
-- The sheet header (`makePageHeader` with `onClose` and `confirm`) draws a red ✕ and a ✓ in an accent circle on Android too. Android no longer draws the "Save" word, and the ✕ is now red on both platforms. `confirm.label` and `closeLabel` are what screen readers hear.
+- The sheet header (`makePageHeader` with `onClose` and `confirm`) puts the title on the left, the same size as every page title, and the red ✕ and the ✓ side by side at the right end, on iPhone and Android. Android no longer draws the "Save" word, and the ✕ is now red on both platforms. `confirm.label` and `closeLabel` are what screen readers hear.
 - New `makeConfirmPair(theme)` in `app-settings-kit/parts`: the same ✕ and ✓ for an edit inside a page, and `kind: 'delete'` for a red bin that confirms a delete. Also exports `CONFIRM_SIZE` and `ConfirmPairProps`.
 
 Upgrading: nothing to change in apps that use the sheet header. Replace any save or cancel buttons of the app's own with `makeConfirmPair`. The sheet looks different, so this is a major version.
