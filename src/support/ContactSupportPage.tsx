@@ -2,9 +2,9 @@ import Feather from '@expo/vector-icons/Feather';
 import { Button, PickerRow, SettingRow, SettingsGroup, useSettingsNav, type AccountTheme } from 'app-account-kit';
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { AccessibilityInfo, Linking, TextInput as RNTextInput, View } from 'react-native';
-import { SUPPORT_LIMITS, SUPPORT_TOPICS, SupportLimitError, buildSupportMail, cleanSupportMessage, screenshotMegabytes, supportDetailsLine, supportReference, type SupportDetails, type SupportScreenshot, type SupportTopic, type SupportTransport } from '../logic/support';
+import { SUPPORT_LIMITS, SUPPORT_TOPICS, SupportLimitError, buildSupportMail, cleanSupportMessage, screenshotMegabytes, supportDetailsLine, supportReference, type SupportDetails, type SupportScreenshot, type SupportTopic, type SupportTransport } from './support';
 import type { SupportStrings } from '../strings';
-import { SlideToSend } from '../parts/SlideToSend';
+import { SlideToSend } from './SlideToSend';
 
 type TextComponent = ComponentType<{ style?: unknown; numberOfLines?: number; accessibilityRole?: string; children?: unknown }>;
 

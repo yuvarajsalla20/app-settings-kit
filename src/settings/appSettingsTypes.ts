@@ -1,9 +1,9 @@
 import type { SettingsScreen, AboutProps, ActionsProps, Choice, ExitMenuProps, PlanMode } from 'app-account-kit';
 import type { ComponentProps, ReactNode } from 'react';
-import type { AppPackage, KitSource } from './logic/kits';
-import type { SupportTransport } from './logic/support';
-import type { VersionParts } from './logic/version';
-import type { DataExportConfig, ExtraPage, PlanConfig } from './types';
+import type { AppPackage, KitSource } from '../about/kits';
+import type { SupportTransport } from '../support/support';
+import type { VersionParts } from '../about/version';
+import type { DataExportConfig, ExtraPage, PlanConfig } from '../types';
 
 /** The props and fixed values of AppSettings, apart from the screen itself. */
 export type AccountScreenProps = ComponentProps<typeof SettingsScreen>;

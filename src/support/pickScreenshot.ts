@@ -1,6 +1,6 @@
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
-import { SUPPORT_LIMITS, type SupportScreenshot } from '../logic/support';
+import { SUPPORT_LIMITS, type SupportScreenshot } from './support';
 
 /** JPEG qualities tried in turn until the screenshot fits `SUPPORT_LIMITS.screenshotChars`. */
 const QUALITIES: readonly number[] = [0.7, 0.5, 0.35, 0.2];

@@ -2,9 +2,9 @@ import { Text } from 'react-native';
 import { create } from 'react-test-renderer';
 import { act } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { makePageHeader } from '../src/parts/PageHeader';
-import { makeConfirmPair } from '../src/parts/ConfirmPair';
-import { homeGreeting, homeInitial, makeHomeHeader } from '../src/parts/HomeHeader';
+import { makePageHeader } from '../src/headers/PageHeader';
+import { makeConfirmPair } from '../src/headers/ConfirmPair';
+import { homeGreeting, homeInitial, makeHomeHeader } from '../src/headers/HomeHeader';
 import { THEME } from './helpers/theme';
 
 describe('8.0.0 makePageHeader', () => {

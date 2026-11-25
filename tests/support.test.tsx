@@ -1,9 +1,9 @@
 import { Linking, Text, TextInput } from 'react-native';
 import { describe, expect, it, vi } from 'vitest';
-import { AppSettings } from '../src/AppSettings';
-import { SUPPORT_LIMITS, SupportLimitError, buildSupportMail, nextSupportWindow, screenshotMegabytes, supportDetailsLine, supportDevice, supportFormSwitch, supportReference, type SupportTransport } from '../src/logic/support';
-import { ContactSupportPage } from '../src/pages/ContactSupportPage';
-import { slideSends } from '../src/parts/SlideToSend';
+import { AppSettings } from '../src/settings/AppSettings';
+import { SUPPORT_LIMITS, SupportLimitError, buildSupportMail, nextSupportWindow, screenshotMegabytes, supportDetailsLine, supportDevice, supportFormSwitch, supportReference, type SupportTransport } from '../src/support/support';
+import { ContactSupportPage } from '../src/support/ContactSupportPage';
+import { slideSends } from '../src/support/SlideToSend';
 import { DEFAULT_SETTINGS_STRINGS as W } from '../src/strings';
 import { act, mount, press, settle } from './helpers/render';
 import { fullProps } from './helpers/props';

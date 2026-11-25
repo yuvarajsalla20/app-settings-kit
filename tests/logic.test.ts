@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import pkg from '../package.json';
 import { KIT_VERSION } from '../src/kit';
 import { missingAboutParts, titleCaseStrings, createOneAtATime, DEFAULT_ORDER, hubOrder, kitDisplayName, kitList, kitsFromPackage, pinnedBuild, versionLines } from '../src/logic';
-import { finishesSwipe, isEdgeSwipe } from '../src/logic/swipe';
+import { finishesSwipe, isEdgeSwipe } from '../src/headers/swipe';
 
 describe('kits list', () => {
   it('reads the short commit a kit is pinned to', () => {
@@ -99,7 +99,7 @@ describe('swipe back', () => {
   });
 });
 
-import { exportMenu } from '../src/pages/DataExportPage';
+import { exportMenu } from '../src/data-export/DataExportPage';
 
 describe('exportMenu (3.3.0)', () => {
   const csv = { id: 'csv', label: 'CSV File', detail: 'Every expense', icon: 'file-text' as const, tint: '#000000', onExport: async () => {} };
@@ -153,14 +153,14 @@ describe('Writing rule (9.0.0)', () => {
 
 describe('card headings', () => {
   it('4.0.1: the Profile page does not repeat its name; the first card is headed Account', async () => {
-    const { cardHeadings } = await import('../src/logic/about');
+    const { cardHeadings } = await import('../src/about/about');
     expect(cardHeadings('HringNring')).toMatchObject({ profileGroup: 'Account', dataGroup: 'Your Data', exitGroup: 'Sign In' });
   });
 });
 
 describe('About is complete (5.0.0)', () => {
   it('flags a missing or blurry logo, a non-https Features page and a bad App Store number', async () => {
-    const { aboutProblems, LOGO_MIN_PIXELS } = await import('../src/logic/about');
+    const { aboutProblems, LOGO_MIN_PIXELS } = await import('../src/about/about');
     const ok = { logo: 1, featuresUrl: 'https://x.y/f', appStoreId: '6830296391' };
     expect(aboutProblems(ok, 1024)).toEqual([]);
     expect(aboutProblems(ok, undefined)).toEqual([]);
@@ -170,11 +170,11 @@ describe('About is complete (5.0.0)', () => {
     expect(aboutProblems({ ...ok, appStoreId: '' }).join(' ')).toMatch(/App Store number/);
   });
   it('Share sends the App Store page for the number', async () => {
-    const { appStorePage } = await import('../src/AppSettings');
+    const { appStorePage } = await import('../src/settings/AppSettings');
     expect(appStorePage(' 6830296391 ')).toBe('https://apps.apple.com/app/id6830296391');
   });
   it('reads the pixel width of a { uri, width } logo', async () => {
-    const { logoPixels } = await import('../src/logic/about');
+    const { logoPixels } = await import('../src/about/about');
     expect(logoPixels({ uri: 'x', width: 1024 })).toBe(1024);
     expect(logoPixels(undefined)).toBeUndefined();
   });

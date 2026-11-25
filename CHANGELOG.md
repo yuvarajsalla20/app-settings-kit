@@ -2,6 +2,10 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 22.1.1 (2026-11-25)
+
+Nothing breaks and nothing on screen changes. The source is grouped by feature (`settings/`, `headers/`, `about/`, `support/`, `data-export/`, `plans/`, `shared/`) instead of by kind. Every entry (`app-settings-kit`, `/logic`, `/parts`, `/support-firestore`, `/plan-mode-firestore`, `/build-stamp`, `/support-function`, `/support.rules`) exports exactly what it did.
+
 ## 22.1.0 (2026-11-25)
 
 Nothing breaks. The Contact Support email escapes its text with app-core-kit's single copy of `escapeHtml` (`app-core-kit/shared`), so the kits no longer carry copies that drift apart. New peer dependency: app-core-kit 1.11.0 or later, which every app on the kits already installs.

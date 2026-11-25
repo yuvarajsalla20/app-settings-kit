@@ -1,6 +1,6 @@
 import { Text } from 'react-native';
 import { vi } from 'vitest';
-import type { AppSettingsProps } from '../../src/AppSettings';
+import type { AppSettingsProps } from '../../src/settings/AppSettings';
 import type { ExportFormat } from '../../src/types';
 import { THEME } from './theme';
 
