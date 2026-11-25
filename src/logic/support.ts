@@ -139,7 +139,7 @@ export interface SupportMail {
 /** The message text a person can send: trimmed and within the limit. Empty when there is nothing to send. */
 export const cleanSupportMessage = (text: string): string => text.trim().slice(0, SUPPORT_LIMITS.messageChars);
 
-const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 /** Builds the email for the support inbox. The subject names the app, the topic and the reference. */
 export const buildSupportMail = (input: { inbox: string; sender: SupportSender; draft: SupportDraft; details: SupportDetails; reference: string }): SupportMail => {
