@@ -2,6 +2,13 @@
 
 Release notes for app-settings-kit, newest first. Each version is tagged in git (`v2.3.0`). Major versions (4.0.0, 5.0.0, 6.0.0) lock more of the approved Settings; each has an upgrade guide.
 
+## 22.0.1 (2026-11-25)
+
+Nothing changes on screen and nothing breaks.
+
+- **Smaller parts.** `AppSettings.tsx` (402 lines) is split by job: its props and fixed values (`appSettingsTypes.ts`), and one hook each for About, the plan mode, the Data Export menu, the Subscription page and Contact Support (`appSettingsParts.tsx`). The development warnings share one helper. Exports are unchanged.
+- **Contact Support mail.** An apostrophe in a message is now escaped in the HTML mail too, like the other special characters.
+
 ## 22.0.0 (2026-11-24)
 
 **In free mode, the Subscription row opens the Free plan page.** While the plan mode is `'free'` (the default), the row reads **Subscription** with an arrow, as in subscription mode, instead of Plan · Free with no page. The page shows the Your Plan card (Free Plan, Your Current Plan) and one list, **Included With Your Plan**, with each entry of `plan.freeFeatures` and a check mark, so a person can see everything the free plan includes. Nothing on the page names Premium, a price or a purchase.
