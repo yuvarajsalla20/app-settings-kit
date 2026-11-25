@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, PanResponder, StyleSheet, useWindowDimensions } from 'react-native';
-import { finishesSwipe, isEdgeSwipe, SWIPE_BACK } from '../logic/swipe';
+import { finishesSwipe, isEdgeSwipe, SWIPE_BACK } from './swipe';
 
 /**
  * Wraps a screen so a swipe from the left edge goes back: the page follows the finger, then slides away or springs back.

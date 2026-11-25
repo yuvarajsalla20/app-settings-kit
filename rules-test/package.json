@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Checks support.rules in the Firebase emulator. Needs Java.",
   "scripts": {
-    "build": "esbuild ../src/support-firestore.ts --bundle --format=esm --platform=node --external:firebase/* --outfile=sender.mjs",
+    "build": "esbuild ../src/support/supportFirestore.ts --bundle --format=esm --platform=node --external:firebase/* --outfile=sender.mjs",
     "rules": "node make-rules.mjs",
     "test": "npm run build && npm run rules && firebase emulators:exec --only firestore --project demo-support \"node support.rules.test.mjs\""
   },

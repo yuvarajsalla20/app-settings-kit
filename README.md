@@ -2,7 +2,7 @@
 
 The standard **Settings screen** for React Native and Expo apps, in one config. Every app gets the same four parents (**About**, **Account**, **Preferences** and a **plan page**), a **Data Export** page with a lock per format, an About page that fills its own Kits and Version rows, and the round Back button with swipe-back. Built on [app-account-kit](https://github.com/yuvarajsalla20/app-account-kit), which draws the screen.
 
-**Current version: 22.1.0** (tag `v22.1.0`). Needs app-account-kit **10.0.0** or later.
+**Current version: 22.1.1** (tag `v22.1.1`). Needs app-account-kit **10.0.0** or later.
 
 **Everything is required (5.0.0).** Every row of the approved Settings shows in every app: About with the logo under its title, Features, Rate, Share, Contact Support, Privacy Policy, Version and Kits; Profile with photo, Data Export, Log Out and Erase Account; Preferences; and the plan page. Only an app's own Preferences rows (Theme, Security) are its choice.
 
@@ -31,11 +31,11 @@ Tools that work alongside them: [code-review-kit](https://github.com/yuvarajsall
 // package.json
 "dependencies": {
   "app-account-kit": "git+https://github.com/yuvarajsalla20/app-account-kit.git#<full SHA of v8.1.0>",
-  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v22.1.0>"
+  "app-settings-kit": "git+https://github.com/yuvarajsalla20/app-settings-kit.git#<full SHA of v22.1.1>"
 },
 "kitVersions": {
   "app-account-kit": "v8.1.0",
-  "app-settings-kit": "v22.1.0"
+  "app-settings-kit": "v22.1.1"
 }
 ```
 
@@ -367,15 +367,20 @@ module.exports = ({ config }) => ({ ...config, extra: { ...config.extra, buildSt
 
 ## Folder layout
 
+The code is grouped by feature. Each folder is one page or one job, with everything only it uses; a file that two or more features use lives in `shared/`.
+
 ```
 build-stamp.js        build time stamp, plain Node for app.config.js (+ build-stamp.d.ts)
 src/
-  AppSettings.tsx     the screen: passes everything to app-account-kit, adds this kit's pages
-  assemble.ts         which pages, in which order (pure)
-  pages/DataExportPage.tsx
-  parts/              BackButton, EdgeSwipeBack
+  index.ts logic.ts   the public entries (`app-settings-kit` and `app-settings-kit/logic`)
   strings.ts types.ts kit.ts
-  logic/              pure functions (app-settings-kit/logic): about, kits, version, order, oneAtATime, swipe
+  settings/           AppSettings (passes everything to app-account-kit and adds this kit's pages), the page order and assemblePages
+  headers/            Back button, page, Home and sheet headers, swipe-from-the-edge (`app-settings-kit/parts`)
+  about/              About checks, the kit list and the Version line
+  support/            Contact Support page, its form, screenshot, Slide to Send and the Firestore sender (`app-settings-kit/support-firestore`)
+  data-export/        DataExportPage
+  plans/              Coming Soon, Free Plan and the plan comparison, and the plan mode reader (`app-settings-kit/plan-mode-firestore`)
+  shared/             development warnings and one-at-a-time actions
 tests/                logic, build stamp, no colors, and the real screens rendered with a small React Native stand-in
 ```
 

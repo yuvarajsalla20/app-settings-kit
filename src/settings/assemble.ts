@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import { DEFAULT_IDS, DEFAULT_ORDER, hubOrder } from './logic/order';
-import type { SettingsStrings } from './strings';
-import type { AccountExtraPage, DataExportPlace, ExtraPage, PageRow } from './types';
+import { DEFAULT_IDS, DEFAULT_ORDER, hubOrder } from './order';
+import type { SettingsStrings } from '../strings';
+import type { AccountExtraPage, DataExportPlace, ExtraPage, PageRow } from '../types';
 
 interface Section {
   row?: PageRow;

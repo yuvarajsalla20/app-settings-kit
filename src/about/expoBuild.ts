@@ -1,7 +1,7 @@
 import * as Application from 'expo-application';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
-import type { VersionParts } from './logic/version';
+import type { VersionParts } from './version';
 
 /** Expo Go's own app id: there the phone reports Expo Go's build number, not the app's. */
 const EXPO_GO_IDS = ['host.exp.Exponent', 'host.exp.exponent'];

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error The sender is plain JavaScript for Cloud Functions; its pure part is tested here.
 import { alreadyHandled, isPlainEmail, needsDefaultApp, supportMailOptions } from '../support-function/mail.mjs';
-import { buildSupportMail } from '../src/logic/support';
+import { buildSupportMail } from '../src/support/support';
 
 const INBOX = 'help@example.com';
 const mail = (over: Record<string, unknown> = {}) => ({

@@ -1,5 +1,5 @@
 import { Timestamp, collection, doc, getDoc, serverTimestamp, writeBatch, type Firestore } from 'firebase/firestore';
-import { SUPPORT_COLLECTIONS, SupportLimitError, nextSupportWindow, supportFormSwitch, type SupportMail, type SupportTransport } from './logic/support';
+import { SUPPORT_COLLECTIONS, SupportLimitError, nextSupportWindow, supportFormSwitch, type SupportMail, type SupportTransport } from './support';
 
 /** The person signed in to the app, as Firebase Auth reports them. */
 interface SignedIn {

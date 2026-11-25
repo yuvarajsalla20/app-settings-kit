@@ -1,16 +1,16 @@
 {
   "name": "app-settings-kit",
-  "version": "22.1.0",
+  "version": "22.1.1",
   "description": "The standard Settings screen for React Native / Expo apps, built on app-account-kit: About, Account, Preferences and a plan page in one config, with Data Export inside Account (or Preferences). Adds the kits list, the version and build line, the build-time stamp and a Data Export page with a lock per format. Contact Support is an in-app form (15.0.0). No colors and no payment or export code of its own.",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./logic": "./src/logic/index.ts",
-    "./parts": "./src/parts/index.ts",
+    "./logic": "./src/logic.ts",
+    "./parts": "./src/headers/index.ts",
     "./build-stamp": "./build-stamp.js",
-    "./support-firestore": "./src/support-firestore.ts",
-    "./plan-mode-firestore": "./src/plan-mode-firestore.ts",
+    "./support-firestore": "./src/support/supportFirestore.ts",
+    "./plan-mode-firestore": "./src/plans/planModeFirestore.ts",
     "./support.rules": "./support.rules",
     "./support-function": "./support-function/index.mjs",
     "./package.json": "./package.json"

@@ -1,7 +1,7 @@
 import { Text } from 'react-native';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setPlanMode } from 'app-account-kit';
-import { AppSettings } from '../src/AppSettings';
+import { AppSettings } from '../src/settings/AppSettings';
 import { mount, press, settle } from './helpers/render';
 import { fullProps as props } from './helpers/props';
 

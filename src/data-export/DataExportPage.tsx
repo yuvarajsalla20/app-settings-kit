@@ -1,6 +1,6 @@
 import { SettingRow, SettingsGroup } from 'app-account-kit';
 import { useRef, useState } from 'react';
-import { createOneAtATime } from '../logic/oneAtATime';
+import { createOneAtATime } from '../shared/oneAtATime';
 import { DEFAULT_SETTINGS_STRINGS } from '../strings';
 import type { DataExportConfig, DataExportPageProps, ExportRowProps } from '../types';
 import type { ExtraPage } from 'app-account-kit';

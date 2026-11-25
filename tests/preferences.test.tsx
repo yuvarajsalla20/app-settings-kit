@@ -1,6 +1,6 @@
 import { Text } from 'react-native';
 import { describe, expect, it } from 'vitest';
-import { assemblePages } from '../src/assemble';
+import { assemblePages } from '../src/settings/assemble';
 import { DEFAULT_SETTINGS_STRINGS as W } from '../src/strings';
 
 // How app pages are placed. 6.0.0: AppSettings always keeps Data Export on Profile; the app's own pages can still sit on Preferences.

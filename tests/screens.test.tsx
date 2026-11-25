@@ -1,8 +1,8 @@
 import { Pressable, Text } from 'react-native';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { setPlanMode } from 'app-account-kit';
-import { AppSettings } from '../src/AppSettings';
-import { DataExportPage, exportMenu } from '../src/pages/DataExportPage';
+import { AppSettings } from '../src/settings/AppSettings';
+import { DataExportPage, exportMenu } from '../src/data-export/DataExportPage';
 import { DEFAULT_SETTINGS_STRINGS as W } from '../src/strings';
 import type { ExportFormat } from '../src/types';
 import { mount, press, settle } from './helpers/render';
@@ -370,7 +370,7 @@ describe('AppSettings', () => {
 describe('8.0.0 Share on Android', () => {
   it('sends the Google Play page on Android when the app has one, the App Store page otherwise', async () => {
     const { Platform } = await import('react-native');
-    const { playStorePage, appStorePage } = await import('../src/AppSettings');
+    const { playStorePage, appStorePage } = await import('../src/settings/AppSettings');
     expect(playStorePage('com.example.app')).toBe('https://play.google.com/store/apps/details?id=com.example.app');
     expect(appStorePage(' 6830296391 ')).toBe('https://apps.apple.com/app/id6830296391');
     expect(Platform.OS).toBe('ios');
@@ -380,7 +380,7 @@ describe('8.0.0 Share on Android', () => {
 describe('9.1.0 Google Play id from app.json', () => {
   it('reads expo.android.package, so no app passes it', async () => {
     const Constants = (await import('expo-constants')).default as { expoConfig: Record<string, unknown> };
-    const { expoPlayPackage } = await import('../src/expoBuild');
+    const { expoPlayPackage } = await import('../src/about/expoBuild');
     const before = Constants.expoConfig.android;
     Constants.expoConfig.android = { package: ' com.example.reminders ' };
     try {
@@ -390,7 +390,7 @@ describe('9.1.0 Google Play id from app.json', () => {
     }
   });
   it('has none on iPhone when app.json names no Android package', async () => {
-    const { expoPlayPackage } = await import('../src/expoBuild');
+    const { expoPlayPackage } = await import('../src/about/expoBuild');
     expect(expoPlayPackage()).toBeUndefined();
   });
 });
